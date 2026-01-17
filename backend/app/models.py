@@ -79,6 +79,23 @@ class SampleStatus(str, Enum):
     archived = "archived"
 
 
+class AnnotationStatus(str, Enum):
+    """Annotation status enum."""
+
+    none = "none"
+    linked = "linked"
+    conflict = "conflict"
+    error = "error"
+
+
+class AnnotationFormat(str, Enum):
+    """Annotation format enum."""
+
+    voc = "voc"
+    yolo = "yolo"
+    coco = "coco"
+
+
 class SampleSource(str, Enum):
     """Sample source enum."""
 
@@ -322,6 +339,63 @@ class TagsPublic(SQLModel):
 
 
 # ============================================================================
+# Annotation Models
+# ============================================================================
+
+
+class AnnotationBase(SQLModel):
+    """Base annotation properties."""
+
+    format: AnnotationFormat = Field(default=AnnotationFormat.voc)
+    image_width: int | None = None
+    image_height: int | None = None
+    object_count: int = Field(default=0, index=True)
+    class_counts: dict | None = Field(default=None, sa_column=Column(JSONB))
+    objects: list | None = Field(default=None, sa_column=Column(JSONB))
+
+
+class AnnotationCreate(AnnotationBase):
+    """Properties to receive on annotation creation."""
+
+    sample_id: uuid.UUID
+
+
+class AnnotationUpdate(SQLModel):
+    """Properties to receive on annotation update."""
+
+    format: AnnotationFormat | None = None
+    image_width: int | None = None
+    image_height: int | None = None
+    object_count: int | None = None
+    class_counts: dict | None = None
+    objects: list | None = None
+
+
+class Annotation(AnnotationBase, table=True):
+    """Annotation database model."""
+
+    __tablename__ = "annotation"
+
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    sample_id: uuid.UUID = Field(
+        foreign_key="sample.id", nullable=False, unique=True, ondelete="CASCADE"
+    )
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+    sample: Optional["Sample"] = Relationship(back_populates="annotation")
+
+
+class AnnotationPublic(AnnotationBase):
+    """Properties to return via API."""
+
+    id: uuid.UUID
+    sample_id: uuid.UUID
+    created_at: datetime
+    updated_at: datetime
+
+
+# ============================================================================
 # Sample Models
 # ============================================================================
 
@@ -336,6 +410,12 @@ class SampleBase(SQLModel):
     content_type: str | None = Field(default=None, max_length=255)
     etag: str | None = Field(default=None, max_length=255)
     extra_data: dict | None = Field(default=None, sa_column=Column(JSONB))
+    # MVP annotation fields
+    file_hash: str | None = Field(default=None, max_length=255, index=True)  # MD5 hash
+    file_stem: str | None = Field(default=None, max_length=255, index=True)  # filename without extension
+    annotation_key: str | None = Field(default=None, max_length=1024)  # annotation file path
+    annotation_hash: str | None = Field(default=None, max_length=255)  # annotation file MD5
+    annotation_status: AnnotationStatus = Field(default=AnnotationStatus.none)
 
 
 class SampleCreate(SampleBase):
@@ -364,6 +444,9 @@ class Sample(SampleBase, table=True):
     owner_id: uuid.UUID = Field(
         foreign_key="user.id", nullable=False, ondelete="CASCADE"
     )
+    annotation_id: uuid.UUID | None = Field(
+        default=None, foreign_key="annotation.id", ondelete="SET NULL"
+    )
     status: SampleStatus = Field(default=SampleStatus.active, index=True)
     source: SampleSource = Field(default=SampleSource.manual)
     created_at: datetime = Field(default_factory=datetime.utcnow, index=True)
@@ -372,6 +455,7 @@ class Sample(SampleBase, table=True):
 
     owner: Optional["User"] = Relationship(back_populates="samples")
     minio_instance: Optional["MinIOInstance"] = Relationship(back_populates="samples")
+    annotation: Optional["Annotation"] = Relationship(back_populates="sample")
     sample_tags: list["SampleTag"] = Relationship(
         back_populates="sample", cascade_delete=True
     )

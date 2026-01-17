@@ -111,10 +111,15 @@ alembic upgrade head
 ## Important Notes
 
 - **CRITICAL: Always use `docker compose watch` for development and debugging**
-  - DO NOT separately run `pnpm dev` or `uv run xxx` for local development
+  - DO NOT separately run `pnpm dev` or backend services outside Docker for local development
   - The entire stack (frontend, backend, database, redis) should run together via `docker compose watch`
   - This ensures consistent environment, proper service dependencies, and automatic hot reload
   - Only run services separately when explicitly debugging service-specific issues
+- **CRITICAL: Always use `uv` for Python commands outside Docker**
+  - Use `uv run <command>` for all Python-related commands when running locally (not in Docker)
+  - Examples: `uv run pytest`, `uv run ruff`, `uv run mypy`, `uv run prek`
+  - This ensures you're using the project's configured Python environment with correct dependencies
+  - DO NOT use bare `python`, `pytest`, or `pip` commands directly
 - Always use `127.0.0.1` instead of `localhost` in terminal commands
 - Node 24 is required (use `fnm use` or `nvm use` with `.nvmrc`)
 - Run `alembic upgrade head` after pulling changes with migrations
