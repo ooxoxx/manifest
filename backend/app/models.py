@@ -1,6 +1,11 @@
 import uuid
+from datetime import datetime
+from enum import Enum
+from typing import Optional
 
 from pydantic import EmailStr
+from sqlalchemy import Column
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlmodel import Field, Relationship, SQLModel
 
 
@@ -43,7 +48,12 @@ class UpdatePassword(SQLModel):
 class User(UserBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     hashed_password: str
-    items: list["Item"] = Relationship(back_populates="owner", cascade_delete=True)
+    samples: list["Sample"] = Relationship(back_populates="owner", cascade_delete=True)
+    minio_instances: list["MinIOInstance"] = Relationship(
+        back_populates="owner", cascade_delete=True
+    )
+    datasets: list["Dataset"] = Relationship(back_populates="owner", cascade_delete=True)
+    tags: list["Tag"] = Relationship(back_populates="owner", cascade_delete=True)
 
 
 # Properties to return via API, id is always required
@@ -56,39 +66,98 @@ class UsersPublic(SQLModel):
     count: int
 
 
-# Shared properties
-class ItemBase(SQLModel):
-    title: str = Field(min_length=1, max_length=255)
-    description: str | None = Field(default=None, max_length=255)
+# ============================================================================
+# Enums
+# ============================================================================
 
 
-# Properties to receive on item creation
-class ItemCreate(ItemBase):
-    pass
+class SampleStatus(str, Enum):
+    """Sample status enum."""
+
+    active = "active"
+    deleted = "deleted"
+    archived = "archived"
 
 
-# Properties to receive on item update
-class ItemUpdate(ItemBase):
-    title: str | None = Field(default=None, min_length=1, max_length=255)  # type: ignore
+class SampleSource(str, Enum):
+    """Sample source enum."""
+
+    webhook = "webhook"
+    sync = "sync"
+    import_csv = "import"
+    manual = "manual"
 
 
-# Database model, database table inferred from class name
-class Item(ItemBase, table=True):
+# ============================================================================
+# MinIO Instance Models
+# ============================================================================
+
+
+class MinIOInstanceBase(SQLModel):
+    """Base MinIO instance properties."""
+
+    name: str = Field(min_length=1, max_length=255, index=True)
+    endpoint: str = Field(max_length=512)
+    secure: bool = True
+    description: str | None = Field(default=None, max_length=1024)
+    is_active: bool = True
+
+
+class MinIOInstanceCreate(MinIOInstanceBase):
+    """Properties to receive on MinIO instance creation."""
+
+    access_key: str = Field(max_length=255)
+    secret_key: str = Field(max_length=255)
+
+
+class MinIOInstanceUpdate(SQLModel):
+    """Properties to receive on MinIO instance update."""
+
+    name: str | None = Field(default=None, min_length=1, max_length=255)
+    endpoint: str | None = Field(default=None, max_length=512)
+    secure: bool | None = None
+    description: str | None = Field(default=None, max_length=1024)
+    is_active: bool | None = None
+    access_key: str | None = Field(default=None, max_length=255)
+    secret_key: str | None = Field(default=None, max_length=255)
+
+
+class MinIOInstance(MinIOInstanceBase, table=True):
+    """MinIO instance database model."""
+
+    __tablename__ = "minio_instance"
+
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    access_key_encrypted: str = Field(max_length=512)
+    secret_key_encrypted: str = Field(max_length=512)
     owner_id: uuid.UUID = Field(
         foreign_key="user.id", nullable=False, ondelete="CASCADE"
     )
-    owner: User | None = Relationship(back_populates="items")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+    owner: Optional["User"] = Relationship(back_populates="minio_instances")
+    watched_paths: list["WatchedPath"] = Relationship(
+        back_populates="minio_instance", cascade_delete=True
+    )
+    samples: list["Sample"] = Relationship(
+        back_populates="minio_instance", cascade_delete=True
+    )
 
 
-# Properties to return via API, id is always required
-class ItemPublic(ItemBase):
+class MinIOInstancePublic(MinIOInstanceBase):
+    """Properties to return via API."""
+
     id: uuid.UUID
     owner_id: uuid.UUID
+    created_at: datetime
+    updated_at: datetime
 
 
-class ItemsPublic(SQLModel):
-    data: list[ItemPublic]
+class MinIOInstancesPublic(SQLModel):
+    """Paginated MinIO instances response."""
+
+    data: list[MinIOInstancePublic]
     count: int
 
 
@@ -111,3 +180,439 @@ class TokenPayload(SQLModel):
 class NewPassword(SQLModel):
     token: str
     new_password: str = Field(min_length=8, max_length=128)
+
+
+# ============================================================================
+# Watched Path Models
+# ============================================================================
+
+
+class WatchedPathBase(SQLModel):
+    """Base watched path properties."""
+
+    bucket: str = Field(max_length=255)
+    prefix: str = Field(default="", max_length=1024)
+    description: str | None = Field(default=None, max_length=1024)
+    is_active: bool = True
+
+
+class WatchedPathCreate(WatchedPathBase):
+    """Properties to receive on watched path creation."""
+
+    minio_instance_id: uuid.UUID
+
+
+class WatchedPathUpdate(SQLModel):
+    """Properties to receive on watched path update."""
+
+    bucket: str | None = Field(default=None, max_length=255)
+    prefix: str | None = Field(default=None, max_length=1024)
+    description: str | None = Field(default=None, max_length=1024)
+    is_active: bool | None = None
+
+
+class WatchedPath(WatchedPathBase, table=True):
+    """Watched path database model."""
+
+    __tablename__ = "watched_path"
+
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    minio_instance_id: uuid.UUID = Field(
+        foreign_key="minio_instance.id", nullable=False, ondelete="CASCADE"
+    )
+    last_sync_at: datetime | None = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+    minio_instance: Optional["MinIOInstance"] = Relationship(back_populates="watched_paths")
+
+
+class WatchedPathPublic(WatchedPathBase):
+    """Properties to return via API."""
+
+    id: uuid.UUID
+    minio_instance_id: uuid.UUID
+    last_sync_at: datetime | None
+    created_at: datetime
+    updated_at: datetime
+
+
+class WatchedPathsPublic(SQLModel):
+    """Paginated watched paths response."""
+
+    data: list[WatchedPathPublic]
+    count: int
+
+
+# ============================================================================
+# Tag Models
+# ============================================================================
+
+
+class TagBase(SQLModel):
+    """Base tag properties."""
+
+    name: str = Field(min_length=1, max_length=255, index=True)
+    color: str | None = Field(default=None, max_length=7)
+    description: str | None = Field(default=None, max_length=1024)
+
+
+class TagCreate(TagBase):
+    """Properties to receive on tag creation."""
+
+    parent_id: uuid.UUID | None = None
+
+
+class TagUpdate(SQLModel):
+    """Properties to receive on tag update."""
+
+    name: str | None = Field(default=None, min_length=1, max_length=255)
+    color: str | None = Field(default=None, max_length=7)
+    description: str | None = Field(default=None, max_length=1024)
+    parent_id: uuid.UUID | None = None
+
+
+class Tag(TagBase, table=True):
+    """Tag database model with hierarchical support."""
+
+    __tablename__ = "tag"
+
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    parent_id: uuid.UUID | None = Field(
+        default=None, foreign_key="tag.id", ondelete="CASCADE"
+    )
+    owner_id: uuid.UUID = Field(
+        foreign_key="user.id", nullable=False, ondelete="CASCADE"
+    )
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+    owner: Optional["User"] = Relationship(back_populates="tags")
+    parent: Optional["Tag"] = Relationship(
+        back_populates="children",
+        sa_relationship_kwargs={"remote_side": "Tag.id"},
+    )
+    children: list["Tag"] = Relationship(back_populates="parent")
+    sample_tags: list["SampleTag"] = Relationship(
+        back_populates="tag", cascade_delete=True
+    )
+
+
+class TagPublic(TagBase):
+    """Properties to return via API."""
+
+    id: uuid.UUID
+    parent_id: uuid.UUID | None
+    owner_id: uuid.UUID
+    created_at: datetime
+    updated_at: datetime
+
+
+class TagWithChildren(TagPublic):
+    """Tag with children for tree structure."""
+
+    children: list["TagWithChildren"] = []
+
+
+class TagsPublic(SQLModel):
+    """Paginated tags response."""
+
+    data: list[TagPublic]
+    count: int
+
+
+# ============================================================================
+# Sample Models
+# ============================================================================
+
+
+class SampleBase(SQLModel):
+    """Base sample properties."""
+
+    object_key: str = Field(max_length=1024, index=True)
+    bucket: str = Field(max_length=255, index=True)
+    file_name: str = Field(max_length=255)
+    file_size: int = Field(default=0)
+    content_type: str | None = Field(default=None, max_length=255)
+    etag: str | None = Field(default=None, max_length=255)
+    extra_data: dict | None = Field(default=None, sa_column=Column(JSONB))
+
+
+class SampleCreate(SampleBase):
+    """Properties to receive on sample creation."""
+
+    minio_instance_id: uuid.UUID
+    source: SampleSource = SampleSource.manual
+
+
+class SampleUpdate(SQLModel):
+    """Properties to receive on sample update."""
+
+    extra_data: dict | None = None
+    status: SampleStatus | None = None
+
+
+class Sample(SampleBase, table=True):
+    """Sample database model."""
+
+    __tablename__ = "sample"
+
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    minio_instance_id: uuid.UUID = Field(
+        foreign_key="minio_instance.id", nullable=False, ondelete="CASCADE"
+    )
+    owner_id: uuid.UUID = Field(
+        foreign_key="user.id", nullable=False, ondelete="CASCADE"
+    )
+    status: SampleStatus = Field(default=SampleStatus.active, index=True)
+    source: SampleSource = Field(default=SampleSource.manual)
+    created_at: datetime = Field(default_factory=datetime.utcnow, index=True)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    deleted_at: datetime | None = None
+
+    owner: Optional["User"] = Relationship(back_populates="samples")
+    minio_instance: Optional["MinIOInstance"] = Relationship(back_populates="samples")
+    sample_tags: list["SampleTag"] = Relationship(
+        back_populates="sample", cascade_delete=True
+    )
+    dataset_samples: list["DatasetSample"] = Relationship(
+        back_populates="sample", cascade_delete=True
+    )
+    history: list["SampleHistory"] = Relationship(
+        back_populates="sample", cascade_delete=True
+    )
+
+
+class SamplePublic(SampleBase):
+    """Properties to return via API."""
+
+    id: uuid.UUID
+    minio_instance_id: uuid.UUID
+    owner_id: uuid.UUID
+    status: SampleStatus
+    source: SampleSource
+    created_at: datetime
+    updated_at: datetime
+
+
+class SampleWithTags(SamplePublic):
+    """Sample with tags for detailed view."""
+
+    tags: list[TagPublic] = []
+
+
+class SamplesPublic(SQLModel):
+    """Paginated samples response."""
+
+    data: list[SamplePublic]
+    count: int
+
+
+# ============================================================================
+# Sample-Tag Association
+# ============================================================================
+
+
+class SampleTag(SQLModel, table=True):
+    """Sample-Tag association table."""
+
+    __tablename__ = "sample_tag"
+
+    sample_id: uuid.UUID = Field(
+        foreign_key="sample.id", primary_key=True, ondelete="CASCADE"
+    )
+    tag_id: uuid.UUID = Field(
+        foreign_key="tag.id", primary_key=True, ondelete="CASCADE"
+    )
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+    sample: Optional["Sample"] = Relationship(back_populates="sample_tags")
+    tag: Optional["Tag"] = Relationship(back_populates="sample_tags")
+
+
+# ============================================================================
+# Dataset Models
+# ============================================================================
+
+
+class DatasetBase(SQLModel):
+    """Base dataset properties."""
+
+    name: str = Field(min_length=1, max_length=255, index=True)
+    description: str | None = Field(default=None, max_length=2048)
+    is_public: bool = False
+
+
+class DatasetCreate(DatasetBase):
+    """Properties to receive on dataset creation."""
+
+    pass
+
+
+class DatasetUpdate(SQLModel):
+    """Properties to receive on dataset update."""
+
+    name: str | None = Field(default=None, min_length=1, max_length=255)
+    description: str | None = Field(default=None, max_length=2048)
+    is_public: bool | None = None
+
+
+class Dataset(DatasetBase, table=True):
+    """Dataset database model."""
+
+    __tablename__ = "dataset"
+
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    owner_id: uuid.UUID = Field(
+        foreign_key="user.id", nullable=False, ondelete="CASCADE"
+    )
+    sample_count: int = Field(default=0)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+    owner: Optional["User"] = Relationship(back_populates="datasets")
+    dataset_samples: list["DatasetSample"] = Relationship(
+        back_populates="dataset", cascade_delete=True
+    )
+
+
+class DatasetPublic(DatasetBase):
+    """Properties to return via API."""
+
+    id: uuid.UUID
+    owner_id: uuid.UUID
+    sample_count: int
+    created_at: datetime
+    updated_at: datetime
+
+
+class DatasetsPublic(SQLModel):
+    """Paginated datasets response."""
+
+    data: list[DatasetPublic]
+    count: int
+
+
+# ============================================================================
+# Dataset-Sample Association
+# ============================================================================
+
+
+class DatasetSample(SQLModel, table=True):
+    """Dataset-Sample association table."""
+
+    __tablename__ = "dataset_sample"
+
+    dataset_id: uuid.UUID = Field(
+        foreign_key="dataset.id", primary_key=True, ondelete="CASCADE"
+    )
+    sample_id: uuid.UUID = Field(
+        foreign_key="sample.id", primary_key=True, ondelete="CASCADE"
+    )
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+    dataset: Optional["Dataset"] = Relationship(back_populates="dataset_samples")
+    sample: Optional["Sample"] = Relationship(back_populates="dataset_samples")
+
+
+# ============================================================================
+# Sample History
+# ============================================================================
+
+
+class SampleHistoryAction(str, Enum):
+    """Sample history action enum."""
+
+    created = "created"
+    updated = "updated"
+    deleted = "deleted"
+    tagged = "tagged"
+    untagged = "untagged"
+    added_to_dataset = "added_to_dataset"
+    removed_from_dataset = "removed_from_dataset"
+
+
+class SampleHistory(SQLModel, table=True):
+    """Sample operation history."""
+
+    __tablename__ = "sample_history"
+
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    sample_id: uuid.UUID = Field(
+        foreign_key="sample.id", nullable=False, ondelete="CASCADE"
+    )
+    action: SampleHistoryAction
+    details: dict | None = Field(default=None, sa_column=Column(JSONB))
+    created_at: datetime = Field(default_factory=datetime.utcnow, index=True)
+
+    sample: Optional["Sample"] = Relationship(back_populates="history")
+
+
+class SampleHistoryPublic(SQLModel):
+    """Properties to return via API."""
+
+    id: uuid.UUID
+    sample_id: uuid.UUID
+    action: SampleHistoryAction
+    details: dict | None
+    created_at: datetime
+
+
+# ============================================================================
+# Request/Response Models for Batch Operations
+# ============================================================================
+
+
+class BatchTagRequest(SQLModel):
+    """Request for batch tagging samples."""
+
+    sample_ids: list[uuid.UUID]
+    tag_ids: list[uuid.UUID]
+
+
+class DatasetBuildRequest(SQLModel):
+    """Request for building dataset from conditions."""
+
+    tag_ids: list[uuid.UUID] | None = None
+    minio_instance_id: uuid.UUID | None = None
+    bucket: str | None = None
+    prefix: str | None = None
+    created_after: datetime | None = None
+    created_before: datetime | None = None
+
+
+class DatasetSamplesRequest(SQLModel):
+    """Request for adding/removing samples from dataset."""
+
+    sample_ids: list[uuid.UUID]
+
+
+# ============================================================================
+# Dashboard Models
+# ============================================================================
+
+
+class DashboardOverview(SQLModel):
+    """Dashboard overview statistics."""
+
+    total_samples: int
+    total_datasets: int
+    total_tags: int
+    total_minio_instances: int
+    samples_today: int
+    samples_this_week: int
+
+
+class DailyStats(SQLModel):
+    """Daily statistics."""
+
+    date: str
+    count: int
+
+
+class TagDistribution(SQLModel):
+    """Tag distribution statistics."""
+
+    tag_id: uuid.UUID
+    tag_name: str
+    count: int
