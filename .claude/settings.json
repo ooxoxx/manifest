@@ -47,7 +47,20 @@
       "Bash(which *)",
       "Bash(echo *)",
       "Bash(env)",
-      "Bash(printenv*)"
+      "Bash(printenv*)",
+      "Skill(superpowers:using-git-worktrees*)",
+      "Skill(superpowers:test-driven-development*)",
+      "Skill(superpowers:systematic-debugging*)",
+      "Skill(superpowers:using-superpowers*)",
+      "Skill(superpowers:dispatching-parallel-agents*)",
+      "Skill(superpowers:executing-plans*)",
+      "Skill(superpowers:finishing-a-development-branch*)",
+      "Skill(superpowers:brainstorming*)",
+      "Skill(superpowers:writing-plans*)",
+      "Skill(superpowers:requesting-code-review*)",
+      "Skill(superpowers:receiving-code-review*)",
+      "Skill(superpowers:writing-skills*)",
+      "Skill(superpowers:verification-before-completion*)"
     ],
     "deny": [
       "Bash(curl *)",
