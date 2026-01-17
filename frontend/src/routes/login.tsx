@@ -44,7 +44,7 @@ export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
       {
-        title: "Log In - FastAPI Cloud",
+        title: "Log In - Manifest",
       },
     ],
   }),
@@ -75,22 +75,35 @@ function Login() {
           onSubmit={form.handleSubmit(onSubmit)}
           className="flex flex-col gap-6"
         >
-          <div className="flex flex-col items-center gap-2 text-center">
-            <h1 className="text-2xl font-bold">Login to your account</h1>
+          <div className="flex flex-col items-center gap-3 text-center mb-2">
+            <div className="flex items-center gap-2 text-xs font-mono tracking-wider text-muted-foreground uppercase">
+              <div className="h-px w-6 bg-gradient-to-r from-transparent to-primary" />
+              <span>Access Terminal</span>
+              <div className="h-px w-6 bg-gradient-to-l from-transparent to-primary" />
+            </div>
+            <h1 className="text-2xl font-bold tracking-tight">
+              Login to your account
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Enter credentials to access the system
+            </p>
           </div>
 
-          <div className="grid gap-4">
+          <div className="grid gap-5">
             <FormField
               control={form.control}
               name="username"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">
+                    Email
+                  </FormLabel>
                   <FormControl>
                     <Input
                       data-testid="email-input"
                       placeholder="user@example.com"
                       type="email"
+                      className="border-primary/20 focus:border-primary transition-colors"
                       {...field}
                     />
                   </FormControl>
@@ -104,19 +117,22 @@ function Login() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <div className="flex items-center">
-                    <FormLabel>Password</FormLabel>
+                  <div className="flex items-center justify-between">
+                    <FormLabel className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">
+                      Password
+                    </FormLabel>
                     <RouterLink
                       to="/recover-password"
-                      className="ml-auto text-sm underline-offset-4 hover:underline"
+                      className="text-xs text-primary hover:text-accent transition-colors underline-offset-4 hover:underline font-medium"
                     >
-                      Forgot your password?
+                      Forgot password?
                     </RouterLink>
                   </div>
                   <FormControl>
                     <PasswordInput
                       data-testid="password-input"
-                      placeholder="Password"
+                      placeholder="Enter password"
+                      className="border-primary/20 focus:border-primary transition-colors"
                       {...field}
                     />
                   </FormControl>
@@ -125,15 +141,22 @@ function Login() {
               )}
             />
 
-            <LoadingButton type="submit" loading={loginMutation.isPending}>
-              Log In
+            <LoadingButton
+              type="submit"
+              loading={loginMutation.isPending}
+              className="mt-2 glow-cyan-sm hover:glow-cyan transition-all"
+            >
+              {loginMutation.isPending ? "Authenticating..." : "Access System"}
             </LoadingButton>
           </div>
 
-          <div className="text-center text-sm">
-            Don't have an account yet?{" "}
-            <RouterLink to="/signup" className="underline underline-offset-4">
-              Sign up
+          <div className="text-center text-sm pt-4 border-t border-border/50">
+            <span className="text-muted-foreground">Don't have an account? </span>
+            <RouterLink
+              to="/signup"
+              className="text-primary hover:text-accent transition-colors font-semibold underline-offset-4 hover:underline"
+            >
+              Register
             </RouterLink>
           </div>
         </form>

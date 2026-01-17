@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
-import { FolderOpen, Tags, Database, Server, TrendingUp } from "lucide-react"
+import { FolderOpen, Tags, Database, Server, TrendingUp, Activity } from "lucide-react"
 
 import useAuth from "@/hooks/useAuth"
 import { StatsCard } from "@/components/Dashboard/StatsCard"
@@ -50,74 +50,113 @@ function Dashboard() {
   })
 
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">
-          Welcome back, {currentUser?.full_name || currentUser?.email}
+    <div className="flex flex-col gap-8 relative">
+      {/* Header with enhanced styling */}
+      <div className="relative">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="h-px w-8 bg-gradient-to-r from-primary to-transparent" />
+          <Activity className="h-4 w-4 text-primary animate-pulse" />
+          <span className="text-xs font-mono tracking-wider text-muted-foreground uppercase">
+            System Overview
+          </span>
+        </div>
+        <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+          Welcome back, <span className="text-primary">{currentUser?.full_name || currentUser?.email}</span>
         </h1>
-        <p className="text-muted-foreground">
-          Here's an overview of your asset management system
+        <p className="text-muted-foreground mt-2 text-lg">
+          Monitoring {overview?.total_samples?.toLocaleString() ?? 0} training samples across distributed storage
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatsCard
-          title="Total Samples"
-          value={overview?.total_samples ?? 0}
-          description={`+${overview?.samples_today ?? 0} today`}
-          icon={FolderOpen}
-        />
-        <StatsCard
-          title="Tags"
-          value={overview?.total_tags ?? 0}
-          description="Hierarchical labels"
-          icon={Tags}
-        />
-        <StatsCard
-          title="Datasets"
-          value={overview?.total_datasets ?? 0}
-          description="Sample collections"
-          icon={Database}
-        />
-        <StatsCard
-          title="Storage"
-          value={formatBytes(overview?.storage_bytes ?? 0)}
-          description={`${overview?.total_minio_instances ?? 0} MinIO instances`}
-          icon={Server}
-        />
+      {/* Stats grid with staggered animation */}
+      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
+          <StatsCard
+            title="Total Samples"
+            value={overview?.total_samples?.toLocaleString() ?? 0}
+            description={`+${overview?.samples_today ?? 0} ingested today`}
+            icon={FolderOpen}
+          />
+        </div>
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
+          <StatsCard
+            title="Tags"
+            value={overview?.total_tags ?? 0}
+            description="Hierarchical labels"
+            icon={Tags}
+          />
+        </div>
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
+          <StatsCard
+            title="Datasets"
+            value={overview?.total_datasets ?? 0}
+            description="Sample collections"
+            icon={Database}
+          />
+        </div>
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-[400ms]">
+          <StatsCard
+            title="Storage"
+            value={formatBytes(overview?.storage_bytes ?? 0)}
+            description={`${overview?.total_minio_instances ?? 0} MinIO instances`}
+            icon={Server}
+          />
+        </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
+      {/* Enhanced info cards */}
+      <div className="grid gap-5 md:grid-cols-2 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-500">
+        <Card className="terminal-border bg-card/50 backdrop-blur-sm relative overflow-hidden group">
+          <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-accent to-transparent opacity-60" />
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <TrendingUp className="h-5 w-5 text-accent" />
               Quick Actions
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-sm text-muted-foreground">
-            <ul className="space-y-2">
-              <li>• Navigate to Samples to browse your assets</li>
-              <li>• Use Tags to organize samples hierarchically</li>
-              <li>• Create Datasets for training collections</li>
-              <li>• Configure MinIO instances for storage</li>
+          <CardContent className="text-sm">
+            <ul className="space-y-3">
+              <li className="flex items-start gap-2 group/item hover:text-foreground transition-colors">
+                <span className="text-accent font-mono text-xs mt-0.5">&gt;</span>
+                <span>Navigate to <span className="font-semibold text-primary">Samples</span> to browse your assets</span>
+              </li>
+              <li className="flex items-start gap-2 group/item hover:text-foreground transition-colors">
+                <span className="text-accent font-mono text-xs mt-0.5">&gt;</span>
+                <span>Use <span className="font-semibold text-primary">Tags</span> to organize samples hierarchically</span>
+              </li>
+              <li className="flex items-start gap-2 group/item hover:text-foreground transition-colors">
+                <span className="text-accent font-mono text-xs mt-0.5">&gt;</span>
+                <span>Create <span className="font-semibold text-primary">Datasets</span> for training collections</span>
+              </li>
+              <li className="flex items-start gap-2 group/item hover:text-foreground transition-colors">
+                <span className="text-accent font-mono text-xs mt-0.5">&gt;</span>
+                <span>Configure <span className="font-semibold text-primary">MinIO instances</span> for storage</span>
+              </li>
             </ul>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="terminal-border bg-card/50 backdrop-blur-sm relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent opacity-60" />
           <CardHeader>
-            <CardTitle>System Status</CardTitle>
+            <CardTitle className="text-lg">System Status</CardTitle>
           </CardHeader>
-          <CardContent className="text-sm text-muted-foreground">
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span>MinIO Instances</span>
-                <span className="font-medium">{overview?.total_minio_instances ?? 0} connected</span>
+          <CardContent className="text-sm">
+            <div className="space-y-4">
+              <div className="flex justify-between items-center p-3 rounded-lg bg-muted/30 border border-border/50">
+                <span className="text-muted-foreground">MinIO Instances</span>
+                <span className="font-mono font-semibold text-primary">{overview?.total_minio_instances ?? 0} <span className="text-xs text-muted-foreground">connected</span></span>
               </div>
-              <div className="flex justify-between">
-                <span>Total Storage</span>
-                <span className="font-medium">{formatBytes(overview?.storage_bytes ?? 0)}</span>
+              <div className="flex justify-between items-center p-3 rounded-lg bg-muted/30 border border-border/50">
+                <span className="text-muted-foreground">Total Storage</span>
+                <span className="font-mono font-semibold text-primary">{formatBytes(overview?.storage_bytes ?? 0)}</span>
+              </div>
+              <div className="flex justify-between items-center p-3 rounded-lg bg-muted/30 border border-border/50">
+                <div className="flex items-center gap-2">
+                  <div className="h-2 w-2 rounded-full bg-accent animate-pulse" />
+                  <span className="text-muted-foreground">Status</span>
+                </div>
+                <span className="font-mono font-semibold text-accent">OPERATIONAL</span>
               </div>
             </div>
           </CardContent>
