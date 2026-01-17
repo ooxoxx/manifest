@@ -113,6 +113,7 @@ alembic upgrade head
 - **CRITICAL: Always use `docker compose watch` for development and debugging**
   - DO NOT separately run `pnpm dev` or backend services outside Docker for local development
   - The entire stack (frontend, backend, database, redis) should run together via `docker compose watch`
+  - use `docker compose logs <container>` to view debugging logs
   - This ensures consistent environment, proper service dependencies, and automatic hot reload
   - Only run services separately when explicitly debugging service-specific issues
 - **CRITICAL: Always use `uv` for Python commands outside Docker**
