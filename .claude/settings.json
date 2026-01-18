@@ -62,14 +62,6 @@
       "Bash(shutdown*)",
       "Bash(reboot*)",
       "Bash(init *)",
-      "Read(./.env)",
-      "Read(./.env.*)",
-      "Read(./secrets/**)",
-      "Read(**/.env)",
-      "Read(**/.env.*)",
-      "Read(**/secrets/**)",
-      "Read(**/*secret*)",
-      "Read(**/*password*)",
       "Read(**/*key*.pem)",
       "Read(**/*key*.key)"
     ]
