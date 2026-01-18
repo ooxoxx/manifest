@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from enum import Enum
 from typing import Optional
 
@@ -634,6 +634,83 @@ class SampleHistoryAction(str, Enum):
     annotation_removed = "annotation_removed"
 
 
+# ============================================================================
+# Phase 4: Dataset Building Models
+# ============================================================================
+
+
+class SamplingMode(str, Enum):
+    """Sampling mode for dataset building."""
+
+    all = "all"
+    random = "random"
+    class_targets = "class_targets"
+
+
+class FilterParams(SQLModel):
+    """Parameters for filtering samples."""
+
+    tags_include: list[uuid.UUID] | None = None
+    tags_exclude: list[uuid.UUID] | None = None
+    minio_instance_id: uuid.UUID | None = None
+    bucket: str | None = None
+    prefix: str | None = None
+    date_from: date | None = None
+    date_to: date | None = None
+    annotation_classes: list[str] | None = None
+    object_count_min: int | None = None
+    object_count_max: int | None = None
+    annotation_status: AnnotationStatus | None = None
+
+
+class SamplingConfig(SQLModel):
+    """Configuration for sampling strategy."""
+
+    mode: SamplingMode = SamplingMode.all
+    count: int | None = None
+    class_targets: dict[str, int] | None = None
+    seed: int | None = None
+
+
+class ClassAchievement(SQLModel):
+    """Achievement status for a single class."""
+
+    target: int
+    actual: int
+    status: str  # "achieved" | "partial"
+
+
+class SamplingResultResponse(SQLModel):
+    """Response for sampling operations."""
+
+    added_count: int
+    mode: SamplingMode
+    target_achievement: dict[str, ClassAchievement] | None = None
+
+
+class DatasetBuildRequest(SQLModel):
+    """Request for building a new dataset."""
+
+    name: str = Field(min_length=1, max_length=255)
+    description: str | None = None
+    filters: FilterParams
+    sampling: SamplingConfig
+
+
+class DatasetAddSamplesRequest(SQLModel):
+    """Request for adding samples to existing dataset."""
+
+    filters: FilterParams
+    sampling: SamplingConfig
+
+
+class FilterPreviewResponse(SQLModel):
+    """Response for filter preview."""
+
+    count: int
+    samples: list["SamplePublic"]
+
+
 class SampleHistory(SQLModel, table=True):
     """Sample operation history."""
 
@@ -670,17 +747,6 @@ class BatchTagRequest(SQLModel):
 
     sample_ids: list[uuid.UUID]
     tag_ids: list[uuid.UUID]
-
-
-class DatasetBuildRequest(SQLModel):
-    """Request for building dataset from conditions."""
-
-    tag_ids: list[uuid.UUID] | None = None
-    minio_instance_id: uuid.UUID | None = None
-    bucket: str | None = None
-    prefix: str | None = None
-    created_after: datetime | None = None
-    created_before: datetime | None = None
 
 
 class DatasetSamplesRequest(SQLModel):
