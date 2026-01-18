@@ -129,7 +129,7 @@ export default function ImportWizard() {
       setCurrentStep(2)
     },
     onError: (error: Error) => {
-      setFileError(error.message || "Failed to preview CSV")
+      setFileError(error.message || "CSV 预览失败")
     },
   })
 
@@ -137,7 +137,7 @@ export default function ImportWizard() {
   const importMutation = useMutation({
     mutationFn: async () => {
       if (!selectedFile || !minioInstanceId || !bucket) {
-        throw new Error("Missing required fields")
+        throw new Error("缺少必填字段")
       }
       return SamplesService.importSamples({
         formData: {
@@ -155,7 +155,7 @@ export default function ImportWizard() {
       queryClient.invalidateQueries({ queryKey: ["import-tasks"] })
     },
     onError: (error: Error) => {
-      setFileError(error.message || "Failed to start import")
+      setFileError(error.message || "导入启动失败")
     },
   })
 
@@ -170,7 +170,7 @@ export default function ImportWizard() {
 
     // Validate file type
     if (!file.name.toLowerCase().endsWith(".csv")) {
-      setFileError("Please select a CSV file")
+      setFileError("请选择 CSV 文件")
       setSelectedFile(null)
       return
     }
@@ -244,11 +244,10 @@ export default function ImportWizard() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <FileSpreadsheet className="w-6 h-6" />
-            Import Samples from CSV
+            从 CSV 导入样本
           </CardTitle>
           <CardDescription>
-            Import samples from a CSV file containing object keys and optional
-            tags
+            从包含对象键和可选标签的 CSV 文件导入样本
           </CardDescription>
         </CardHeader>
 
@@ -258,28 +257,28 @@ export default function ImportWizard() {
             <StepIndicator
               step={1}
               currentStep={currentStep}
-              label="Upload"
+              label="上传"
               icon={<Upload className="w-4 h-4" />}
             />
             <div className="flex-1 h-0.5 bg-muted mx-2" />
             <StepIndicator
               step={2}
               currentStep={currentStep}
-              label="Preview"
+              label="预览"
               icon={<FileSpreadsheet className="w-4 h-4" />}
             />
             <div className="flex-1 h-0.5 bg-muted mx-2" />
             <StepIndicator
               step={3}
               currentStep={currentStep}
-              label="Configure"
+              label="配置"
               icon={<Settings className="w-4 h-4" />}
             />
             <div className="flex-1 h-0.5 bg-muted mx-2" />
             <StepIndicator
               step={4}
               currentStep={currentStep}
-              label="Complete"
+              label="完成"
               icon={<CheckCircle className="w-4 h-4" />}
             />
           </div>
@@ -298,9 +297,9 @@ export default function ImportWizard() {
                 }`}
               >
                 <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                <p className="text-lg mb-2">Drag and drop your CSV file here</p>
+                <p className="text-lg mb-2">拖放 CSV 文件到此处</p>
                 <p className="text-sm text-muted-foreground mb-4">
-                  or click to browse
+                  或点击浏览选择文件
                 </p>
                 <Input
                   data-testid="file-input"
@@ -345,7 +344,7 @@ export default function ImportWizard() {
                     >
                       {previewData.total_rows}
                     </p>
-                    <p className="text-sm text-muted-foreground">Total Rows</p>
+                    <p className="text-sm text-muted-foreground">总行数</p>
                   </CardContent>
                 </Card>
                 <Card>
@@ -356,7 +355,7 @@ export default function ImportWizard() {
                     >
                       {previewData.image_count}
                     </p>
-                    <p className="text-sm text-muted-foreground">Images</p>
+                    <p className="text-sm text-muted-foreground">图片</p>
                   </CardContent>
                 </Card>
                 <Card>
@@ -367,7 +366,7 @@ export default function ImportWizard() {
                     >
                       {previewData.annotation_count}
                     </p>
-                    <p className="text-sm text-muted-foreground">Annotations</p>
+                    <p className="text-sm text-muted-foreground">标注</p>
                   </CardContent>
                 </Card>
                 <Card>
@@ -376,16 +375,16 @@ export default function ImportWizard() {
                       className="text-lg font-bold"
                       data-testid="preview-has-tags"
                     >
-                      {previewData.has_tags_column ? "Yes" : "No"}
+                      {previewData.has_tags_column ? "是" : "否"}
                     </p>
-                    <p className="text-sm text-muted-foreground">Has Tags</p>
+                    <p className="text-sm text-muted-foreground">包含标签</p>
                   </CardContent>
                 </Card>
               </div>
 
               {/* Columns */}
               <div>
-                <h4 className="font-medium mb-2">Detected Columns</h4>
+                <h4 className="font-medium mb-2">检测到的列</h4>
                 <div className="flex flex-wrap gap-2">
                   {previewData.columns.map((col) => (
                     <Badge key={col} variant="outline">
@@ -397,7 +396,7 @@ export default function ImportWizard() {
 
               {/* Sample Rows */}
               <div>
-                <h4 className="font-medium mb-2">Sample Data (first 5 rows)</h4>
+                <h4 className="font-medium mb-2">示例数据（前 5 行）</h4>
                 <div className="border rounded-lg overflow-auto">
                   <Table>
                     <TableHeader>
@@ -429,7 +428,7 @@ export default function ImportWizard() {
             <div className="space-y-6">
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="minio-instance">MinIO Instance</Label>
+                  <Label htmlFor="minio-instance">MinIO 实例</Label>
                   <Select
                     value={minioInstanceId}
                     onValueChange={setMinioInstanceId}
@@ -439,10 +438,10 @@ export default function ImportWizard() {
                       <SelectValue
                         placeholder={
                           loadingInstances
-                            ? "Loading..."
+                            ? "加载中..."
                             : minioInstances?.data?.length
-                              ? "Select a MinIO instance"
-                              : "No MinIO instances configured"
+                              ? "选择 MinIO 实例"
+                              : "未配置 MinIO 实例"
                         }
                       />
                     </SelectTrigger>
@@ -459,7 +458,7 @@ export default function ImportWizard() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="bucket">Bucket Name</Label>
+                  <Label htmlFor="bucket">存储桶名称</Label>
                   <Input
                     id="bucket"
                     data-testid="bucket-input"
@@ -477,7 +476,7 @@ export default function ImportWizard() {
                     onCheckedChange={setValidateFiles}
                   />
                   <Label htmlFor="validate-files">
-                    Validate files exist in MinIO (slower but safer)
+                    验证文件是否存在于 MinIO（较慢但更安全）
                   </Label>
                 </div>
               </div>
@@ -507,10 +506,10 @@ export default function ImportWizard() {
                   data-testid="import-status"
                 >
                   {importTask.status === "completed"
-                    ? "Import Complete"
+                    ? "导入完成"
                     : importTask.status === "failed"
-                      ? "Import Failed"
-                      : "Import in Progress"}
+                      ? "导入失败"
+                      : "导入进行中"}
                 </h3>
               </div>
 
@@ -521,7 +520,7 @@ export default function ImportWizard() {
                     <p className="text-2xl font-bold text-green-500">
                       {importTask.created}
                     </p>
-                    <p className="text-sm text-muted-foreground">Created</p>
+                    <p className="text-sm text-muted-foreground">已创建</p>
                   </CardContent>
                 </Card>
                 <Card>
@@ -529,7 +528,7 @@ export default function ImportWizard() {
                     <p className="text-2xl font-bold text-yellow-500">
                       {importTask.skipped}
                     </p>
-                    <p className="text-sm text-muted-foreground">Skipped</p>
+                    <p className="text-sm text-muted-foreground">已跳过</p>
                   </CardContent>
                 </Card>
                 <Card>
@@ -537,7 +536,7 @@ export default function ImportWizard() {
                     <p className="text-2xl font-bold text-destructive">
                       {importTask.errors}
                     </p>
-                    <p className="text-sm text-muted-foreground">Errors</p>
+                    <p className="text-sm text-muted-foreground">错误</p>
                   </CardContent>
                 </Card>
                 <Card>
@@ -545,7 +544,7 @@ export default function ImportWizard() {
                     <p className="text-2xl font-bold text-blue-500">
                       {importTask.annotations_linked}
                     </p>
-                    <p className="text-sm text-muted-foreground">Annotations</p>
+                    <p className="text-sm text-muted-foreground">标注</p>
                   </CardContent>
                 </Card>
                 <Card>
@@ -554,7 +553,7 @@ export default function ImportWizard() {
                       {importTask.tags_created}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      Tags Created
+                      创建的标签
                     </p>
                   </CardContent>
                 </Card>
@@ -564,7 +563,7 @@ export default function ImportWizard() {
               {importTask.error_details &&
                 importTask.error_details.length > 0 && (
                   <div className="space-y-2">
-                    <h4 className="font-medium">Error Details</h4>
+                    <h4 className="font-medium">错误详情</h4>
                     <div className="bg-destructive/10 rounded-lg p-4 max-h-48 overflow-auto">
                       <ul className="list-disc list-inside space-y-1 text-sm">
                         {importTask.error_details
@@ -576,8 +575,7 @@ export default function ImportWizard() {
                           ))}
                         {importTask.error_details.length > 10 && (
                           <li className="text-muted-foreground">
-                            ... and {importTask.error_details.length - 10} more
-                            errors
+                            ... 还有 {importTask.error_details.length - 10} 个错误
                           </li>
                         )}
                       </ul>
@@ -588,10 +586,10 @@ export default function ImportWizard() {
               {/* Actions */}
               <div className="flex justify-center gap-4">
                 <Button variant="outline" onClick={handleReset}>
-                  Import Another File
+                  导入其他文件
                 </Button>
                 <Button onClick={() => navigate({ to: "/samples" })}>
-                  View Samples
+                  查看样本
                 </Button>
               </div>
             </div>
@@ -606,7 +604,7 @@ export default function ImportWizard() {
                 disabled={currentStep === 1}
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Back
+                上一步
               </Button>
               <Button
                 onClick={handleNext}
@@ -619,16 +617,16 @@ export default function ImportWizard() {
                 {previewMutation.isPending || importMutation.isPending ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Processing...
+                    处理中...
                   </>
                 ) : currentStep === 3 ? (
                   <>
-                    Start Import
+                    开始导入
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </>
                 ) : (
                   <>
-                    Next
+                    下一步
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </>
                 )}

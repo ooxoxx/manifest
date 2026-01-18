@@ -21,15 +21,15 @@ export type MinIOInstance = {
 export const columns: ColumnDef<MinIOInstance>[] = [
   {
     accessorKey: "name",
-    header: "Name",
+    header: "名称",
   },
   {
     accessorKey: "endpoint",
-    header: "Endpoint",
+    header: "端点",
   },
   {
     accessorKey: "secure",
-    header: "Secure",
+    header: "安全",
     cell: ({ row }) => (
       <Badge variant={row.original.secure ? "default" : "secondary"}>
         {row.original.secure ? "HTTPS" : "HTTP"}
@@ -38,10 +38,10 @@ export const columns: ColumnDef<MinIOInstance>[] = [
   },
   {
     accessorKey: "is_active",
-    header: "Status",
+    header: "状态",
     cell: ({ row }) => (
       <Badge variant={row.original.is_active ? "default" : "destructive"}>
-        {row.original.is_active ? "Active" : "Inactive"}
+        {row.original.is_active ? "启用" : "禁用"}
       </Badge>
     ),
   },
@@ -76,7 +76,7 @@ function ActionsMenu({ instance }: { instance: MinIOInstance }) {
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={handleTest}>
           <Plug className="mr-2 h-4 w-4" />
-          Test Connection
+          测试连接
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

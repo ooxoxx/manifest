@@ -21,7 +21,7 @@ export const Route = createFileRoute("/_layout/admin")({
   head: () => ({
     meta: [
       {
-        title: "Admin - FastAPI Cloud",
+        title: "管理 - Manifest",
       },
     ],
   }),
@@ -52,9 +52,9 @@ function Admin() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Users</h1>
+          <h1 className="text-2xl font-bold tracking-tight">用户</h1>
           <p className="text-muted-foreground">
-            Manage user accounts and permissions
+            管理用户账户和权限
           </p>
         </div>
         <AddUser />

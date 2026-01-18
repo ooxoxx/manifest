@@ -12,22 +12,22 @@ export type Dataset = {
 export const columns: ColumnDef<Dataset>[] = [
   {
     accessorKey: "name",
-    header: "Name",
+    header: "名称",
   },
   {
     accessorKey: "description",
-    header: "Description",
+    header: "描述",
   },
   {
     accessorKey: "sample_count",
-    header: "Samples",
+    header: "样本数",
     cell: ({ row }) => (
       <Badge variant="secondary">{row.original.sample_count}</Badge>
     ),
   },
   {
     accessorKey: "created_at",
-    header: "Created",
+    header: "创建时间",
     cell: ({ row }) => new Date(row.original.created_at).toLocaleDateString(),
   },
 ]

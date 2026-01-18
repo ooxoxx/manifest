@@ -13,10 +13,10 @@ import { type Item, Main } from "./Main"
 import { User } from "./User"
 
 const baseItems: Item[] = [
-  { icon: Home, title: "Dashboard", path: "/" },
-  { icon: FolderOpen, title: "Samples", path: "/samples" },
-  { icon: Tags, title: "Tags", path: "/tags" },
-  { icon: Database, title: "Datasets", path: "/datasets" },
+  { icon: Home, title: "首页", path: "/" },
+  { icon: FolderOpen, title: "样本", path: "/samples" },
+  { icon: Tags, title: "标签", path: "/tags" },
+  { icon: Database, title: "数据集", path: "/datasets" },
   { icon: Server, title: "MinIO", path: "/minio-instances" },
 ]
 
@@ -24,7 +24,7 @@ export function AppSidebar() {
   const { user: currentUser } = useAuth()
 
   const items = currentUser?.is_superuser
-    ? [...baseItems, { icon: Users, title: "Admin", path: "/admin" }]
+    ? [...baseItems, { icon: Users, title: "管理", path: "/admin" }]
     : baseItems
 
   return (

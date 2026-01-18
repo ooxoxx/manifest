@@ -35,14 +35,14 @@ function Tags() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Tags</h1>
+          <h1 className="text-2xl font-bold tracking-tight">标签</h1>
           <p className="text-muted-foreground">
-            Organize samples with hierarchical tags
+            使用层级标签组织样本
           </p>
         </div>
         <Button onClick={() => setIsAddOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
-          Add Tag
+          添加标签
         </Button>
       </div>
       <Suspense fallback={<PendingComponent />}>

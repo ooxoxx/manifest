@@ -36,22 +36,22 @@ function Samples() {
           <div className="h-px w-8 bg-gradient-to-r from-primary to-transparent" />
           <Database className="h-4 w-4 text-primary animate-pulse" />
           <span className="text-xs font-mono tracking-wider text-muted-foreground uppercase">
-            Asset Repository
+            资源仓库
           </span>
         </div>
         <div className="flex justify-between items-start">
           <div>
             <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-              Samples
+              样本
             </h1>
             <p className="text-muted-foreground mt-2">
-              Browse and manage your AI training sample assets
+              浏览和管理您的 AI 训练样本资源
             </p>
           </div>
           <Link to="/samples/import">
             <Button>
               <Upload className="w-4 h-4 mr-2" />
-              Import CSV
+              导入 CSV
             </Button>
           </Link>
         </div>

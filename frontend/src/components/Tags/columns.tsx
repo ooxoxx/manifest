@@ -12,7 +12,7 @@ export type Tag = {
 export const columns: ColumnDef<Tag>[] = [
   {
     accessorKey: "name",
-    header: "Name",
+    header: "名称",
     cell: ({ row }) => (
       <div className="flex items-center gap-2">
         {row.original.color && (
@@ -27,6 +27,6 @@ export const columns: ColumnDef<Tag>[] = [
   },
   {
     accessorKey: "description",
-    header: "Description",
+    header: "描述",
   },
 ]

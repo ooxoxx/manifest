@@ -22,7 +22,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 
 const formSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  name: z.string().min(1, "请输入名称"),
   description: z.string().optional(),
 })
 
@@ -51,7 +51,7 @@ export default function AddDataset({ open, onOpenChange }: Props) {
         },
         body: JSON.stringify(data),
       })
-      if (!response.ok) throw new Error("Failed to create dataset")
+      if (!response.ok) throw new Error("创建数据集失败")
       return response.json()
     },
     onSuccess: () => {
@@ -65,7 +65,7 @@ export default function AddDataset({ open, onOpenChange }: Props) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create Dataset</DialogTitle>
+          <DialogTitle>创建数据集</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form
@@ -77,9 +77,9 @@ export default function AddDataset({ open, onOpenChange }: Props) {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>名称</FormLabel>
                   <FormControl>
-                    <Input placeholder="Dataset name" {...field} />
+                    <Input placeholder="数据集名称" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -90,9 +90,9 @@ export default function AddDataset({ open, onOpenChange }: Props) {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>描述</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Optional description" {...field} />
+                    <Textarea placeholder="可选描述" {...field} />
                   </FormControl>
                 </FormItem>
               )}
@@ -102,7 +102,7 @@ export default function AddDataset({ open, onOpenChange }: Props) {
               disabled={mutation.isPending}
               className="w-full"
             >
-              {mutation.isPending ? "Creating..." : "Create Dataset"}
+              {mutation.isPending ? "创建中..." : "创建数据集"}
             </Button>
           </form>
         </Form>

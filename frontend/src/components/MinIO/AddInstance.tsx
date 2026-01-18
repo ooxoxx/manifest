@@ -22,10 +22,10 @@ import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
 
 const formSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  endpoint: z.string().min(1, "Endpoint is required"),
-  access_key: z.string().min(1, "Access key is required"),
-  secret_key: z.string().min(1, "Secret key is required"),
+  name: z.string().min(1, "请输入名称"),
+  endpoint: z.string().min(1, "请输入端点"),
+  access_key: z.string().min(1, "请输入 Access Key"),
+  secret_key: z.string().min(1, "请输入 Secret Key"),
   secure: z.boolean(),
 })
 
@@ -62,7 +62,7 @@ export default function AddMinIOInstance({ open, onOpenChange }: Props) {
         },
         body: JSON.stringify(data),
       })
-      if (!response.ok) throw new Error("Failed to create instance")
+      if (!response.ok) throw new Error("创建实例失败")
       return response.json()
     },
     onSuccess: () => {
@@ -76,7 +76,7 @@ export default function AddMinIOInstance({ open, onOpenChange }: Props) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add MinIO Instance</DialogTitle>
+          <DialogTitle>添加 MinIO 实例</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form
@@ -88,7 +88,7 @@ export default function AddMinIOInstance({ open, onOpenChange }: Props) {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>名称</FormLabel>
                   <FormControl>
                     <Input placeholder="My MinIO" {...field} />
                   </FormControl>
@@ -101,7 +101,7 @@ export default function AddMinIOInstance({ open, onOpenChange }: Props) {
               name="endpoint"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Endpoint</FormLabel>
+                  <FormLabel>端点</FormLabel>
                   <FormControl>
                     <Input placeholder="minio.example.com:9000" {...field} />
                   </FormControl>
@@ -146,7 +146,7 @@ export default function AddMinIOInstance({ open, onOpenChange }: Props) {
                       onCheckedChange={field.onChange}
                     />
                   </FormControl>
-                  <FormLabel className="!mt-0">Use HTTPS</FormLabel>
+                  <FormLabel className="!mt-0">使用 HTTPS</FormLabel>
                 </FormItem>
               )}
             />
@@ -155,7 +155,7 @@ export default function AddMinIOInstance({ open, onOpenChange }: Props) {
               disabled={mutation.isPending}
               className="w-full"
             >
-              {mutation.isPending ? "Creating..." : "Create Instance"}
+              {mutation.isPending ? "创建中..." : "创建实例"}
             </Button>
           </form>
         </Form>

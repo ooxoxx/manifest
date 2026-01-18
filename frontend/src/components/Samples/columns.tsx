@@ -22,20 +22,20 @@ function formatBytes(bytes: number) {
 export const columns: ColumnDef<Sample>[] = [
   {
     accessorKey: "file_name",
-    header: "File Name",
+    header: "文件名",
   },
   {
     accessorKey: "bucket",
-    header: "Bucket",
+    header: "存储桶",
   },
   {
     accessorKey: "file_size",
-    header: "Size",
+    header: "大小",
     cell: ({ row }) => formatBytes(row.original.file_size),
   },
   {
     accessorKey: "status",
-    header: "Status",
+    header: "状态",
     cell: ({ row }) => (
       <Badge
         variant={row.original.status === "active" ? "default" : "secondary"}
@@ -46,7 +46,7 @@ export const columns: ColumnDef<Sample>[] = [
   },
   {
     accessorKey: "source",
-    header: "Source",
+    header: "来源",
     cell: ({ row }) => <Badge variant="outline">{row.original.source}</Badge>,
   },
 ]

@@ -26,8 +26,8 @@ const formSchema = z.object({
   username: z.email(),
   password: z
     .string()
-    .min(1, { message: "Password is required" })
-    .min(8, { message: "Password must be at least 8 characters" }),
+    .min(1, { message: "请输入密码" })
+    .min(8, { message: "密码至少需要 8 个字符" }),
 }) satisfies z.ZodType<AccessToken>
 
 type FormData = z.infer<typeof formSchema>
@@ -44,7 +44,7 @@ export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
       {
-        title: "Log In - Manifest",
+        title: "登录 - Manifest",
       },
     ],
   }),
@@ -77,14 +77,14 @@ function Login() {
           <div className="flex flex-col items-center gap-3 text-center mb-2">
             <div className="flex items-center gap-2 text-xs font-mono tracking-wider text-muted-foreground uppercase">
               <div className="h-px w-6 bg-gradient-to-r from-transparent to-primary" />
-              <span>Access Terminal</span>
+              <span>系统登录</span>
               <div className="h-px w-6 bg-gradient-to-l from-transparent to-primary" />
             </div>
             <h1 className="text-2xl font-bold tracking-tight">
-              Login to your account
+              登录您的账户
             </h1>
             <p className="text-sm text-muted-foreground">
-              Enter credentials to access the system
+              输入凭据以访问系统
             </p>
           </div>
 
@@ -95,7 +95,7 @@ function Login() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">
-                    Email
+                    邮箱
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -118,19 +118,19 @@ function Login() {
                 <FormItem>
                   <div className="flex items-center justify-between">
                     <FormLabel className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">
-                      Password
+                      密码
                     </FormLabel>
                     <RouterLink
                       to="/recover-password"
                       className="text-xs text-primary hover:text-accent transition-colors underline-offset-4 hover:underline font-medium"
                     >
-                      Forgot password?
+                      忘记密码？
                     </RouterLink>
                   </div>
                   <FormControl>
                     <PasswordInput
                       data-testid="password-input"
-                      placeholder="Enter password"
+                      placeholder="输入密码"
                       className="border-primary/20 focus:border-primary transition-colors"
                       {...field}
                     />
@@ -145,19 +145,19 @@ function Login() {
               loading={loginMutation.isPending}
               className="mt-2 glow-cyan-sm hover:glow-cyan transition-all"
             >
-              {loginMutation.isPending ? "Authenticating..." : "Access System"}
+              {loginMutation.isPending ? "验证中..." : "登录系统"}
             </LoadingButton>
           </div>
 
           <div className="text-center text-sm pt-4 border-t border-border/50">
             <span className="text-muted-foreground">
-              Don't have an account?{" "}
+              还没有账户？{" "}
             </span>
             <RouterLink
               to="/signup"
               className="text-primary hover:text-accent transition-colors font-semibold underline-offset-4 hover:underline"
             >
-              Register
+              注册
             </RouterLink>
           </div>
         </form>

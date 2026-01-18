@@ -21,7 +21,7 @@ import {
 import { Input } from "@/components/ui/input"
 
 const formSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  name: z.string().min(1, "请输入名称"),
   color: z.string().optional(),
   description: z.string().optional(),
 })
@@ -51,7 +51,7 @@ export default function AddTag({ open, onOpenChange }: Props) {
         },
         body: JSON.stringify(data),
       })
-      if (!response.ok) throw new Error("Failed to create tag")
+      if (!response.ok) throw new Error("创建标签失败")
       return response.json()
     },
     onSuccess: () => {
@@ -65,7 +65,7 @@ export default function AddTag({ open, onOpenChange }: Props) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add Tag</DialogTitle>
+          <DialogTitle>添加标签</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form
@@ -77,9 +77,9 @@ export default function AddTag({ open, onOpenChange }: Props) {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>名称</FormLabel>
                   <FormControl>
-                    <Input placeholder="Tag name" {...field} />
+                    <Input placeholder="标签名称" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -90,7 +90,7 @@ export default function AddTag({ open, onOpenChange }: Props) {
               name="color"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Color</FormLabel>
+                  <FormLabel>颜色</FormLabel>
                   <FormControl>
                     <Input type="color" {...field} />
                   </FormControl>
@@ -102,9 +102,9 @@ export default function AddTag({ open, onOpenChange }: Props) {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>描述</FormLabel>
                   <FormControl>
-                    <Input placeholder="Optional description" {...field} />
+                    <Input placeholder="可选描述" {...field} />
                   </FormControl>
                 </FormItem>
               )}
@@ -114,7 +114,7 @@ export default function AddTag({ open, onOpenChange }: Props) {
               disabled={mutation.isPending}
               className="w-full"
             >
-              {mutation.isPending ? "Creating..." : "Create Tag"}
+              {mutation.isPending ? "创建中..." : "创建标签"}
             </Button>
           </form>
         </Form>
