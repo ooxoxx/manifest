@@ -19,7 +19,12 @@ from app.models import (
     Tag,
     User,
 )
-from app.services.sampling_service import build_sample_filter_query
+from app.services.sampling_service import (
+    build_sample_filter_query,
+    random_sample,
+    sample_by_class_targets,
+    SamplingResult,
+)
 
 
 @pytest.fixture(scope="module")
@@ -149,3 +154,81 @@ class TestBuildSampleFilterQuery:
         results = db.exec(query).all()
 
         assert all(s.annotation_status == AnnotationStatus.linked for s in results)
+
+
+class TestRandomSample:
+    """Tests for random_sample function."""
+
+    def test_returns_correct_count(self):
+        """Should return exactly the requested count."""
+        samples = [f"sample_{i}" for i in range(10)]
+        result = random_sample(samples, 5)
+        assert len(result) == 5
+
+    def test_returns_all_if_count_exceeds(self):
+        """Should return all samples if count exceeds available."""
+        samples = [f"sample_{i}" for i in range(3)]
+        result = random_sample(samples, 10)
+        assert len(result) == 3
+
+    def test_with_seed_is_reproducible(self):
+        """Same seed should produce same results."""
+        samples = [f"sample_{i}" for i in range(10)]
+        result1 = random_sample(samples, 5, seed=42)
+        result2 = random_sample(samples, 5, seed=42)
+        assert result1 == result2
+
+    def test_different_seeds_produce_different_results(self):
+        """Different seeds should produce different results."""
+        samples = [f"sample_{i}" for i in range(10)]
+        result1 = random_sample(samples, 5, seed=42)
+        result2 = random_sample(samples, 5, seed=123)
+        assert result1 != result2
+
+
+class TestSampleByClassTargets:
+    """Tests for sample_by_class_targets function."""
+
+    def test_achieves_all_targets(self):
+        """Should achieve all targets when possible."""
+        # Create mock samples with class_counts
+        class MockSample:
+            def __init__(self, id, class_counts):
+                self.id = id
+                self.class_counts = class_counts
+
+        candidates = [
+            MockSample(1, {"person": 100, "car": 50}),
+            MockSample(2, {"person": 150, "car": 30}),
+            MockSample(3, {"person": 80, "car": 100}),
+        ]
+
+        targets = {"person": 200, "car": 100}
+        result = sample_by_class_targets(candidates, targets)
+
+        assert result.target_achievement["person"].status == "achieved"
+        assert result.target_achievement["person"].actual >= 200
+
+    def test_partial_achievement(self):
+        """Should report partial when targets cannot be met."""
+        class MockSample:
+            def __init__(self, id, class_counts):
+                self.id = id
+                self.class_counts = class_counts
+
+        candidates = [
+            MockSample(1, {"person": 10}),
+        ]
+
+        targets = {"person": 100}
+        result = sample_by_class_targets(candidates, targets)
+
+        assert result.target_achievement["person"].status == "partial"
+        assert result.target_achievement["person"].actual == 10
+
+    def test_empty_candidates(self):
+        """Should handle empty candidates gracefully."""
+        result = sample_by_class_targets([], {"person": 100})
+
+        assert result.total_selected == 0
+        assert result.target_achievement["person"].actual == 0
