@@ -1,11 +1,4 @@
-import {
-  Database,
-  FolderOpen,
-  Home,
-  Server,
-  Tags,
-  Users,
-} from "lucide-react"
+import { Database, FolderOpen, Home, Server, Tags, Users } from "lucide-react"
 
 import { SidebarAppearance } from "@/components/Common/Appearance"
 import { Logo } from "@/components/Common/Logo"

@@ -150,7 +150,9 @@ function Login() {
           </div>
 
           <div className="text-center text-sm pt-4 border-t border-border/50">
-            <span className="text-muted-foreground">Don't have an account? </span>
+            <span className="text-muted-foreground">
+              Don't have an account?{" "}
+            </span>
             <RouterLink
               to="/signup"
               className="text-primary hover:text-accent transition-colors font-semibold underline-offset-4 hover:underline"

@@ -2,28 +2,35 @@
 
 import uuid
 from datetime import datetime, timedelta
+from io import BytesIO
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from sqlmodel import col, func, select
 
 from app.api.deps import CurrentUser, SessionDep
 from app.models import (
     BatchTagRequest,
+    CSVPreviewResponse,
+    ImportTask,
+    ImportTaskPublic,
+    ImportTaskStatus,
     Message,
     MinIOInstance,
     Sample,
     SampleHistory,
     SampleHistoryAction,
     SampleHistoryPublic,
-    SamplePublic,
     SamplesPublic,
     SampleStatus,
     SampleTag,
-    SampleUpdate,
     SampleWithTags,
     Tag,
-    TagPublic,
+)
+from app.services.import_service import (
+    ImportResult,
+    import_samples_from_csv,
+    preview_csv,
 )
 from app.services.minio_service import MinIOService
 
@@ -67,6 +74,191 @@ def read_samples(
     samples = session.exec(query).all()
 
     return SamplesPublic(data=samples, count=count)
+
+
+@router.get("/import", response_model=list[ImportTaskPublic])
+def list_import_tasks(
+    session: SessionDep,
+    current_user: CurrentUser,
+    skip: int = 0,
+    limit: int = 20,
+) -> Any:
+    """List import tasks for current user.
+
+    Returns:
+        List of import tasks ordered by creation date (newest first)
+    """
+    tasks = session.exec(
+        select(ImportTask)
+        .where(ImportTask.owner_id == current_user.id)
+        .order_by(col(ImportTask.created_at).desc())
+        .offset(skip)
+        .limit(limit)
+    ).all()
+
+    return tasks
+
+
+@router.get("/import/{task_id}", response_model=ImportTaskPublic)
+def get_import_status(
+    session: SessionDep,
+    current_user: CurrentUser,
+    task_id: uuid.UUID,
+) -> Any:
+    """Get import task status.
+
+    Args:
+        task_id: Import task ID
+
+    Returns:
+        Import task with current status and results
+    """
+    task = session.get(ImportTask, task_id)
+    if not task:
+        raise HTTPException(status_code=404, detail="Import task not found")
+    if task.owner_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+
+    return task
+
+
+@router.post("/import/preview", response_model=CSVPreviewResponse)
+async def preview_import_csv(
+    _current_user: CurrentUser,
+    file: UploadFile = File(...),
+) -> Any:
+    """Preview CSV file content before import.
+
+    Returns:
+        CSV preview with row counts, columns, and sample data
+    """
+    if not file.filename or not file.filename.endswith(".csv"):
+        raise HTTPException(
+            status_code=400,
+            detail="File must be a CSV file",
+        )
+
+    try:
+        content = await file.read()
+        preview = preview_csv(BytesIO(content))
+        return CSVPreviewResponse(
+            total_rows=preview.total_rows,
+            columns=preview.columns,
+            sample_rows=preview.sample_rows,
+            has_tags_column=preview.has_tags_column,
+            image_count=preview.image_count,
+            annotation_count=preview.annotation_count,
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Failed to parse CSV: {str(e)}",
+        )
+
+
+@router.post("/import", response_model=ImportTaskPublic)
+async def import_samples(
+    session: SessionDep,
+    current_user: CurrentUser,
+    file: UploadFile = File(...),
+    minio_instance_id: uuid.UUID = Form(...),
+    bucket: str | None = Form(None),
+    validate_files: bool = Form(True),
+) -> Any:
+    """Import samples from CSV file.
+
+    This endpoint creates an import task and processes the CSV file.
+    For MVP, this is synchronous. Will be upgraded to async with Redis later.
+
+    Args:
+        file: CSV file with object_key column (required), tags column (optional)
+        minio_instance_id: MinIO instance to import from
+        bucket: Default bucket name (optional if bucket column exists in CSV)
+        validate_files: Whether to validate file existence via HEAD request
+
+    Returns:
+        Import task with results
+    """
+    if not file.filename or not file.filename.endswith(".csv"):
+        raise HTTPException(
+            status_code=400,
+            detail="File must be a CSV file",
+        )
+
+    # Verify MinIO instance ownership
+    minio_instance = session.get(MinIOInstance, minio_instance_id)
+    if not minio_instance or minio_instance.owner_id != current_user.id:
+        raise HTTPException(
+            status_code=404,
+            detail="MinIO instance not found",
+        )
+
+    # Read CSV content
+    content = await file.read()
+
+    # Get total rows for task tracking
+    try:
+        preview = preview_csv(BytesIO(content))
+        total_rows = preview.total_rows
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Failed to parse CSV: {str(e)}",
+        )
+
+    # Create import task record
+    task = ImportTask(
+        owner_id=current_user.id,
+        minio_instance_id=minio_instance_id,
+        bucket=bucket,
+        status=ImportTaskStatus.running,
+        total_rows=total_rows,
+    )
+    session.add(task)
+    session.commit()
+    session.refresh(task)
+
+    try:
+        # Process import synchronously (will be async with Redis in future)
+        result: ImportResult = import_samples_from_csv(
+            session=session,
+            file=BytesIO(content),
+            minio_instance_id=minio_instance_id,
+            owner_id=current_user.id,
+            bucket=bucket,
+            validate_files=validate_files,
+        )
+
+        # Update task with results
+        task.status = ImportTaskStatus.completed
+        task.progress = 100
+        task.created = result.created
+        task.skipped = result.skipped
+        task.errors = result.errors
+        task.annotations_linked = result.annotations_linked
+        task.tags_created = result.tags_created
+        task.error_details = result.error_details
+        task.completed_at = datetime.utcnow()
+        task.updated_at = datetime.utcnow()
+        session.add(task)
+        session.commit()
+        session.refresh(task)
+
+    except Exception as e:
+        # Mark task as failed
+        task.status = ImportTaskStatus.failed
+        task.error_details = [str(e)]
+        task.updated_at = datetime.utcnow()
+        session.add(task)
+        session.commit()
+        session.refresh(task)
+
+    return task
+
+
+# ============================================================================
+# Sample CRUD Endpoints
+# ============================================================================
 
 
 @router.get("/{id}", response_model=SampleWithTags)

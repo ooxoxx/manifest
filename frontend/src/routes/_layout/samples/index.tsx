@@ -1,13 +1,14 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute, Link } from "@tanstack/react-router"
+import { Database, Upload } from "lucide-react"
 import { Suspense } from "react"
-import { Database } from "lucide-react"
 
 import { DataTable } from "@/components/Common/DataTable"
 import { PendingComponent } from "@/components/Pending/PendingComponent"
 import { columns } from "@/components/Samples/columns"
+import { Button } from "@/components/ui/button"
 
-export const Route = createFileRoute("/_layout/samples")({
+export const Route = createFileRoute("/_layout/samples/")({
   component: Samples,
 })
 
@@ -38,12 +39,22 @@ function Samples() {
             Asset Repository
           </span>
         </div>
-        <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-          Samples
-        </h1>
-        <p className="text-muted-foreground mt-2">
-          Browse and manage your AI training sample assets
-        </p>
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+              Samples
+            </h1>
+            <p className="text-muted-foreground mt-2">
+              Browse and manage your AI training sample assets
+            </p>
+          </div>
+          <Link to="/samples/import">
+            <Button>
+              <Upload className="w-4 h-4 mr-2" />
+              Import CSV
+            </Button>
+          </Link>
+        </div>
       </div>
       <Suspense fallback={<PendingComponent />}>
         <div className="terminal-border bg-card/30 backdrop-blur-sm rounded-lg overflow-hidden">

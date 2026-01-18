@@ -2,12 +2,11 @@ import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
 import { Plus } from "lucide-react"
 import { Suspense, useState } from "react"
-
-import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/Common/DataTable"
 import { PendingComponent } from "@/components/Pending/PendingComponent"
-import { columns } from "@/components/Tags/columns"
 import AddTag from "@/components/Tags/AddTag"
+import { columns } from "@/components/Tags/columns"
+import { Button } from "@/components/ui/button"
 
 export const Route = createFileRoute("/_layout/tags")({
   component: Tags,

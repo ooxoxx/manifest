@@ -2,12 +2,11 @@ import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
 import { Plus } from "lucide-react"
 import { Suspense, useState } from "react"
-
-import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/Common/DataTable"
-import { PendingComponent } from "@/components/Pending/PendingComponent"
 import AddMinIOInstance from "@/components/MinIO/AddInstance"
 import { columns } from "@/components/MinIO/columns"
+import { PendingComponent } from "@/components/Pending/PendingComponent"
+import { Button } from "@/components/ui/button"
 
 export const Route = createFileRoute("/_layout/minio-instances")({
   component: MinIOInstances,

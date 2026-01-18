@@ -1,10 +1,16 @@
 import { useQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
-import { FolderOpen, Tags, Database, Server, TrendingUp, Activity } from "lucide-react"
-
-import useAuth from "@/hooks/useAuth"
+import {
+  Activity,
+  Database,
+  FolderOpen,
+  Server,
+  Tags,
+  TrendingUp,
+} from "lucide-react"
 import { StatsCard } from "@/components/Dashboard/StatsCard"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import useAuth from "@/hooks/useAuth"
 
 export const Route = createFileRoute("/_layout/")({
   component: Dashboard,
@@ -31,7 +37,7 @@ function formatBytes(bytes: number) {
   const k = 1024
   const sizes = ["B", "KB", "MB", "GB", "TB"]
   const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
+  return `${parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`
 }
 
 function Dashboard() {
@@ -61,10 +67,14 @@ function Dashboard() {
           </span>
         </div>
         <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-          Welcome back, <span className="text-primary">{currentUser?.full_name || currentUser?.email}</span>
+          Welcome back,{" "}
+          <span className="text-primary">
+            {currentUser?.full_name || currentUser?.email}
+          </span>
         </h1>
         <p className="text-muted-foreground mt-2 text-lg">
-          Monitoring {overview?.total_samples?.toLocaleString() ?? 0} training samples across distributed storage
+          Monitoring {overview?.total_samples?.toLocaleString() ?? 0} training
+          samples across distributed storage
         </p>
       </div>
 
@@ -117,20 +127,45 @@ function Dashboard() {
           <CardContent className="text-sm">
             <ul className="space-y-3">
               <li className="flex items-start gap-2 group/item hover:text-foreground transition-colors">
-                <span className="text-accent font-mono text-xs mt-0.5">&gt;</span>
-                <span>Navigate to <span className="font-semibold text-primary">Samples</span> to browse your assets</span>
+                <span className="text-accent font-mono text-xs mt-0.5">
+                  &gt;
+                </span>
+                <span>
+                  Navigate to{" "}
+                  <span className="font-semibold text-primary">Samples</span> to
+                  browse your assets
+                </span>
               </li>
               <li className="flex items-start gap-2 group/item hover:text-foreground transition-colors">
-                <span className="text-accent font-mono text-xs mt-0.5">&gt;</span>
-                <span>Use <span className="font-semibold text-primary">Tags</span> to organize samples hierarchically</span>
+                <span className="text-accent font-mono text-xs mt-0.5">
+                  &gt;
+                </span>
+                <span>
+                  Use <span className="font-semibold text-primary">Tags</span>{" "}
+                  to organize samples hierarchically
+                </span>
               </li>
               <li className="flex items-start gap-2 group/item hover:text-foreground transition-colors">
-                <span className="text-accent font-mono text-xs mt-0.5">&gt;</span>
-                <span>Create <span className="font-semibold text-primary">Datasets</span> for training collections</span>
+                <span className="text-accent font-mono text-xs mt-0.5">
+                  &gt;
+                </span>
+                <span>
+                  Create{" "}
+                  <span className="font-semibold text-primary">Datasets</span>{" "}
+                  for training collections
+                </span>
               </li>
               <li className="flex items-start gap-2 group/item hover:text-foreground transition-colors">
-                <span className="text-accent font-mono text-xs mt-0.5">&gt;</span>
-                <span>Configure <span className="font-semibold text-primary">MinIO instances</span> for storage</span>
+                <span className="text-accent font-mono text-xs mt-0.5">
+                  &gt;
+                </span>
+                <span>
+                  Configure{" "}
+                  <span className="font-semibold text-primary">
+                    MinIO instances
+                  </span>{" "}
+                  for storage
+                </span>
               </li>
             </ul>
           </CardContent>
@@ -145,18 +180,27 @@ function Dashboard() {
             <div className="space-y-4">
               <div className="flex justify-between items-center p-3 rounded-lg bg-muted/30 border border-border/50">
                 <span className="text-muted-foreground">MinIO Instances</span>
-                <span className="font-mono font-semibold text-primary">{overview?.total_minio_instances ?? 0} <span className="text-xs text-muted-foreground">connected</span></span>
+                <span className="font-mono font-semibold text-primary">
+                  {overview?.total_minio_instances ?? 0}{" "}
+                  <span className="text-xs text-muted-foreground">
+                    connected
+                  </span>
+                </span>
               </div>
               <div className="flex justify-between items-center p-3 rounded-lg bg-muted/30 border border-border/50">
                 <span className="text-muted-foreground">Total Storage</span>
-                <span className="font-mono font-semibold text-primary">{formatBytes(overview?.storage_bytes ?? 0)}</span>
+                <span className="font-mono font-semibold text-primary">
+                  {formatBytes(overview?.storage_bytes ?? 0)}
+                </span>
               </div>
               <div className="flex justify-between items-center p-3 rounded-lg bg-muted/30 border border-border/50">
                 <div className="flex items-center gap-2">
                   <div className="h-2 w-2 rounded-full bg-accent animate-pulse" />
                   <span className="text-muted-foreground">Status</span>
                 </div>
-                <span className="font-mono font-semibold text-accent">OPERATIONAL</span>
+                <span className="font-mono font-semibold text-accent">
+                  OPERATIONAL
+                </span>
               </div>
             </div>
           </CardContent>

@@ -4,13 +4,16 @@ services:
   # http://dashboard.localhost.tiangolo.com: frontend
   # etc. To enable it, update .env, set:
   # DOMAIN=localhost.tiangolo.com
+  #
+  # Multi-worktree support: Set port variables in .env or environment to avoid conflicts
+  # See CLAUDE.md "Multi-Worktree Development" section for details
   proxy:
     image: traefik:3
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
-      - "80:80"
-      - "8090:8080"
+      - "${TRAEFIK_HTTP_PORT:-80}:80"
+      - "${TRAEFIK_DASHBOARD_PORT:-8090}:8080"
     # Duplicate the command from docker-compose.yml to add --api.insecure=true
     command:
       # Enable Docker in Traefik, so that it reads labels from Docker services
@@ -47,17 +50,17 @@ services:
   db:
     restart: "no"
     ports:
-      - "5432:5432"
+      - "${DB_PORT:-5432}:5432"
 
   adminer:
     restart: "no"
     ports:
-      - "8080:8080"
+      - "${ADMINER_PORT:-8080}:8080"
 
   backend:
     restart: "no"
     ports:
-      - "8000:8000"
+      - "${BACKEND_PORT:-8000}:8000"
     build:
       context: ./backend
     # command: sleep infinity  # Infinite loop to keep container alive doing nothing
@@ -88,13 +91,13 @@ services:
   mailcatcher:
     image: schickling/mailcatcher
     ports:
-      - "1080:1080"
-      - "1025:1025"
+      - "${MAILCATCHER_WEB_PORT:-1080}:1080"
+      - "${MAILCATCHER_SMTP_PORT:-1025}:1025"
 
   frontend:
     restart: "no"
     ports:
-      - "5173:80"
+      - "${FRONTEND_PORT:-5173}:80"
     build:
       context: ./frontend
       args:
@@ -124,7 +127,7 @@ services:
       - ./frontend/blob-report:/app/blob-report
       - ./frontend/test-results:/app/test-results
     ports:
-      - 9323:9323
+      - "${PLAYWRIGHT_REPORTER_PORT:-9323}:9323"
 
 networks:
   traefik-public:

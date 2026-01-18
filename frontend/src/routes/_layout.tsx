@@ -35,7 +35,9 @@ function Layout() {
           <div className="flex-1 flex items-center justify-end gap-3">
             <div className="flex items-center gap-2 text-xs font-mono text-muted-foreground">
               <div className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
-              <span className="hidden md:inline tracking-wider uppercase">System Active</span>
+              <span className="hidden md:inline tracking-wider uppercase">
+                System Active
+              </span>
             </div>
           </div>
         </header>

@@ -383,7 +383,13 @@ class Annotation(AnnotationBase, table=True):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
-    sample: Optional["Sample"] = Relationship(back_populates="annotation")
+    sample: Optional["Sample"] = Relationship(
+        back_populates="annotation",
+        sa_relationship_kwargs={
+            "primaryjoin": "Annotation.sample_id == Sample.id",
+            "foreign_keys": "[Annotation.sample_id]",
+        },
+    )
 
 
 class AnnotationPublic(AnnotationBase):
@@ -445,7 +451,9 @@ class Sample(SampleBase, table=True):
         foreign_key="user.id", nullable=False, ondelete="CASCADE"
     )
     annotation_id: uuid.UUID | None = Field(
-        default=None, foreign_key="annotation.id", ondelete="SET NULL"
+        default=None,
+        # Note: This is a denormalized field for quick access, not a FK
+        # The authoritative relationship is via Annotation.sample_id
     )
     status: SampleStatus = Field(default=SampleStatus.active, index=True)
     source: SampleSource = Field(default=SampleSource.manual)
@@ -455,7 +463,14 @@ class Sample(SampleBase, table=True):
 
     owner: Optional["User"] = Relationship(back_populates="samples")
     minio_instance: Optional["MinIOInstance"] = Relationship(back_populates="samples")
-    annotation: Optional["Annotation"] = Relationship(back_populates="sample")
+    annotation: Optional["Annotation"] = Relationship(
+        back_populates="sample",
+        sa_relationship_kwargs={
+            "primaryjoin": "Sample.id == Annotation.sample_id",
+            "foreign_keys": "[Annotation.sample_id]",
+            "uselist": False,
+        },
+    )
     sample_tags: list["SampleTag"] = Relationship(
         back_populates="sample", cascade_delete=True
     )
@@ -700,3 +715,81 @@ class TagDistribution(SQLModel):
     tag_id: uuid.UUID
     tag_name: str
     count: int
+
+
+# ============================================================================
+# Import Models
+# ============================================================================
+
+
+class ImportTaskStatus(str, Enum):
+    """Import task status enum."""
+
+    pending = "pending"
+    running = "running"
+    completed = "completed"
+    failed = "failed"
+
+
+class ImportTask(SQLModel, table=True):
+    """Import task for tracking async CSV import."""
+
+    __tablename__ = "import_task"
+
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    owner_id: uuid.UUID = Field(
+        foreign_key="user.id", nullable=False, ondelete="CASCADE"
+    )
+    minio_instance_id: uuid.UUID = Field(
+        foreign_key="minio_instance.id", nullable=False, ondelete="CASCADE"
+    )
+    bucket: str | None = Field(default=None, max_length=255)
+    status: ImportTaskStatus = Field(default=ImportTaskStatus.pending)
+    total_rows: int = Field(default=0)
+    progress: int = Field(default=0)
+    created: int = Field(default=0)
+    skipped: int = Field(default=0)
+    errors: int = Field(default=0)
+    annotations_linked: int = Field(default=0)
+    tags_created: int = Field(default=0)
+    error_details: list | None = Field(default=None, sa_column=Column(JSONB))
+    created_at: datetime = Field(default_factory=datetime.utcnow, index=True)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    completed_at: datetime | None = None
+
+
+class ImportTaskPublic(SQLModel):
+    """Import task response for API."""
+
+    id: uuid.UUID
+    status: ImportTaskStatus
+    total_rows: int
+    progress: int
+    created: int
+    skipped: int
+    errors: int
+    annotations_linked: int
+    tags_created: int
+    error_details: list | None
+    created_at: datetime
+    updated_at: datetime
+    completed_at: datetime | None
+
+
+class CSVPreviewResponse(SQLModel):
+    """CSV preview response for API."""
+
+    total_rows: int
+    columns: list[str]
+    sample_rows: list[dict]
+    has_tags_column: bool
+    image_count: int
+    annotation_count: int
+
+
+class ImportStartRequest(SQLModel):
+    """Request to start import."""
+
+    minio_instance_id: uuid.UUID
+    bucket: str | None = None
+    validate_files: bool = True

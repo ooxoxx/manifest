@@ -1,6 +1,6 @@
+import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 
 import { Button } from "@/components/ui/button"
@@ -109,7 +109,11 @@ export default function AddTag({ open, onOpenChange }: Props) {
                 </FormItem>
               )}
             />
-            <Button type="submit" disabled={mutation.isPending} className="w-full">
+            <Button
+              type="submit"
+              disabled={mutation.isPending}
+              className="w-full"
+            >
               {mutation.isPending ? "Creating..." : "Create Tag"}
             </Button>
           </form>

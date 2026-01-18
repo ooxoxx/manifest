@@ -1,5 +1,5 @@
+import type { LucideIcon } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { LucideIcon } from "lucide-react"
 
 interface StatsCardProps {
   title: string
@@ -8,7 +8,12 @@ interface StatsCardProps {
   icon: LucideIcon
 }
 
-export function StatsCard({ title, value, description, icon: Icon }: StatsCardProps) {
+export function StatsCard({
+  title,
+  value,
+  description,
+  icon: Icon,
+}: StatsCardProps) {
   return (
     <Card className="relative overflow-hidden terminal-border bg-card/50 backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 group">
       {/* Accent line */}

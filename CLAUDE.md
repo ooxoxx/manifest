@@ -108,14 +108,87 @@ alembic upgrade head
 - **MinIOInstance** - Storage configuration for S3-compatible storage
 - **WatchedPath** - Monitored directories for auto-ingestion
 
+## Multi-Worktree Development
+
+### Port Configuration
+
+When working with multiple git worktrees, use different port variables to avoid conflicts:
+
+| Service | Variable | Default | Worktree 2 (example) |
+|---------|----------|---------|----------------------|
+| Frontend | `FRONTEND_PORT` | 5173 | 5273 |
+| Backend | `BACKEND_PORT` | 8000 | 8100 |
+| Database | `DB_PORT` | 5432 | 5532 |
+| Adminer | `ADMINER_PORT` | 8080 | 8180 |
+| Mailcatcher Web | `MAILCATCHER_WEB_PORT` | 1080 | 1180 |
+| Mailcatcher SMTP | `MAILCATCHER_SMTP_PORT` | 1025 | 1125 |
+| Traefik HTTP | `TRAEFIK_HTTP_PORT` | 80 | 180 |
+| Traefik Dashboard | `TRAEFIK_DASHBOARD_PORT` | 8090 | 8190 |
+| Playwright Reporter | `PLAYWRIGHT_REPORTER_PORT` | 9323 | 9423 |
+
+### Setting Up a New Worktree
+
+1. Create worktree:
+   ```bash
+   git worktree add ../<branch-name> -b <branch-name>
+   cd ../<branch-name>
+   ```
+
+2. Create `.env` with unique ports (copy from main, adjust ports):
+   ```bash
+   cp ../<main-worktree>/.env .env
+   # Edit .env and set unique port variables:
+   # FRONTEND_PORT=5273
+   # BACKEND_PORT=8100
+   # DB_PORT=5532
+   # ... etc
+   ```
+
+3. Start services:
+   ```bash
+   docker compose watch
+   ```
+
+### Running Playwright Tests
+
+Use environment variable to target correct frontend:
+
+```bash
+# Default (port 5173)
+npx playwright test
+
+# Different worktree
+PLAYWRIGHT_BASE_URL=http://127.0.0.1:5273 npx playwright test
+
+# With UI mode
+PLAYWRIGHT_BASE_URL=http://127.0.0.1:5273 npx playwright test --ui
+```
+
+## Testing Guidelines (Frontend)
+
+**Context**: Run all commands in `frontend/`. Target: `http://127.0.0.1:5173` (or your worktree's port).
+
+- **Workflow Strategy**:
+  - **Drafting/Debugging**: Use `npx playwright test --ui` for interactive mode
+  - **Final Verification**: Use `npx playwright test` (headless)
+
+- **Multi-worktree Testing**:
+  ```bash
+  PLAYWRIGHT_BASE_URL=http://127.0.0.1:<port> npx playwright test
+  ```
+
+- **Coding Rules**:
+  1.  **Locators**: Priority: `getByRole` > `getByText` > `getByTestId`. **FORBIDDEN**: Fragile XPath or generic CSS (e.g., `div > div:nth-child(2)`).
+  2.  **Waits**: **FORBIDDEN**: `page.waitForTimeout()`. Use auto-retrying assertions (e.g., `await expect(locator).toBeVisible()`).
+  3.  **Isolation**: Use `data-testid` for unstable elements. Clean up test data after execution.
+
 ## Important Notes
 
 - **CRITICAL: Always use `docker compose watch` for development and debugging**
-  - DO NOT separately run `pnpm dev` or backend services outside Docker for local development
   - The entire stack (frontend, backend, database, redis) should run together via `docker compose watch`
-  - use `docker compose logs <container>` to view debugging logs
+  - use `docker compose logs <container>` to review debugging logs after watch started
+  - once started, watch process can sync all file changes to docker containers, and start rebuild on demand
   - This ensures consistent environment, proper service dependencies, and automatic hot reload
-  - Only run services separately when explicitly debugging service-specific issues
 - **CRITICAL: Always use `uv` for Python commands outside Docker**
   - Use `uv run <command>` for all Python-related commands when running locally (not in Docker)
   - Examples: `uv run pytest`, `uv run ruff`, `uv run mypy`, `uv run prek`
@@ -129,3 +202,4 @@ alembic upgrade head
 - Coverage reports are generated at `backend/htmlcov/index.html`
 - See `docs/PROJECT.md` for detailed PRD, data models, and user stories
 - use pnpm over npm where possible for frontend package management
+- 开发过程中，你**不需要**处理openapi相关的内容，比如执行 `scripts/generate-client.sh`

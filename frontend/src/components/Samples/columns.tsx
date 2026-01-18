@@ -1,4 +1,4 @@
-import { ColumnDef } from "@tanstack/react-table"
+import type { ColumnDef } from "@tanstack/react-table"
 import { Badge } from "@/components/ui/badge"
 
 export type Sample = {
@@ -16,7 +16,7 @@ function formatBytes(bytes: number) {
   const k = 1024
   const sizes = ["B", "KB", "MB", "GB"]
   const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
+  return `${parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`
 }
 
 export const columns: ColumnDef<Sample>[] = [
@@ -37,7 +37,9 @@ export const columns: ColumnDef<Sample>[] = [
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => (
-      <Badge variant={row.original.status === "active" ? "default" : "secondary"}>
+      <Badge
+        variant={row.original.status === "active" ? "default" : "secondary"}
+      >
         {row.original.status}
       </Badge>
     ),
@@ -45,8 +47,6 @@ export const columns: ColumnDef<Sample>[] = [
   {
     accessorKey: "source",
     header: "Source",
-    cell: ({ row }) => (
-      <Badge variant="outline">{row.original.source}</Badge>
-    ),
+    cell: ({ row }) => <Badge variant="outline">{row.original.source}</Badge>,
   },
 ]

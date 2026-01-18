@@ -1,6 +1,6 @@
-import { ColumnDef } from "@tanstack/react-table"
+import type { ColumnDef } from "@tanstack/react-table"
 import { MoreHorizontal, Plug } from "lucide-react"
-
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -8,7 +8,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Badge } from "@/components/ui/badge"
 
 export type MinIOInstance = {
   id: string
@@ -54,12 +53,15 @@ export const columns: ColumnDef<MinIOInstance>[] = [
 
 function ActionsMenu({ instance }: { instance: MinIOInstance }) {
   const handleTest = async () => {
-    const response = await fetch(`/api/v1/minio-instances/${instance.id}/test`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+    const response = await fetch(
+      `/api/v1/minio-instances/${instance.id}/test`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
       },
-    })
+    )
     const result = await response.json()
     alert(result.message)
   }

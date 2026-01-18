@@ -1,6 +1,6 @@
+import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 
 import { Button } from "@/components/ui/button"
@@ -79,7 +79,10 @@ export default function AddMinIOInstance({ open, onOpenChange }: Props) {
           <DialogTitle>Add MinIO Instance</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit((d) => mutation.mutate(d))} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit((d) => mutation.mutate(d))}
+            className="space-y-4"
+          >
             <FormField
               control={form.control}
               name="name"
@@ -138,13 +141,20 @@ export default function AddMinIOInstance({ open, onOpenChange }: Props) {
               render={({ field }) => (
                 <FormItem className="flex items-center gap-2">
                   <FormControl>
-                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
                   </FormControl>
                   <FormLabel className="!mt-0">Use HTTPS</FormLabel>
                 </FormItem>
               )}
             />
-            <Button type="submit" disabled={mutation.isPending} className="w-full">
+            <Button
+              type="submit"
+              disabled={mutation.isPending}
+              className="w-full"
+            >
               {mutation.isPending ? "Creating..." : "Create Instance"}
             </Button>
           </form>

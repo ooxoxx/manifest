@@ -3,22 +3,79 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { ItemsReadItemsData, ItemsReadItemsResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
+import type { DashboardGetDashboardOverviewResponse, DashboardGetDailyStatsData, DashboardGetDailyStatsResponse, DashboardGetTagDistributionData, DashboardGetTagDistributionResponse, DatasetsReadDatasetsData, DatasetsReadDatasetsResponse, DatasetsCreateDatasetData, DatasetsCreateDatasetResponse, DatasetsReadDatasetData, DatasetsReadDatasetResponse, DatasetsUpdateDatasetData, DatasetsUpdateDatasetResponse, DatasetsDeleteDatasetData, DatasetsDeleteDatasetResponse, DatasetsAddSamplesToDatasetData, DatasetsAddSamplesToDatasetResponse, DatasetsRemoveSamplesFromDatasetData, DatasetsRemoveSamplesFromDatasetResponse, DatasetsBuildDatasetData, DatasetsBuildDatasetResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, MinioInstancesReadMinioInstancesData, MinioInstancesReadMinioInstancesResponse, MinioInstancesCreateMinioInstanceEndpointData, MinioInstancesCreateMinioInstanceEndpointResponse, MinioInstancesReadMinioInstanceData, MinioInstancesReadMinioInstanceResponse, MinioInstancesUpdateMinioInstanceEndpointData, MinioInstancesUpdateMinioInstanceEndpointResponse, MinioInstancesDeleteMinioInstanceData, MinioInstancesDeleteMinioInstanceResponse, MinioInstancesTestMinioConnectionData, MinioInstancesTestMinioConnectionResponse, MinioInstancesListMinioBucketsData, MinioInstancesListMinioBucketsResponse, PrivateCreateUserData, PrivateCreateUserResponse, SamplesReadSamplesData, SamplesReadSamplesResponse, SamplesListImportTasksData, SamplesListImportTasksResponse, SamplesImportSamplesData, SamplesImportSamplesResponse, SamplesGetImportStatusData, SamplesGetImportStatusResponse, SamplesPreviewImportCsvData, SamplesPreviewImportCsvResponse, SamplesReadSampleData, SamplesReadSampleResponse, SamplesDeleteSampleData, SamplesDeleteSampleResponse, SamplesGetSamplePreviewUrlData, SamplesGetSamplePreviewUrlResponse, SamplesGetSampleHistoryData, SamplesGetSampleHistoryResponse, SamplesBatchTagSamplesData, SamplesBatchTagSamplesResponse, TagsReadTagsData, TagsReadTagsResponse, TagsCreateTagData, TagsCreateTagResponse, TagsGetTagTreeResponse, TagsUpdateTagData, TagsUpdateTagResponse, TagsDeleteTagData, TagsDeleteTagResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, WatchedPathsReadWatchedPathsData, WatchedPathsReadWatchedPathsResponse, WatchedPathsCreateWatchedPathData, WatchedPathsCreateWatchedPathResponse, WatchedPathsUpdateWatchedPathData, WatchedPathsUpdateWatchedPathResponse, WatchedPathsDeleteWatchedPathData, WatchedPathsDeleteWatchedPathResponse, WatchedPathsSyncWatchedPathData, WatchedPathsSyncWatchedPathResponse, WebhooksReceiveMinioWebhookData, WebhooksReceiveMinioWebhookResponse } from './types.gen';
 
-export class ItemsService {
+export class DashboardService {
     /**
-     * Read Items
-     * Retrieve items.
+     * Get Dashboard Overview
+     * Get dashboard overview statistics.
+     * @returns DashboardOverview Successful Response
+     * @throws ApiError
+     */
+    public static getDashboardOverview(): CancelablePromise<DashboardGetDashboardOverviewResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/dashboard/overview'
+        });
+    }
+    
+    /**
+     * Get Daily Stats
+     * Get daily sample statistics.
+     * @param data The data for the request.
+     * @param data.days
+     * @returns DailyStats Successful Response
+     * @throws ApiError
+     */
+    public static getDailyStats(data: DashboardGetDailyStatsData = {}): CancelablePromise<DashboardGetDailyStatsResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/dashboard/daily-stats',
+            query: {
+                days: data.days
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Get Tag Distribution
+     * Get tag distribution statistics.
+     * @param data The data for the request.
+     * @param data.limit
+     * @returns TagDistribution Successful Response
+     * @throws ApiError
+     */
+    public static getTagDistribution(data: DashboardGetTagDistributionData = {}): CancelablePromise<DashboardGetTagDistributionResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/dashboard/tag-distribution',
+            query: {
+                limit: data.limit
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+}
+
+export class DatasetsService {
+    /**
+     * Read Datasets
+     * Retrieve datasets.
      * @param data The data for the request.
      * @param data.skip
      * @param data.limit
-     * @returns ItemsPublic Successful Response
+     * @returns DatasetsPublic Successful Response
      * @throws ApiError
      */
-    public static readItems(data: ItemsReadItemsData = {}): CancelablePromise<ItemsReadItemsResponse> {
+    public static readDatasets(data: DatasetsReadDatasetsData = {}): CancelablePromise<DatasetsReadDatasetsResponse> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/v1/items/',
+            url: '/api/v1/datasets/',
             query: {
                 skip: data.skip,
                 limit: data.limit
@@ -30,17 +87,17 @@ export class ItemsService {
     }
     
     /**
-     * Create Item
-     * Create new item.
+     * Create Dataset
+     * Create a new dataset.
      * @param data The data for the request.
      * @param data.requestBody
-     * @returns ItemPublic Successful Response
+     * @returns DatasetPublic Successful Response
      * @throws ApiError
      */
-    public static createItem(data: ItemsCreateItemData): CancelablePromise<ItemsCreateItemResponse> {
+    public static createDataset(data: DatasetsCreateDatasetData): CancelablePromise<DatasetsCreateDatasetResponse> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/v1/items/',
+            url: '/api/v1/datasets/',
             body: data.requestBody,
             mediaType: 'application/json',
             errors: {
@@ -50,17 +107,17 @@ export class ItemsService {
     }
     
     /**
-     * Read Item
-     * Get item by ID.
+     * Read Dataset
+     * Get dataset by ID.
      * @param data The data for the request.
      * @param data.id
-     * @returns ItemPublic Successful Response
+     * @returns DatasetPublic Successful Response
      * @throws ApiError
      */
-    public static readItem(data: ItemsReadItemData): CancelablePromise<ItemsReadItemResponse> {
+    public static readDataset(data: DatasetsReadDatasetData): CancelablePromise<DatasetsReadDatasetResponse> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/v1/items/{id}',
+            url: '/api/v1/datasets/{id}',
             path: {
                 id: data.id
             },
@@ -71,18 +128,18 @@ export class ItemsService {
     }
     
     /**
-     * Update Item
-     * Update an item.
+     * Update Dataset
+     * Update a dataset.
      * @param data The data for the request.
      * @param data.id
      * @param data.requestBody
-     * @returns ItemPublic Successful Response
+     * @returns DatasetPublic Successful Response
      * @throws ApiError
      */
-    public static updateItem(data: ItemsUpdateItemData): CancelablePromise<ItemsUpdateItemResponse> {
+    public static updateDataset(data: DatasetsUpdateDatasetData): CancelablePromise<DatasetsUpdateDatasetResponse> {
         return __request(OpenAPI, {
             method: 'PUT',
-            url: '/api/v1/items/{id}',
+            url: '/api/v1/datasets/{id}',
             path: {
                 id: data.id
             },
@@ -95,20 +152,92 @@ export class ItemsService {
     }
     
     /**
-     * Delete Item
-     * Delete an item.
+     * Delete Dataset
+     * Delete a dataset.
      * @param data The data for the request.
      * @param data.id
      * @returns Message Successful Response
      * @throws ApiError
      */
-    public static deleteItem(data: ItemsDeleteItemData): CancelablePromise<ItemsDeleteItemResponse> {
+    public static deleteDataset(data: DatasetsDeleteDatasetData): CancelablePromise<DatasetsDeleteDatasetResponse> {
         return __request(OpenAPI, {
             method: 'DELETE',
-            url: '/api/v1/items/{id}',
+            url: '/api/v1/datasets/{id}',
             path: {
                 id: data.id
             },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Add Samples To Dataset
+     * Add samples to dataset.
+     * @param data The data for the request.
+     * @param data.id
+     * @param data.requestBody
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static addSamplesToDataset(data: DatasetsAddSamplesToDatasetData): CancelablePromise<DatasetsAddSamplesToDatasetResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/datasets/{id}/samples',
+            path: {
+                id: data.id
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Remove Samples From Dataset
+     * Remove samples from dataset.
+     * @param data The data for the request.
+     * @param data.id
+     * @param data.requestBody
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static removeSamplesFromDataset(data: DatasetsRemoveSamplesFromDatasetData): CancelablePromise<DatasetsRemoveSamplesFromDatasetResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/v1/datasets/{id}/samples',
+            path: {
+                id: data.id
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Build Dataset
+     * Build dataset from conditions.
+     * @param data The data for the request.
+     * @param data.id
+     * @param data.requestBody
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static buildDataset(data: DatasetsBuildDatasetData): CancelablePromise<DatasetsBuildDatasetResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/datasets/{id}/build',
+            path: {
+                id: data.id
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
             errors: {
                 422: 'Validation Error'
             }
@@ -213,6 +342,159 @@ export class LoginService {
     }
 }
 
+export class MinioInstancesService {
+    /**
+     * Read Minio Instances
+     * Retrieve MinIO instances.
+     * @param data The data for the request.
+     * @param data.skip
+     * @param data.limit
+     * @returns MinIOInstancesPublic Successful Response
+     * @throws ApiError
+     */
+    public static readMinioInstances(data: MinioInstancesReadMinioInstancesData = {}): CancelablePromise<MinioInstancesReadMinioInstancesResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/minio-instances/',
+            query: {
+                skip: data.skip,
+                limit: data.limit
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Create Minio Instance Endpoint
+     * Create new MinIO instance.
+     * @param data The data for the request.
+     * @param data.requestBody
+     * @returns MinIOInstancePublic Successful Response
+     * @throws ApiError
+     */
+    public static createMinioInstanceEndpoint(data: MinioInstancesCreateMinioInstanceEndpointData): CancelablePromise<MinioInstancesCreateMinioInstanceEndpointResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/minio-instances/',
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Read Minio Instance
+     * Get MinIO instance by ID.
+     * @param data The data for the request.
+     * @param data.id
+     * @returns MinIOInstancePublic Successful Response
+     * @throws ApiError
+     */
+    public static readMinioInstance(data: MinioInstancesReadMinioInstanceData): CancelablePromise<MinioInstancesReadMinioInstanceResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/minio-instances/{id}',
+            path: {
+                id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Update Minio Instance Endpoint
+     * Update a MinIO instance.
+     * @param data The data for the request.
+     * @param data.id
+     * @param data.requestBody
+     * @returns MinIOInstancePublic Successful Response
+     * @throws ApiError
+     */
+    public static updateMinioInstanceEndpoint(data: MinioInstancesUpdateMinioInstanceEndpointData): CancelablePromise<MinioInstancesUpdateMinioInstanceEndpointResponse> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/api/v1/minio-instances/{id}',
+            path: {
+                id: data.id
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Delete Minio Instance
+     * Delete a MinIO instance.
+     * @param data The data for the request.
+     * @param data.id
+     * @returns Message Successful Response
+     * @throws ApiError
+     */
+    public static deleteMinioInstance(data: MinioInstancesDeleteMinioInstanceData): CancelablePromise<MinioInstancesDeleteMinioInstanceResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/v1/minio-instances/{id}',
+            path: {
+                id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Test Minio Connection
+     * Test connection to MinIO instance.
+     * @param data The data for the request.
+     * @param data.id
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static testMinioConnection(data: MinioInstancesTestMinioConnectionData): CancelablePromise<MinioInstancesTestMinioConnectionResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/minio-instances/{id}/test',
+            path: {
+                id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * List Minio Buckets
+     * List buckets in MinIO instance.
+     * @param data The data for the request.
+     * @param data.id
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static listMinioBuckets(data: MinioInstancesListMinioBucketsData): CancelablePromise<MinioInstancesListMinioBucketsResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/minio-instances/{id}/buckets',
+            path: {
+                id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+}
+
 export class PrivateService {
     /**
      * Create User
@@ -228,6 +510,360 @@ export class PrivateService {
             url: '/api/v1/private/users/',
             body: data.requestBody,
             mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+}
+
+export class SamplesService {
+    /**
+     * Read Samples
+     * Retrieve samples with filtering.
+     * @param data The data for the request.
+     * @param data.skip
+     * @param data.limit
+     * @param data.status
+     * @param data.minioInstanceId
+     * @param data.bucket
+     * @param data.tagId
+     * @param data.search
+     * @returns SamplesPublic Successful Response
+     * @throws ApiError
+     */
+    public static readSamples(data: SamplesReadSamplesData = {}): CancelablePromise<SamplesReadSamplesResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/samples/',
+            query: {
+                skip: data.skip,
+                limit: data.limit,
+                status: data.status,
+                minio_instance_id: data.minioInstanceId,
+                bucket: data.bucket,
+                tag_id: data.tagId,
+                search: data.search
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * List Import Tasks
+     * List import tasks for current user.
+     *
+     * Returns:
+     * List of import tasks ordered by creation date (newest first)
+     * @param data The data for the request.
+     * @param data.skip
+     * @param data.limit
+     * @returns ImportTaskPublic Successful Response
+     * @throws ApiError
+     */
+    public static listImportTasks(data: SamplesListImportTasksData = {}): CancelablePromise<SamplesListImportTasksResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/samples/import',
+            query: {
+                skip: data.skip,
+                limit: data.limit
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Import Samples
+     * Import samples from CSV file.
+     *
+     * This endpoint creates an import task and processes the CSV file.
+     * For MVP, this is synchronous. Will be upgraded to async with Redis later.
+     *
+     * Args:
+     * file: CSV file with object_key column (required), tags column (optional)
+     * minio_instance_id: MinIO instance to import from
+     * bucket: Default bucket name (optional if bucket column exists in CSV)
+     * validate_files: Whether to validate file existence via HEAD request
+     *
+     * Returns:
+     * Import task with results
+     * @param data The data for the request.
+     * @param data.formData
+     * @returns ImportTaskPublic Successful Response
+     * @throws ApiError
+     */
+    public static importSamples(data: SamplesImportSamplesData): CancelablePromise<SamplesImportSamplesResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/samples/import',
+            formData: data.formData,
+            mediaType: 'multipart/form-data',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Get Import Status
+     * Get import task status.
+     *
+     * Args:
+     * task_id: Import task ID
+     *
+     * Returns:
+     * Import task with current status and results
+     * @param data The data for the request.
+     * @param data.taskId
+     * @returns ImportTaskPublic Successful Response
+     * @throws ApiError
+     */
+    public static getImportStatus(data: SamplesGetImportStatusData): CancelablePromise<SamplesGetImportStatusResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/samples/import/{task_id}',
+            path: {
+                task_id: data.taskId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Preview Import Csv
+     * Preview CSV file content before import.
+     *
+     * Returns:
+     * CSV preview with row counts, columns, and sample data
+     * @param data The data for the request.
+     * @param data.formData
+     * @returns CSVPreviewResponse Successful Response
+     * @throws ApiError
+     */
+    public static previewImportCsv(data: SamplesPreviewImportCsvData): CancelablePromise<SamplesPreviewImportCsvResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/samples/import/preview',
+            formData: data.formData,
+            mediaType: 'multipart/form-data',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Read Sample
+     * Get sample by ID with tags.
+     * @param data The data for the request.
+     * @param data.id
+     * @returns SampleWithTags Successful Response
+     * @throws ApiError
+     */
+    public static readSample(data: SamplesReadSampleData): CancelablePromise<SamplesReadSampleResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/samples/{id}',
+            path: {
+                id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Delete Sample
+     * Soft delete a sample.
+     * @param data The data for the request.
+     * @param data.id
+     * @returns Message Successful Response
+     * @throws ApiError
+     */
+    public static deleteSample(data: SamplesDeleteSampleData): CancelablePromise<SamplesDeleteSampleResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/v1/samples/{id}',
+            path: {
+                id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Get Sample Preview Url
+     * Get presigned URL for sample preview.
+     * @param data The data for the request.
+     * @param data.id
+     * @param data.expiresHours
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static getSamplePreviewUrl(data: SamplesGetSamplePreviewUrlData): CancelablePromise<SamplesGetSamplePreviewUrlResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/samples/{id}/preview-url',
+            path: {
+                id: data.id
+            },
+            query: {
+                expires_hours: data.expiresHours
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Get Sample History
+     * Get sample operation history.
+     * @param data The data for the request.
+     * @param data.id
+     * @returns SampleHistoryPublic Successful Response
+     * @throws ApiError
+     */
+    public static getSampleHistory(data: SamplesGetSampleHistoryData): CancelablePromise<SamplesGetSampleHistoryResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/samples/{id}/history',
+            path: {
+                id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Batch Tag Samples
+     * Batch add tags to samples.
+     * @param data The data for the request.
+     * @param data.requestBody
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static batchTagSamples(data: SamplesBatchTagSamplesData): CancelablePromise<SamplesBatchTagSamplesResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/samples/batch-tag',
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+}
+
+export class TagsService {
+    /**
+     * Read Tags
+     * Retrieve tags.
+     * @param data The data for the request.
+     * @param data.skip
+     * @param data.limit
+     * @returns TagsPublic Successful Response
+     * @throws ApiError
+     */
+    public static readTags(data: TagsReadTagsData = {}): CancelablePromise<TagsReadTagsResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/tags/',
+            query: {
+                skip: data.skip,
+                limit: data.limit
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Create Tag
+     * Create a new tag.
+     * @param data The data for the request.
+     * @param data.requestBody
+     * @returns TagPublic Successful Response
+     * @throws ApiError
+     */
+    public static createTag(data: TagsCreateTagData): CancelablePromise<TagsCreateTagResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/tags/',
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Get Tag Tree
+     * Get tags as tree structure.
+     * @returns TagWithChildren Successful Response
+     * @throws ApiError
+     */
+    public static getTagTree(): CancelablePromise<TagsGetTagTreeResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/tags/tree'
+        });
+    }
+    
+    /**
+     * Update Tag
+     * Update a tag.
+     * @param data The data for the request.
+     * @param data.id
+     * @param data.requestBody
+     * @returns TagPublic Successful Response
+     * @throws ApiError
+     */
+    public static updateTag(data: TagsUpdateTagData): CancelablePromise<TagsUpdateTagResponse> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/api/v1/tags/{id}',
+            path: {
+                id: data.id
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Delete Tag
+     * Delete a tag.
+     * @param data The data for the request.
+     * @param data.id
+     * @returns Message Successful Response
+     * @throws ApiError
+     */
+    public static deleteTag(data: TagsDeleteTagData): CancelablePromise<TagsDeleteTagResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/v1/tags/{id}',
+            path: {
+                id: data.id
+            },
             errors: {
                 422: 'Validation Error'
             }
@@ -463,6 +1099,142 @@ export class UtilsService {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/v1/utils/health-check/'
+        });
+    }
+}
+
+export class WatchedPathsService {
+    /**
+     * Read Watched Paths
+     * Retrieve watched paths.
+     * @param data The data for the request.
+     * @param data.skip
+     * @param data.limit
+     * @param data.minioInstanceId
+     * @returns WatchedPathsPublic Successful Response
+     * @throws ApiError
+     */
+    public static readWatchedPaths(data: WatchedPathsReadWatchedPathsData = {}): CancelablePromise<WatchedPathsReadWatchedPathsResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/watched-paths/',
+            query: {
+                skip: data.skip,
+                limit: data.limit,
+                minio_instance_id: data.minioInstanceId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Create Watched Path
+     * Create a new watched path.
+     * @param data The data for the request.
+     * @param data.requestBody
+     * @returns WatchedPathPublic Successful Response
+     * @throws ApiError
+     */
+    public static createWatchedPath(data: WatchedPathsCreateWatchedPathData): CancelablePromise<WatchedPathsCreateWatchedPathResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/watched-paths/',
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Update Watched Path
+     * Update a watched path.
+     * @param data The data for the request.
+     * @param data.id
+     * @param data.requestBody
+     * @returns WatchedPathPublic Successful Response
+     * @throws ApiError
+     */
+    public static updateWatchedPath(data: WatchedPathsUpdateWatchedPathData): CancelablePromise<WatchedPathsUpdateWatchedPathResponse> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/api/v1/watched-paths/{id}',
+            path: {
+                id: data.id
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Delete Watched Path
+     * Delete a watched path.
+     * @param data The data for the request.
+     * @param data.id
+     * @returns Message Successful Response
+     * @throws ApiError
+     */
+    public static deleteWatchedPath(data: WatchedPathsDeleteWatchedPathData): CancelablePromise<WatchedPathsDeleteWatchedPathResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/v1/watched-paths/{id}',
+            path: {
+                id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Sync Watched Path
+     * Trigger sync for a watched path.
+     * @param data The data for the request.
+     * @param data.id
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static syncWatchedPath(data: WatchedPathsSyncWatchedPathData): CancelablePromise<WatchedPathsSyncWatchedPathResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/watched-paths/{id}/sync',
+            path: {
+                id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+}
+
+export class WebhooksService {
+    /**
+     * Receive Minio Webhook
+     * Receive MinIO webhook events.
+     * @param data The data for the request.
+     * @param data.instanceId
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static receiveMinioWebhook(data: WebhooksReceiveMinioWebhookData): CancelablePromise<WebhooksReceiveMinioWebhookResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/webhooks/minio/{instance_id}',
+            path: {
+                instance_id: data.instanceId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
         });
     }
 }

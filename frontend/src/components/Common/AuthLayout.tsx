@@ -13,23 +13,66 @@ export function AuthLayout({ children }: AuthLayoutProps) {
       <div className="bg-gradient-to-br from-background via-muted/50 to-background dark:from-[#0a0e17] dark:via-[#0f1521] dark:to-[#141b2d] relative hidden lg:flex lg:items-center lg:justify-center overflow-hidden">
         {/* Grid overlay */}
         <div className="absolute inset-0 opacity-20">
-          <div className="absolute inset-0" style={{
-            backgroundImage: `
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `
               linear-gradient(rgba(0, 240, 255, 0.1) 1px, transparent 1px),
               linear-gradient(90deg, rgba(0, 240, 255, 0.1) 1px, transparent 1px)
             `,
-            backgroundSize: '40px 40px'
-          }} />
+              backgroundSize: "40px 40px",
+            }}
+          />
         </div>
 
         {/* Animated circuit lines */}
         <div className="absolute inset-0 opacity-30">
-          <svg className="absolute top-20 left-20 w-64 h-64 text-primary/20" viewBox="0 0 200 200">
-            <circle cx="100" cy="100" r="80" stroke="currentColor" strokeWidth="0.5" fill="none" />
-            <circle cx="100" cy="100" r="60" stroke="currentColor" strokeWidth="0.5" fill="none" />
-            <circle cx="100" cy="100" r="40" stroke="currentColor" strokeWidth="0.5" fill="none" className="animate-spin" style={{ animationDuration: '20s' }} />
-            <line x1="100" y1="20" x2="100" y2="180" stroke="currentColor" strokeWidth="0.5" />
-            <line x1="20" y1="100" x2="180" y2="100" stroke="currentColor" strokeWidth="0.5" />
+          <svg
+            className="absolute top-20 left-20 w-64 h-64 text-primary/20"
+            viewBox="0 0 200 200"
+          >
+            <circle
+              cx="100"
+              cy="100"
+              r="80"
+              stroke="currentColor"
+              strokeWidth="0.5"
+              fill="none"
+            />
+            <circle
+              cx="100"
+              cy="100"
+              r="60"
+              stroke="currentColor"
+              strokeWidth="0.5"
+              fill="none"
+            />
+            <circle
+              cx="100"
+              cy="100"
+              r="40"
+              stroke="currentColor"
+              strokeWidth="0.5"
+              fill="none"
+              className="animate-spin"
+              style={{ animationDuration: "20s" }}
+            />
+            <line
+              x1="100"
+              y1="20"
+              x2="100"
+              y2="180"
+              stroke="currentColor"
+              strokeWidth="0.5"
+            />
+            <line
+              x1="20"
+              y1="100"
+              x2="180"
+              y2="100"
+              stroke="currentColor"
+              strokeWidth="0.5"
+            />
           </svg>
         </div>
 
