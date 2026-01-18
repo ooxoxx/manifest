@@ -28,6 +28,9 @@ docker compose watch
 # API Docs:        http://127.0.0.1:8000/docs
 # Adminer (DB UI): http://127.0.0.1:8080
 # Mailcatcher:     http://127.0.0.1:1080
+# MinIO Console:  http://127.0.0.1:9001
+# MinIO API:      http://127.0.0.1:9000
+# MinIO 凭据:     minioadmin / minioadmin
 ```
 
 ### Backend Testing
@@ -203,3 +206,11 @@ PLAYWRIGHT_BASE_URL=http://127.0.0.1:5273 npx playwright test --ui
 - See `docs/PROJECT.md` for detailed PRD, data models, and user stories
 - use pnpm over npm where possible for frontend package management
 - 开发过程中，你**不需要**处理openapi相关的内容，比如执行 `scripts/generate-client.sh`
+- **MinIO 测试实例**
+  - 仅在 `docker-compose.override.yml` 中配置，用于本地开发和 E2E 测试
+  - 预置 `test-bucket`，包含示例图片和 VOC 标注文件（部分有标注，部分无）
+  - E2E 测试中添加 MinIO 实例时使用：
+    - Endpoint: `minio:9000`（容器内）或 `127.0.0.1:9000`（本机）
+    - Access Key: `minioadmin`
+    - Secret Key: `minioadmin`
+    - Secure: `false`
