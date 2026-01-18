@@ -147,6 +147,22 @@ services:
       timeout: 5s
       retries: 5
 
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: /bin/sh
+    command: >
+      -c "
+      mc alias set local http://minio:9000 minioadmin minioadmin &&
+      mc mb --ignore-existing local/test-bucket &&
+      mc cp /test-data/* local/test-bucket/ --recursive &&
+      echo 'MinIO initialized with test data'
+      "
+    volumes:
+      - ./test-data/minio:/test-data:ro
+
 networks:
   traefik-public:
     # For local dev, don't expect an external Traefik network
