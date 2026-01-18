@@ -629,6 +629,9 @@ class SampleHistoryAction(str, Enum):
     untagged = "untagged"
     added_to_dataset = "added_to_dataset"
     removed_from_dataset = "removed_from_dataset"
+    annotation_linked = "annotation_linked"
+    annotation_conflict = "annotation_conflict"
+    annotation_removed = "annotation_removed"
 
 
 class SampleHistory(SQLModel, table=True):
