@@ -16,11 +16,11 @@ interface AddSamplesResponse {
   }
 }
 
-export const Route = createFileRoute("/_layout/datasets/$datasetId/add-samples")(
-  {
-    component: AddSamplesToDataset,
-  }
-)
+export const Route = createFileRoute(
+  "/_layout/datasets/$datasetId/add-samples",
+)({
+  component: AddSamplesToDataset,
+})
 
 function AddSamplesToDataset() {
   const navigate = useNavigate()
@@ -44,7 +44,9 @@ function AddSamplesToDataset() {
   } = useQuery({
     queryKey: ["filter-preview", filters],
     queryFn: async () => {
-      const result = await DatasetsService.filterPreview({ requestBody: filters })
+      const result = await DatasetsService.filterPreview({
+        requestBody: filters,
+      })
       return result as { count: number; samples: unknown[] }
     },
     enabled: false,
@@ -139,8 +141,7 @@ function AddSamplesToDataset() {
               {preview && (
                 <div className="rounded-lg bg-muted p-4">
                   <p className="text-sm font-medium">
-                    找到{" "}
-                    <span className="text-primary">{preview.count}</span>{" "}
+                    找到 <span className="text-primary">{preview.count}</span>{" "}
                     个匹配样本
                   </p>
                   <p className="text-xs text-muted-foreground">

@@ -1,46 +1,9 @@
-import { useSuspenseQuery } from "@tanstack/react-query"
-import { createFileRoute } from "@tanstack/react-router"
-import { Plus } from "lucide-react"
-import { Suspense, useState } from "react"
-import { TagsService } from "@/client"
-import { DataTable } from "@/components/Common/DataTable"
-import { PendingComponent } from "@/components/Pending/PendingComponent"
-import AddTag from "@/components/Tags/AddTag"
-import { columns } from "@/components/Tags/columns"
-import { Button } from "@/components/ui/button"
+// frontend/src/routes/_layout/tags.tsx
+import { createFileRoute, redirect } from "@tanstack/react-router"
 
 export const Route = createFileRoute("/_layout/tags")({
-  component: Tags,
+  beforeLoad: () => {
+    throw redirect({ to: "/settings/tags" })
+  },
+  component: () => null,
 })
-
-function TagsTable() {
-  const { data } = useSuspenseQuery({
-    queryKey: ["tags"],
-    queryFn: () => TagsService.readTags(),
-  })
-
-  return <DataTable columns={columns} data={data?.data || []} />
-}
-
-function Tags() {
-  const [isAddOpen, setIsAddOpen] = useState(false)
-
-  return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">标签</h1>
-          <p className="text-muted-foreground">使用层级标签组织样本</p>
-        </div>
-        <Button onClick={() => setIsAddOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          添加标签
-        </Button>
-      </div>
-      <Suspense fallback={<PendingComponent />}>
-        <TagsTable />
-      </Suspense>
-      <AddTag open={isAddOpen} onOpenChange={setIsAddOpen} />
-    </div>
-  )
-}
