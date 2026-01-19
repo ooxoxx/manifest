@@ -9,7 +9,7 @@ test("Password Recovery title is visible", async ({ page }) => {
   await page.goto("/recover-password")
 
   await expect(
-    page.getByRole("heading", { name: "Password Recovery" }),
+    page.getByRole("heading", { name: /Password Recovery|找回密码/i }),
   ).toBeVisible()
 })
 
@@ -24,7 +24,7 @@ test("Input is visible, empty and editable", async ({ page }) => {
 test("Continue button is visible", async ({ page }) => {
   await page.goto("/recover-password")
 
-  await expect(page.getByRole("button", { name: "Continue" })).toBeVisible()
+  await expect(page.getByRole("button", { name: /Continue|继续/i })).toBeVisible()
 })
 
 test("User can reset password successfully using the link", async ({
@@ -42,7 +42,7 @@ test("User can reset password successfully using the link", async ({
   await page.goto("/recover-password")
   await page.getByTestId("email-input").fill(email)
 
-  await page.getByRole("button", { name: "Continue" }).click()
+  await page.getByRole("button", { name: /Continue|继续/i }).click()
 
   const emailData = await findLastEmail({
     request,
@@ -66,8 +66,8 @@ test("User can reset password successfully using the link", async ({
 
   await page.getByTestId("new-password-input").fill(newPassword)
   await page.getByTestId("confirm-password-input").fill(newPassword)
-  await page.getByRole("button", { name: "Reset Password" }).click()
-  await expect(page.getByText("Password updated successfully")).toBeVisible()
+  await page.getByRole("button", { name: /Reset Password|重置密码/i }).click()
+  await expect(page.getByText(/Password updated successfully|密码更新成功/i)).toBeVisible()
 
   // Check if the user is able to login with the new password
   await logInUser(page, email, newPassword)
@@ -81,9 +81,9 @@ test("Expired or invalid reset link", async ({ page }) => {
 
   await page.getByTestId("new-password-input").fill(password)
   await page.getByTestId("confirm-password-input").fill(password)
-  await page.getByRole("button", { name: "Reset Password" }).click()
+  await page.getByRole("button", { name: /Reset Password|重置密码/i }).click()
 
-  await expect(page.getByText("Invalid token")).toBeVisible()
+  await expect(page.getByText(/Invalid token|无效.*令牌/i)).toBeVisible()
 })
 
 test("Weak new password validation", async ({ page, request }) => {
@@ -97,7 +97,7 @@ test("Weak new password validation", async ({ page, request }) => {
 
   await page.goto("/recover-password")
   await page.getByTestId("email-input").fill(email)
-  await page.getByRole("button", { name: "Continue" }).click()
+  await page.getByRole("button", { name: /Continue|继续/i }).click()
 
   const emailData = await findLastEmail({
     request,
@@ -117,9 +117,9 @@ test("Weak new password validation", async ({ page, request }) => {
   await page.goto(url)
   await page.getByTestId("new-password-input").fill(weakPassword)
   await page.getByTestId("confirm-password-input").fill(weakPassword)
-  await page.getByRole("button", { name: "Reset Password" }).click()
+  await page.getByRole("button", { name: /Reset Password|重置密码/i }).click()
 
   await expect(
-    page.getByText("Password must be at least 8 characters"),
+    page.getByText(/Password must be at least 8|密码至少.*8/i),
   ).toBeVisible()
 })

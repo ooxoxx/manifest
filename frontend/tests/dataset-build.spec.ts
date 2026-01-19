@@ -156,8 +156,10 @@ test.describe("Filter Panel", () => {
       .filter({ hasText: /选择 MinIO 实例/i })
     await minioSelect.click()
 
-    // Wait for options to load (API call)
-    await page.waitForTimeout(1000)
+    // Wait for dropdown to be visible and options to load
+    // Use auto-retrying assertion instead of waitForTimeout
+    const listbox = page.getByRole("listbox")
+    await expect(listbox).toBeVisible({ timeout: 5000 })
 
     // Should show MinIO options if any exist
     const options = page.getByRole("option")

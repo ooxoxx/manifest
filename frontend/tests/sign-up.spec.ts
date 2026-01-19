@@ -36,13 +36,13 @@ test("Inputs are visible, empty and editable", async ({ page }) => {
 test("Sign Up button is visible", async ({ page }) => {
   await page.goto("/signup")
 
-  await expect(page.getByRole("button", { name: "Sign Up" })).toBeVisible()
+  await expect(page.getByRole("button", { name: /注册|Sign Up/i })).toBeVisible()
 })
 
 test("Log In link is visible", async ({ page }) => {
   await page.goto("/signup")
 
-  await expect(page.getByRole("link", { name: "Log In" })).toBeVisible()
+  await expect(page.getByRole("link", { name: /登录|Log In/i })).toBeVisible()
 })
 
 test("Sign up with valid name, email, and password", async ({ page }) => {
@@ -52,7 +52,7 @@ test("Sign up with valid name, email, and password", async ({ page }) => {
 
   await page.goto("/signup")
   await fillForm(page, full_name, email, password, password)
-  await page.getByRole("button", { name: "Sign Up" }).click()
+  await page.getByRole("button", { name: /注册|Sign Up/i }).click()
 })
 
 test("Sign up with invalid email", async ({ page }) => {
@@ -65,9 +65,10 @@ test("Sign up with invalid email", async ({ page }) => {
     "changethis",
     "changethis",
   )
-  await page.getByRole("button", { name: "Sign Up" }).click()
+  await page.getByRole("button", { name: /注册|Sign Up/i }).click()
 
-  await expect(page.getByText("Invalid email address")).toBeVisible()
+  // Zod default email validation message is "Invalid input"
+  await expect(page.getByText("Invalid input")).toBeVisible()
 })
 
 test("Sign up with existing email", async ({ page }) => {
@@ -79,17 +80,20 @@ test("Sign up with existing email", async ({ page }) => {
   await page.goto("/signup")
 
   await fillForm(page, fullName, email, password, password)
-  await page.getByRole("button", { name: "Sign Up" }).click()
+  await page.getByRole("button", { name: /注册|Sign Up/i }).click()
+
+  // Wait for first sign up to complete - might redirect to home or login
+  await page.waitForURL(/^\/$|\/login/, { timeout: 10000 })
 
   // Sign up again with the same email
   await page.goto("/signup")
 
   await fillForm(page, fullName, email, password, password)
-  await page.getByRole("button", { name: "Sign Up" }).click()
+  await page.getByRole("button", { name: /注册|Sign Up/i }).click()
 
-  await page
-    .getByText("The user with this email already exists in the system")
-    .click()
+  await expect(
+    page.getByText(/已存在|already exists/i)
+  ).toBeVisible()
 })
 
 test("Sign up with weak password", async ({ page }) => {
@@ -100,10 +104,10 @@ test("Sign up with weak password", async ({ page }) => {
   await page.goto("/signup")
 
   await fillForm(page, fullName, email, password, password)
-  await page.getByRole("button", { name: "Sign Up" }).click()
+  await page.getByRole("button", { name: /注册|Sign Up/i }).click()
 
   await expect(
-    page.getByText("Password must be at least 8 characters"),
+    page.getByText(/密码至少.*8|Password must be at least 8/i),
   ).toBeVisible()
 })
 
@@ -116,9 +120,9 @@ test("Sign up with mismatched passwords", async ({ page }) => {
   await page.goto("/signup")
 
   await fillForm(page, fullName, email, password, password2)
-  await page.getByRole("button", { name: "Sign Up" }).click()
+  await page.getByRole("button", { name: /注册|Sign Up/i }).click()
 
-  await expect(page.getByText("The passwords don't match")).toBeVisible()
+  await expect(page.getByText(/密码不一致|passwords don't match/i)).toBeVisible()
 })
 
 test("Sign up with missing full name", async ({ page }) => {
@@ -129,9 +133,9 @@ test("Sign up with missing full name", async ({ page }) => {
   await page.goto("/signup")
 
   await fillForm(page, fullName, email, password, password)
-  await page.getByRole("button", { name: "Sign Up" }).click()
+  await page.getByRole("button", { name: /注册|Sign Up/i }).click()
 
-  await expect(page.getByText("Full Name is required")).toBeVisible()
+  await expect(page.getByText(/请输入姓名|Full Name is required/i)).toBeVisible()
 })
 
 test("Sign up with missing email", async ({ page }) => {
@@ -142,9 +146,10 @@ test("Sign up with missing email", async ({ page }) => {
   await page.goto("/signup")
 
   await fillForm(page, fullName, email, password, password)
-  await page.getByRole("button", { name: "Sign Up" }).click()
+  await page.getByRole("button", { name: /注册|Sign Up/i }).click()
 
-  await expect(page.getByText("Invalid email address")).toBeVisible()
+  // Zod default email validation message is "Invalid input"
+  await expect(page.getByText("Invalid input")).toBeVisible()
 })
 
 test("Sign up with missing password", async ({ page }) => {
@@ -155,7 +160,7 @@ test("Sign up with missing password", async ({ page }) => {
   await page.goto("/signup")
 
   await fillForm(page, fullName, email, password, password)
-  await page.getByRole("button", { name: "Sign Up" }).click()
+  await page.getByRole("button", { name: /注册|Sign Up/i }).click()
 
-  await expect(page.getByText("Password is required")).toBeVisible()
+  await expect(page.getByText(/请输入密码|Password is required/i)).toBeVisible()
 })

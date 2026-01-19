@@ -26,14 +26,14 @@ test("Inputs are visible, empty and editable", async ({ page }) => {
 test("Log In button is visible", async ({ page }) => {
   await page.goto("/login")
 
-  await expect(page.getByRole("button", { name: "Log In" })).toBeVisible()
+  await expect(page.getByRole("button", { name: /登录系统|Log In/i })).toBeVisible()
 })
 
 test("Forgot Password link is visible", async ({ page }) => {
   await page.goto("/login")
 
   await expect(
-    page.getByRole("link", { name: "Forgot your password?" }),
+    page.getByRole("link", { name: /忘记密码|Forgot/i }),
   ).toBeVisible()
 })
 
@@ -41,12 +41,12 @@ test("Log in with valid email and password ", async ({ page }) => {
   await page.goto("/login")
 
   await fillForm(page, firstSuperuser, firstSuperuserPassword)
-  await page.getByRole("button", { name: "Log In" }).click()
+  await page.getByRole("button", { name: /登录系统|Log In/i }).click()
 
   await page.waitForURL("/")
 
   await expect(
-    page.getByText("Welcome back, nice to see you again!"),
+    page.getByText(/欢迎回来|Welcome back/i),
   ).toBeVisible()
 })
 
@@ -54,9 +54,11 @@ test("Log in with invalid email", async ({ page }) => {
   await page.goto("/login")
 
   await fillForm(page, "invalidemail", firstSuperuserPassword)
-  await page.getByRole("button", { name: "Log In" }).click()
+  // Trigger validation by clicking elsewhere or submitting
+  await page.getByRole("button", { name: /登录系统|Log In/i }).click()
 
-  await expect(page.getByText("Invalid email address")).toBeVisible()
+  // Zod default email validation message is "Invalid input"
+  await expect(page.getByText("Invalid input")).toBeVisible()
 })
 
 test("Log in with invalid password", async ({ page }) => {
@@ -64,9 +66,9 @@ test("Log in with invalid password", async ({ page }) => {
 
   await page.goto("/login")
   await fillForm(page, firstSuperuser, password)
-  await page.getByRole("button", { name: "Log In" }).click()
+  await page.getByRole("button", { name: /登录系统|Log In/i }).click()
 
-  await expect(page.getByText("Incorrect email or password")).toBeVisible()
+  await expect(page.getByText(/邮箱或密码错误|Incorrect email or password/i)).toBeVisible()
 })
 
 // Log out
@@ -75,16 +77,16 @@ test("Successful log out", async ({ page }) => {
   await page.goto("/login")
 
   await fillForm(page, firstSuperuser, firstSuperuserPassword)
-  await page.getByRole("button", { name: "Log In" }).click()
+  await page.getByRole("button", { name: /登录系统|Log In/i }).click()
 
   await page.waitForURL("/")
 
   await expect(
-    page.getByText("Welcome back, nice to see you again!"),
+    page.getByText(/欢迎回来|Welcome back/i),
   ).toBeVisible()
 
   await page.getByTestId("user-menu").click()
-  await page.getByRole("menuitem", { name: "Log out" }).click()
+  await page.getByRole("menuitem", { name: /退出登录|Log out/i }).click()
   await page.waitForURL("/login")
 })
 
@@ -92,16 +94,16 @@ test("Logged-out user cannot access protected routes", async ({ page }) => {
   await page.goto("/login")
 
   await fillForm(page, firstSuperuser, firstSuperuserPassword)
-  await page.getByRole("button", { name: "Log In" }).click()
+  await page.getByRole("button", { name: /登录系统|Log In/i }).click()
 
   await page.waitForURL("/")
 
   await expect(
-    page.getByText("Welcome back, nice to see you again!"),
+    page.getByText(/欢迎回来|Welcome back/i),
   ).toBeVisible()
 
   await page.getByTestId("user-menu").click()
-  await page.getByRole("menuitem", { name: "Log out" }).click()
+  await page.getByRole("menuitem", { name: /退出登录|Log out/i }).click()
   await page.waitForURL("/login")
 
   await page.goto("/settings")

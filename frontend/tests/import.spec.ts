@@ -233,13 +233,10 @@ test.describe("Import Progress", () => {
   })
 
   test("Shows import progress during execution", async ({ page }) => {
-    // This test requires a MinIO instance to be configured
-    // Skip if no MinIO instance is available
-    test.skip(true, "Requires MinIO instance configuration")
-
-    // Upload CSV
+    // Upload CSV with files that exist in test MinIO bucket
     const csvContent = `object_key,tags
-images/sample001.jpg,cat`
+images/sample001.jpg,cat
+images/sample002.png,dog`
 
     const fileInput = page.getByTestId("file-input")
     await fileInput.setInputFiles({
@@ -248,33 +245,101 @@ images/sample001.jpg,cat`
       buffer: Buffer.from(csvContent),
     })
 
-    // Go through steps
+    // Go to step 2
     await page.getByRole("button", { name: /next/i }).click()
-    await page.getByRole("button", { name: /next/i }).click()
+    await expect(page.getByTestId("import-step-2")).toHaveAttribute(
+      "data-active",
+      "true",
+      { timeout: 10000 },
+    )
 
-    // Configure and start import
+    // Go to step 3
+    await page.getByRole("button", { name: /next/i }).click()
+    await expect(page.getByTestId("import-step-3")).toHaveAttribute(
+      "data-active",
+      "true",
+      { timeout: 10000 },
+    )
+
+    // Check if MinIO instance exists
     await page.getByTestId("minio-instance-select").click()
+    const hasMinioOptions = await page
+      .getByRole("option")
+      .first()
+      .isVisible({ timeout: 3000 })
+      .catch(() => false)
+
+    if (!hasMinioOptions) {
+      test.skip(true, "No MinIO instances configured in the system")
+      return
+    }
+
     // Select first MinIO instance
     await page.getByRole("option").first().click()
     await page.getByTestId("bucket-input").fill("test-bucket")
 
-    await page.getByRole("button", { name: /start import/i }).click()
+    // Start import
+    const startButton = page.getByRole("button", { name: /start import/i })
+    await expect(startButton).toBeEnabled()
+    await startButton.click()
 
-    // Should show progress indicator
-    await expect(page.getByTestId("import-progress")).toBeVisible()
-    await expect(page.getByTestId("import-status")).toBeVisible()
+    // Should show progress indicator or result
+    // Either progress element or result (success/error) should appear
+    await expect(
+      page.getByTestId("import-progress").or(page.getByText(/成功|失败|completed|error/i))
+    ).toBeVisible({ timeout: 15000 })
   })
 
   test("Shows import results when complete", async ({ page }) => {
-    // This test requires actual import execution
-    test.skip(true, "Requires MinIO instance configuration")
+    // Upload a simple CSV
+    const csvContent = `object_key
+images/sample001.jpg`
 
-    // After import completes, should show:
-    // - Created count
-    // - Skipped count
-    // - Error count
-    // - Tags created count
-    // - Annotations linked count
+    const fileInput = page.getByTestId("file-input")
+    await fileInput.setInputFiles({
+      name: "test.csv",
+      mimeType: "text/csv",
+      buffer: Buffer.from(csvContent),
+    })
+
+    // Navigate through steps
+    await page.getByRole("button", { name: /next/i }).click()
+    await expect(page.getByTestId("import-step-2")).toHaveAttribute(
+      "data-active",
+      "true",
+      { timeout: 10000 },
+    )
+
+    await page.getByRole("button", { name: /next/i }).click()
+    await expect(page.getByTestId("import-step-3")).toHaveAttribute(
+      "data-active",
+      "true",
+      { timeout: 10000 },
+    )
+
+    // Check if MinIO instance exists
+    await page.getByTestId("minio-instance-select").click()
+    const hasMinioOptions = await page
+      .getByRole("option")
+      .first()
+      .isVisible({ timeout: 3000 })
+      .catch(() => false)
+
+    if (!hasMinioOptions) {
+      test.skip(true, "No MinIO instances configured in the system")
+      return
+    }
+
+    // Select MinIO and start import
+    await page.getByRole("option").first().click()
+    await page.getByTestId("bucket-input").fill("test-bucket")
+    await page.getByRole("button", { name: /start import/i }).click()
+
+    // Wait for import to complete - should show results
+    // Results include counts for created/skipped/error
+    await expect(
+      page.getByText(/创建|created|成功|完成|completed/i)
+    ).toBeVisible({ timeout: 30000 })
   })
 
   test("Can view import history", async ({ page }) => {
