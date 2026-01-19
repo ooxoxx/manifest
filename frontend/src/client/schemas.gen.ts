@@ -224,85 +224,51 @@ export const DashboardOverviewSchema = {
     description: 'Dashboard overview statistics.'
 } as const;
 
-export const DatasetBuildRequestSchema = {
+export const DatasetAddSamplesRequestSchema = {
     properties: {
-        tag_ids: {
-            anyOf: [
-                {
-                    items: {
-                        type: 'string',
-                        format: 'uuid'
-                    },
-                    type: 'array'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Tag Ids'
+        filters: {
+            '$ref': '#/components/schemas/FilterParams'
         },
-        minio_instance_id: {
-            anyOf: [
-                {
-                    type: 'string',
-                    format: 'uuid'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Minio Instance Id'
-        },
-        bucket: {
-            anyOf: [
-                {
-                    type: 'string'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Bucket'
-        },
-        prefix: {
-            anyOf: [
-                {
-                    type: 'string'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Prefix'
-        },
-        created_after: {
-            anyOf: [
-                {
-                    type: 'string',
-                    format: 'date-time'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Created After'
-        },
-        created_before: {
-            anyOf: [
-                {
-                    type: 'string',
-                    format: 'date-time'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Created Before'
+        sampling: {
+            '$ref': '#/components/schemas/SamplingConfig'
         }
     },
     type: 'object',
+    required: ['filters', 'sampling'],
+    title: 'DatasetAddSamplesRequest',
+    description: 'Request for adding samples to existing dataset.'
+} as const;
+
+export const DatasetBuildRequestSchema = {
+    properties: {
+        name: {
+            type: 'string',
+            maxLength: 255,
+            minLength: 1,
+            title: 'Name'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        filters: {
+            '$ref': '#/components/schemas/FilterParams'
+        },
+        sampling: {
+            '$ref': '#/components/schemas/SamplingConfig'
+        }
+    },
+    type: 'object',
+    required: ['name', 'filters', 'sampling'],
     title: 'DatasetBuildRequest',
-    description: 'Request for building dataset from conditions.'
+    description: 'Request for building a new dataset.'
 } as const;
 
 export const DatasetCreateSchema = {
@@ -472,6 +438,148 @@ export const DatasetsPublicSchema = {
     required: ['data', 'count'],
     title: 'DatasetsPublic',
     description: 'Paginated datasets response.'
+} as const;
+
+export const FilterParamsSchema = {
+    properties: {
+        tags_include: {
+            anyOf: [
+                {
+                    items: {
+                        type: 'string',
+                        format: 'uuid'
+                    },
+                    type: 'array'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Tags Include'
+        },
+        tags_exclude: {
+            anyOf: [
+                {
+                    items: {
+                        type: 'string',
+                        format: 'uuid'
+                    },
+                    type: 'array'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Tags Exclude'
+        },
+        minio_instance_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Minio Instance Id'
+        },
+        bucket: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Bucket'
+        },
+        prefix: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Prefix'
+        },
+        date_from: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Date From'
+        },
+        date_to: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Date To'
+        },
+        annotation_classes: {
+            anyOf: [
+                {
+                    items: {
+                        type: 'string'
+                    },
+                    type: 'array'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Annotation Classes'
+        },
+        object_count_min: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Object Count Min'
+        },
+        object_count_max: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Object Count Max'
+        },
+        annotation_status: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/AnnotationStatus'
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        }
+    },
+    type: 'object',
+    title: 'FilterParams',
+    description: 'Parameters for filtering samples.'
 } as const;
 
 export const HTTPValidationErrorSchema = {
@@ -856,7 +964,7 @@ export const PrivateUserCreateSchema = {
 
 export const SampleHistoryActionSchema = {
     type: 'string',
-    enum: ['created', 'updated', 'deleted', 'tagged', 'untagged', 'added_to_dataset', 'removed_from_dataset'],
+    enum: ['created', 'updated', 'deleted', 'tagged', 'untagged', 'added_to_dataset', 'removed_from_dataset', 'annotation_linked', 'annotation_conflict', 'annotation_removed'],
     title: 'SampleHistoryAction',
     description: 'Sample history action enum.'
 } as const;
@@ -898,6 +1006,103 @@ export const SampleHistoryPublicSchema = {
     required: ['id', 'sample_id', 'action', 'details', 'created_at'],
     title: 'SampleHistoryPublic',
     description: 'Properties to return via API.'
+} as const;
+
+export const SamplePreviewAnnotationSchema = {
+    properties: {
+        objects: {
+            anyOf: [
+                {
+                    items: {
+                        additionalProperties: true,
+                        type: 'object'
+                    },
+                    type: 'array'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Objects'
+        },
+        class_counts: {
+            anyOf: [
+                {
+                    additionalProperties: {
+                        type: 'integer'
+                    },
+                    type: 'object'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Class Counts'
+        },
+        image_width: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Image Width'
+        },
+        image_height: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Image Height'
+        }
+    },
+    type: 'object',
+    title: 'SamplePreviewAnnotation',
+    description: 'Annotation data for sample preview.'
+} as const;
+
+export const SamplePreviewResponseSchema = {
+    properties: {
+        presigned_url: {
+            type: 'string',
+            title: 'Presigned Url'
+        },
+        expires_in: {
+            type: 'integer',
+            title: 'Expires In'
+        },
+        annotation: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/SamplePreviewAnnotation'
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        },
+        tags: {
+            items: {
+                '$ref': '#/components/schemas/TagPublic'
+            },
+            type: 'array',
+            title: 'Tags',
+            default: []
+        },
+        sample: {
+            '$ref': '#/components/schemas/SamplePublic'
+        }
+    },
+    type: 'object',
+    required: ['presigned_url', 'expires_in', 'sample'],
+    title: 'SamplePreviewResponse',
+    description: 'Response for sample preview API.'
 } as const;
 
 export const SamplePublicSchema = {
@@ -1236,6 +1441,61 @@ export const SamplesPublicSchema = {
     required: ['data', 'count'],
     title: 'SamplesPublic',
     description: 'Paginated samples response.'
+} as const;
+
+export const SamplingConfigSchema = {
+    properties: {
+        mode: {
+            '$ref': '#/components/schemas/SamplingMode',
+            default: 'all'
+        },
+        count: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Count'
+        },
+        class_targets: {
+            anyOf: [
+                {
+                    additionalProperties: {
+                        type: 'integer'
+                    },
+                    type: 'object'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Class Targets'
+        },
+        seed: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Seed'
+        }
+    },
+    type: 'object',
+    title: 'SamplingConfig',
+    description: 'Configuration for sampling strategy.'
+} as const;
+
+export const SamplingModeSchema = {
+    type: 'string',
+    enum: ['all', 'random', 'class_targets'],
+    title: 'SamplingMode',
+    description: 'Sampling mode for dataset building.'
 } as const;
 
 export const TagCreateSchema = {

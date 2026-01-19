@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { DashboardGetDashboardOverviewResponse, DashboardGetDailyStatsData, DashboardGetDailyStatsResponse, DashboardGetTagDistributionData, DashboardGetTagDistributionResponse, DatasetsReadDatasetsData, DatasetsReadDatasetsResponse, DatasetsCreateDatasetData, DatasetsCreateDatasetResponse, DatasetsReadDatasetData, DatasetsReadDatasetResponse, DatasetsUpdateDatasetData, DatasetsUpdateDatasetResponse, DatasetsDeleteDatasetData, DatasetsDeleteDatasetResponse, DatasetsAddSamplesToDatasetData, DatasetsAddSamplesToDatasetResponse, DatasetsRemoveSamplesFromDatasetData, DatasetsRemoveSamplesFromDatasetResponse, DatasetsBuildDatasetData, DatasetsBuildDatasetResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, MinioInstancesReadMinioInstancesData, MinioInstancesReadMinioInstancesResponse, MinioInstancesCreateMinioInstanceEndpointData, MinioInstancesCreateMinioInstanceEndpointResponse, MinioInstancesReadMinioInstanceData, MinioInstancesReadMinioInstanceResponse, MinioInstancesUpdateMinioInstanceEndpointData, MinioInstancesUpdateMinioInstanceEndpointResponse, MinioInstancesDeleteMinioInstanceData, MinioInstancesDeleteMinioInstanceResponse, MinioInstancesTestMinioConnectionData, MinioInstancesTestMinioConnectionResponse, MinioInstancesListMinioBucketsData, MinioInstancesListMinioBucketsResponse, PrivateCreateUserData, PrivateCreateUserResponse, SamplesReadSamplesData, SamplesReadSamplesResponse, SamplesListImportTasksData, SamplesListImportTasksResponse, SamplesImportSamplesData, SamplesImportSamplesResponse, SamplesGetImportStatusData, SamplesGetImportStatusResponse, SamplesPreviewImportCsvData, SamplesPreviewImportCsvResponse, SamplesReadSampleData, SamplesReadSampleResponse, SamplesDeleteSampleData, SamplesDeleteSampleResponse, SamplesGetSamplePreviewUrlData, SamplesGetSamplePreviewUrlResponse, SamplesGetSampleHistoryData, SamplesGetSampleHistoryResponse, SamplesBatchTagSamplesData, SamplesBatchTagSamplesResponse, TagsReadTagsData, TagsReadTagsResponse, TagsCreateTagData, TagsCreateTagResponse, TagsGetTagTreeResponse, TagsUpdateTagData, TagsUpdateTagResponse, TagsDeleteTagData, TagsDeleteTagResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, WatchedPathsReadWatchedPathsData, WatchedPathsReadWatchedPathsResponse, WatchedPathsCreateWatchedPathData, WatchedPathsCreateWatchedPathResponse, WatchedPathsUpdateWatchedPathData, WatchedPathsUpdateWatchedPathResponse, WatchedPathsDeleteWatchedPathData, WatchedPathsDeleteWatchedPathResponse, WatchedPathsSyncWatchedPathData, WatchedPathsSyncWatchedPathResponse, WebhooksReceiveMinioWebhookData, WebhooksReceiveMinioWebhookResponse } from './types.gen';
+import type { DashboardGetDashboardOverviewResponse, DashboardGetDailyStatsData, DashboardGetDailyStatsResponse, DashboardGetTagDistributionData, DashboardGetTagDistributionResponse, DatasetsReadDatasetsData, DatasetsReadDatasetsResponse, DatasetsCreateDatasetData, DatasetsCreateDatasetResponse, DatasetsFilterPreviewData, DatasetsFilterPreviewResponse, DatasetsBuildNewDatasetData, DatasetsBuildNewDatasetResponse, DatasetsAddFilteredSamplesToDatasetData, DatasetsAddFilteredSamplesToDatasetResponse, DatasetsReadDatasetData, DatasetsReadDatasetResponse, DatasetsUpdateDatasetData, DatasetsUpdateDatasetResponse, DatasetsDeleteDatasetData, DatasetsDeleteDatasetResponse, DatasetsGetDatasetSamplesData, DatasetsGetDatasetSamplesResponse, DatasetsAddSamplesToDatasetData, DatasetsAddSamplesToDatasetResponse, DatasetsRemoveSamplesFromDatasetData, DatasetsRemoveSamplesFromDatasetResponse, DatasetsBuildDatasetData, DatasetsBuildDatasetResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, MinioInstancesReadMinioInstancesData, MinioInstancesReadMinioInstancesResponse, MinioInstancesCreateMinioInstanceEndpointData, MinioInstancesCreateMinioInstanceEndpointResponse, MinioInstancesReadMinioInstanceData, MinioInstancesReadMinioInstanceResponse, MinioInstancesUpdateMinioInstanceEndpointData, MinioInstancesUpdateMinioInstanceEndpointResponse, MinioInstancesDeleteMinioInstanceData, MinioInstancesDeleteMinioInstanceResponse, MinioInstancesTestMinioConnectionData, MinioInstancesTestMinioConnectionResponse, MinioInstancesListMinioBucketsData, MinioInstancesListMinioBucketsResponse, PrivateCreateUserData, PrivateCreateUserResponse, SamplesReadSamplesData, SamplesReadSamplesResponse, SamplesListImportTasksData, SamplesListImportTasksResponse, SamplesImportSamplesData, SamplesImportSamplesResponse, SamplesGetImportStatusData, SamplesGetImportStatusResponse, SamplesPreviewImportCsvData, SamplesPreviewImportCsvResponse, SamplesReadSampleData, SamplesReadSampleResponse, SamplesDeleteSampleData, SamplesDeleteSampleResponse, SamplesGetSamplePreviewUrlData, SamplesGetSamplePreviewUrlResponse, SamplesGetSamplePreviewData, SamplesGetSamplePreviewResponse, SamplesGetSampleHistoryData, SamplesGetSampleHistoryResponse, SamplesBatchTagSamplesData, SamplesBatchTagSamplesResponse, TagsReadTagsData, TagsReadTagsResponse, TagsCreateTagData, TagsCreateTagResponse, TagsGetTagTreeResponse, TagsUpdateTagData, TagsUpdateTagResponse, TagsDeleteTagData, TagsDeleteTagResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, WatchedPathsReadWatchedPathsData, WatchedPathsReadWatchedPathsResponse, WatchedPathsCreateWatchedPathData, WatchedPathsCreateWatchedPathResponse, WatchedPathsUpdateWatchedPathData, WatchedPathsUpdateWatchedPathResponse, WatchedPathsDeleteWatchedPathData, WatchedPathsDeleteWatchedPathResponse, WatchedPathsSyncWatchedPathData, WatchedPathsSyncWatchedPathResponse, WebhooksReceiveMinioWebhookData, WebhooksReceiveMinioWebhookResponse } from './types.gen';
 
 export class DashboardService {
     /**
@@ -107,6 +107,76 @@ export class DatasetsService {
     }
     
     /**
+     * Filter Preview
+     * Preview samples matching filter criteria.
+     * @param data The data for the request.
+     * @param data.requestBody
+     * @param data.skip
+     * @param data.limit
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static filterPreview(data: DatasetsFilterPreviewData): CancelablePromise<DatasetsFilterPreviewResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/datasets/filter-preview',
+            query: {
+                skip: data.skip,
+                limit: data.limit
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Build New Dataset
+     * Create a new dataset with filtered and sampled data.
+     * @param data The data for the request.
+     * @param data.requestBody
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static buildNewDataset(data: DatasetsBuildNewDatasetData): CancelablePromise<DatasetsBuildNewDatasetResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/datasets/build',
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Add Filtered Samples To Dataset
+     * Add samples to an existing dataset using filters and sampling.
+     * @param data The data for the request.
+     * @param data.datasetId
+     * @param data.requestBody
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static addFilteredSamplesToDataset(data: DatasetsAddFilteredSamplesToDatasetData): CancelablePromise<DatasetsAddFilteredSamplesToDatasetResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/datasets/{dataset_id}/add-samples',
+            path: {
+                dataset_id: data.datasetId
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
      * Read Dataset
      * Get dataset by ID.
      * @param data The data for the request.
@@ -165,6 +235,33 @@ export class DatasetsService {
             url: '/api/v1/datasets/{id}',
             path: {
                 id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Get Dataset Samples
+     * Get samples in a dataset.
+     * @param data The data for the request.
+     * @param data.id
+     * @param data.skip
+     * @param data.limit
+     * @returns SamplesPublic Successful Response
+     * @throws ApiError
+     */
+    public static getDatasetSamples(data: DatasetsGetDatasetSamplesData): CancelablePromise<DatasetsGetDatasetSamplesResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/datasets/{id}/samples',
+            path: {
+                id: data.id
+            },
+            query: {
+                skip: data.skip,
+                limit: data.limit
             },
             errors: {
                 422: 'Validation Error'
@@ -714,6 +811,35 @@ export class SamplesService {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/v1/samples/{id}/preview-url',
+            path: {
+                id: data.id
+            },
+            query: {
+                expires_hours: data.expiresHours
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Get Sample Preview
+     * Get sample preview with presigned URL, annotation, and tags.
+     *
+     * This endpoint combines sample info, presigned URL for image access,
+     * annotation data (bounding boxes), and tags in a single response.
+     * Optimized for the sample viewer/reviewer components.
+     * @param data The data for the request.
+     * @param data.id
+     * @param data.expiresHours
+     * @returns SamplePreviewResponse Successful Response
+     * @throws ApiError
+     */
+    public static getSamplePreview(data: SamplesGetSamplePreviewData): CancelablePromise<SamplesGetSamplePreviewResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/samples/{id}/preview',
             path: {
                 id: data.id
             },

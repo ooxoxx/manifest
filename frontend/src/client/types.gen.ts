@@ -68,15 +68,21 @@ export type DashboardOverview = {
 };
 
 /**
- * Request for building dataset from conditions.
+ * Request for adding samples to existing dataset.
+ */
+export type DatasetAddSamplesRequest = {
+    filters: FilterParams;
+    sampling: SamplingConfig;
+};
+
+/**
+ * Request for building a new dataset.
  */
 export type DatasetBuildRequest = {
-    tag_ids?: (Array<(string)> | null);
-    minio_instance_id?: (string | null);
-    bucket?: (string | null);
-    prefix?: (string | null);
-    created_after?: (string | null);
-    created_before?: (string | null);
+    name: string;
+    description?: (string | null);
+    filters: FilterParams;
+    sampling: SamplingConfig;
 };
 
 /**
@@ -124,6 +130,23 @@ export type DatasetUpdate = {
     name?: (string | null);
     description?: (string | null);
     is_public?: (boolean | null);
+};
+
+/**
+ * Parameters for filtering samples.
+ */
+export type FilterParams = {
+    tags_include?: (Array<(string)> | null);
+    tags_exclude?: (Array<(string)> | null);
+    minio_instance_id?: (string | null);
+    bucket?: (string | null);
+    prefix?: (string | null);
+    date_from?: (string | null);
+    date_to?: (string | null);
+    annotation_classes?: (Array<(string)> | null);
+    object_count_min?: (number | null);
+    object_count_max?: (number | null);
+    annotation_status?: (AnnotationStatus | null);
 };
 
 export type HTTPValidationError = {
@@ -222,7 +245,7 @@ export type PrivateUserCreate = {
 /**
  * Sample history action enum.
  */
-export type SampleHistoryAction = 'created' | 'updated' | 'deleted' | 'tagged' | 'untagged' | 'added_to_dataset' | 'removed_from_dataset';
+export type SampleHistoryAction = 'created' | 'updated' | 'deleted' | 'tagged' | 'untagged' | 'added_to_dataset' | 'removed_from_dataset' | 'annotation_linked' | 'annotation_conflict' | 'annotation_removed';
 
 /**
  * Properties to return via API.
@@ -235,6 +258,31 @@ export type SampleHistoryPublic = {
     [key: string]: unknown;
 } | null);
     created_at: string;
+};
+
+/**
+ * Annotation data for sample preview.
+ */
+export type SamplePreviewAnnotation = {
+    objects?: (Array<{
+    [key: string]: unknown;
+}> | null);
+    class_counts?: ({
+    [key: string]: (number);
+} | null);
+    image_width?: (number | null);
+    image_height?: (number | null);
+};
+
+/**
+ * Response for sample preview API.
+ */
+export type SamplePreviewResponse = {
+    presigned_url: string;
+    expires_in: number;
+    annotation?: (SamplePreviewAnnotation | null);
+    tags?: Array<TagPublic>;
+    sample: SamplePublic;
 };
 
 /**
@@ -309,6 +357,23 @@ export type SampleWithTags = {
     updated_at: string;
     tags?: Array<TagPublic>;
 };
+
+/**
+ * Configuration for sampling strategy.
+ */
+export type SamplingConfig = {
+    mode?: SamplingMode;
+    count?: (number | null);
+    class_targets?: ({
+    [key: string]: (number);
+} | null);
+    seed?: (number | null);
+};
+
+/**
+ * Sampling mode for dataset building.
+ */
+export type SamplingMode = 'all' | 'random' | 'class_targets';
 
 /**
  * Properties to receive on tag creation.
@@ -503,6 +568,33 @@ export type DatasetsCreateDatasetData = {
 
 export type DatasetsCreateDatasetResponse = (DatasetPublic);
 
+export type DatasetsFilterPreviewData = {
+    limit?: number;
+    requestBody: FilterParams;
+    skip?: number;
+};
+
+export type DatasetsFilterPreviewResponse = ({
+    [key: string]: unknown;
+});
+
+export type DatasetsBuildNewDatasetData = {
+    requestBody: DatasetBuildRequest;
+};
+
+export type DatasetsBuildNewDatasetResponse = ({
+    [key: string]: unknown;
+});
+
+export type DatasetsAddFilteredSamplesToDatasetData = {
+    datasetId: string;
+    requestBody: DatasetAddSamplesRequest;
+};
+
+export type DatasetsAddFilteredSamplesToDatasetResponse = ({
+    [key: string]: unknown;
+});
+
 export type DatasetsReadDatasetData = {
     id: string;
 };
@@ -521,6 +613,14 @@ export type DatasetsDeleteDatasetData = {
 };
 
 export type DatasetsDeleteDatasetResponse = (Message);
+
+export type DatasetsGetDatasetSamplesData = {
+    id: string;
+    limit?: number;
+    skip?: number;
+};
+
+export type DatasetsGetDatasetSamplesResponse = (SamplesPublic);
 
 export type DatasetsAddSamplesToDatasetData = {
     id: string;
@@ -686,6 +786,13 @@ export type SamplesGetSamplePreviewUrlData = {
 export type SamplesGetSamplePreviewUrlResponse = ({
     [key: string]: unknown;
 });
+
+export type SamplesGetSamplePreviewData = {
+    expiresHours?: number;
+    id: string;
+};
+
+export type SamplesGetSamplePreviewResponse = (SamplePreviewResponse);
 
 export type SamplesGetSampleHistoryData = {
     id: string;
