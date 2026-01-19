@@ -1,4 +1,13 @@
-import { Database, FolderOpen, Home, Server, Tags, Users } from "lucide-react"
+import {
+  Activity,
+  Database,
+  FolderOpen,
+  Hammer,
+  Server,
+  Tags,
+  Upload,
+  Users,
+} from "lucide-react"
 
 import { SidebarAppearance } from "@/components/Common/Appearance"
 import { Logo } from "@/components/Common/Logo"
@@ -7,25 +16,34 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
+  SidebarSeparator,
 } from "@/components/ui/sidebar"
 import useAuth from "@/hooks/useAuth"
-import { type Item, Main } from "./Main"
+import { type NavItem, SidebarNavGroup } from "./SidebarNavGroup"
 import { User } from "./User"
 
-const baseItems: Item[] = [
-  { icon: Home, title: "首页", path: "/" },
-  { icon: FolderOpen, title: "样本", path: "/samples" },
-  { icon: Tags, title: "标签", path: "/tags" },
-  { icon: Database, title: "数据集", path: "/datasets" },
-  { icon: Server, title: "MinIO", path: "/minio-instances" },
+const workbenchItems: NavItem[] = [
+  { icon: Upload, title: "样本入库", path: "/import" },
+  { icon: Hammer, title: "数据集构建", path: "/build" },
+  { icon: Activity, title: "运维中心", path: "/ops" },
+]
+
+const browseItems: NavItem[] = [
+  { icon: FolderOpen, title: "样本浏览", path: "/samples" },
+  { icon: Database, title: "数据集浏览", path: "/datasets" },
+]
+
+const configItems: NavItem[] = [
+  { icon: Tags, title: "标签管理", path: "/settings/tags" },
+  { icon: Server, title: "MinIO 实例", path: "/settings/minio" },
 ]
 
 export function AppSidebar() {
   const { user: currentUser } = useAuth()
 
-  const items = currentUser?.is_superuser
-    ? [...baseItems, { icon: Users, title: "管理", path: "/admin" }]
-    : baseItems
+  const adminItems: NavItem[] = currentUser?.is_superuser
+    ? [{ icon: Users, title: "用户管理", path: "/settings/users" }]
+    : []
 
   return (
     <Sidebar collapsible="icon">
@@ -33,7 +51,10 @@ export function AppSidebar() {
         <Logo variant="responsive" />
       </SidebarHeader>
       <SidebarContent>
-        <Main items={items} />
+        <SidebarNavGroup label="工作台" items={workbenchItems} />
+        <SidebarNavGroup label="浏览" items={browseItems} />
+        <SidebarSeparator />
+        <SidebarNavGroup label="配置" items={[...configItems, ...adminItems]} />
       </SidebarContent>
       <SidebarFooter>
         <SidebarAppearance />
