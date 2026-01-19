@@ -1,7 +1,6 @@
 """Encryption utilities for sensitive data like MinIO credentials."""
 
 import base64
-import secrets
 
 from cryptography.fernet import Fernet
 

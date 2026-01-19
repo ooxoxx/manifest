@@ -10,6 +10,7 @@ from sqlmodel import col, func, select
 
 from app.api.deps import CurrentUser, SessionDep
 from app.models import (
+    Annotation,
     BatchTagRequest,
     CSVPreviewResponse,
     ImportTask,
@@ -21,6 +22,9 @@ from app.models import (
     SampleHistory,
     SampleHistoryAction,
     SampleHistoryPublic,
+    SamplePreviewAnnotation,
+    SamplePreviewResponse,
+    SamplePublic,
     SamplesPublic,
     SampleStatus,
     SampleTag,
@@ -313,6 +317,71 @@ def get_sample_preview_url(
         return {"url": url, "expires_in": expires_hours * 3600}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/{id}/preview", response_model=SamplePreviewResponse)
+def get_sample_preview(
+    session: SessionDep,
+    current_user: CurrentUser,
+    id: uuid.UUID,
+    expires_hours: int = 1,
+) -> Any:
+    """Get sample preview with presigned URL, annotation, and tags.
+
+    This endpoint combines sample info, presigned URL for image access,
+    annotation data (bounding boxes), and tags in a single response.
+    Optimized for the sample viewer/reviewer components.
+    """
+    sample = session.get(Sample, id)
+    if not sample:
+        raise HTTPException(status_code=404, detail="Sample not found")
+    if sample.owner_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+
+    # Get MinIO instance for presigned URL
+    instance = session.get(MinIOInstance, sample.minio_instance_id)
+    if not instance:
+        raise HTTPException(status_code=404, detail="MinIO instance not found")
+
+    # Generate presigned URL
+    try:
+        presigned_url = MinIOService.get_presigned_url(
+            instance=instance,
+            bucket=sample.bucket,
+            object_key=sample.object_key,
+            expires=timedelta(hours=expires_hours),
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate URL: {str(e)}")
+
+    # Get annotation data
+    annotation_data = None
+    annotation = session.exec(
+        select(Annotation).where(Annotation.sample_id == sample.id)
+    ).first()
+    if annotation:
+        annotation_data = SamplePreviewAnnotation(
+            objects=annotation.objects,
+            class_counts=annotation.class_counts,
+            image_width=annotation.image_width,
+            image_height=annotation.image_height,
+        )
+
+    # Get tags
+    tags_query = (
+        select(Tag)
+        .join(SampleTag)
+        .where(SampleTag.sample_id == sample.id)
+    )
+    tags = session.exec(tags_query).all()
+
+    return SamplePreviewResponse(
+        presigned_url=presigned_url,
+        expires_in=expires_hours * 3600,
+        annotation=annotation_data,
+        tags=tags,
+        sample=SamplePublic(**sample.model_dump()),
+    )
 
 
 @router.get("/{id}/history", response_model=list[SampleHistoryPublic])

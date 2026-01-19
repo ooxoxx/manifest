@@ -73,7 +73,8 @@ function Dashboard() {
           </span>
         </h1>
         <p className="text-muted-foreground mt-2 text-lg">
-          正在管理分布式存储中的 {overview?.total_samples?.toLocaleString() ?? 0} 个训练样本
+          正在管理分布式存储中的{" "}
+          {overview?.total_samples?.toLocaleString() ?? 0} 个训练样本
         </p>
       </div>
 
@@ -130,7 +131,8 @@ function Dashboard() {
                   &gt;
                 </span>
                 <span>
-                  前往 <span className="font-semibold text-primary">样本</span> 浏览您的资源
+                  前往 <span className="font-semibold text-primary">样本</span>{" "}
+                  浏览您的资源
                 </span>
               </li>
               <li className="flex items-start gap-2 group/item hover:text-foreground transition-colors">
@@ -138,7 +140,8 @@ function Dashboard() {
                   &gt;
                 </span>
                 <span>
-                  使用 <span className="font-semibold text-primary">标签</span> 对样本进行层级分类
+                  使用 <span className="font-semibold text-primary">标签</span>{" "}
+                  对样本进行层级分类
                 </span>
               </li>
               <li className="flex items-start gap-2 group/item hover:text-foreground transition-colors">
@@ -146,7 +149,9 @@ function Dashboard() {
                   &gt;
                 </span>
                 <span>
-                  创建 <span className="font-semibold text-primary">数据集</span> 用于训练集合
+                  创建{" "}
+                  <span className="font-semibold text-primary">数据集</span>{" "}
+                  用于训练集合
                 </span>
               </li>
               <li className="flex items-start gap-2 group/item hover:text-foreground transition-colors">
@@ -154,7 +159,9 @@ function Dashboard() {
                   &gt;
                 </span>
                 <span>
-                  配置 <span className="font-semibold text-primary">MinIO 实例</span> 以管理存储
+                  配置{" "}
+                  <span className="font-semibold text-primary">MinIO 实例</span>{" "}
+                  以管理存储
                 </span>
               </li>
             </ul>
@@ -172,9 +179,7 @@ function Dashboard() {
                 <span className="text-muted-foreground">MinIO 实例</span>
                 <span className="font-mono font-semibold text-primary">
                   {overview?.total_minio_instances ?? 0}{" "}
-                  <span className="text-xs text-muted-foreground">
-                    已连接
-                  </span>
+                  <span className="text-xs text-muted-foreground">已连接</span>
                 </span>
               </div>
               <div className="flex justify-between items-center p-3 rounded-lg bg-muted/30 border border-border/50">

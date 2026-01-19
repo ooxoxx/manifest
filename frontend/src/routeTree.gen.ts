@@ -22,6 +22,8 @@ import { Route as LayoutDatasetsRouteImport } from './routes/_layout/datasets'
 import { Route as LayoutAdminRouteImport } from './routes/_layout/admin'
 import { Route as LayoutSamplesIndexRouteImport } from './routes/_layout/samples/index'
 import { Route as LayoutSamplesImportRouteImport } from './routes/_layout/samples/import'
+import { Route as LayoutSamplesSampleIdRouteImport } from './routes/_layout/samples/$sampleId'
+import { Route as LayoutDatasetsDatasetIdReviewRouteImport } from './routes/_layout/datasets/$datasetId/review'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -87,6 +89,17 @@ const LayoutSamplesImportRoute = LayoutSamplesImportRouteImport.update({
   path: '/samples/import',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutSamplesSampleIdRoute = LayoutSamplesSampleIdRouteImport.update({
+  id: '/samples/$sampleId',
+  path: '/samples/$sampleId',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutDatasetsDatasetIdReviewRoute =
+  LayoutDatasetsDatasetIdReviewRouteImport.update({
+    id: '/$datasetId/review',
+    path: '/$datasetId/review',
+    getParentRoute: () => LayoutDatasetsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
@@ -94,13 +107,15 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/admin': typeof LayoutAdminRoute
-  '/datasets': typeof LayoutDatasetsRoute
+  '/datasets': typeof LayoutDatasetsRouteWithChildren
   '/minio-instances': typeof LayoutMinioInstancesRoute
   '/settings': typeof LayoutSettingsRoute
   '/tags': typeof LayoutTagsRoute
   '/': typeof LayoutIndexRoute
+  '/samples/$sampleId': typeof LayoutSamplesSampleIdRoute
   '/samples/import': typeof LayoutSamplesImportRoute
   '/samples': typeof LayoutSamplesIndexRoute
+  '/datasets/$datasetId/review': typeof LayoutDatasetsDatasetIdReviewRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
@@ -108,13 +123,15 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/admin': typeof LayoutAdminRoute
-  '/datasets': typeof LayoutDatasetsRoute
+  '/datasets': typeof LayoutDatasetsRouteWithChildren
   '/minio-instances': typeof LayoutMinioInstancesRoute
   '/settings': typeof LayoutSettingsRoute
   '/tags': typeof LayoutTagsRoute
   '/': typeof LayoutIndexRoute
+  '/samples/$sampleId': typeof LayoutSamplesSampleIdRoute
   '/samples/import': typeof LayoutSamplesImportRoute
   '/samples': typeof LayoutSamplesIndexRoute
+  '/datasets/$datasetId/review': typeof LayoutDatasetsDatasetIdReviewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -124,13 +141,15 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/_layout/admin': typeof LayoutAdminRoute
-  '/_layout/datasets': typeof LayoutDatasetsRoute
+  '/_layout/datasets': typeof LayoutDatasetsRouteWithChildren
   '/_layout/minio-instances': typeof LayoutMinioInstancesRoute
   '/_layout/settings': typeof LayoutSettingsRoute
   '/_layout/tags': typeof LayoutTagsRoute
   '/_layout/': typeof LayoutIndexRoute
+  '/_layout/samples/$sampleId': typeof LayoutSamplesSampleIdRoute
   '/_layout/samples/import': typeof LayoutSamplesImportRoute
   '/_layout/samples/': typeof LayoutSamplesIndexRoute
+  '/_layout/datasets/$datasetId/review': typeof LayoutDatasetsDatasetIdReviewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -145,8 +164,10 @@ export interface FileRouteTypes {
     | '/settings'
     | '/tags'
     | '/'
+    | '/samples/$sampleId'
     | '/samples/import'
     | '/samples'
+    | '/datasets/$datasetId/review'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -159,8 +180,10 @@ export interface FileRouteTypes {
     | '/settings'
     | '/tags'
     | '/'
+    | '/samples/$sampleId'
     | '/samples/import'
     | '/samples'
+    | '/datasets/$datasetId/review'
   id:
     | '__root__'
     | '/_layout'
@@ -174,8 +197,10 @@ export interface FileRouteTypes {
     | '/_layout/settings'
     | '/_layout/tags'
     | '/_layout/'
+    | '/_layout/samples/$sampleId'
     | '/_layout/samples/import'
     | '/_layout/samples/'
+    | '/_layout/datasets/$datasetId/review'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -279,27 +304,55 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutSamplesImportRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/samples/$sampleId': {
+      id: '/_layout/samples/$sampleId'
+      path: '/samples/$sampleId'
+      fullPath: '/samples/$sampleId'
+      preLoaderRoute: typeof LayoutSamplesSampleIdRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/datasets/$datasetId/review': {
+      id: '/_layout/datasets/$datasetId/review'
+      path: '/$datasetId/review'
+      fullPath: '/datasets/$datasetId/review'
+      preLoaderRoute: typeof LayoutDatasetsDatasetIdReviewRouteImport
+      parentRoute: typeof LayoutDatasetsRoute
+    }
   }
 }
 
+interface LayoutDatasetsRouteChildren {
+  LayoutDatasetsDatasetIdReviewRoute: typeof LayoutDatasetsDatasetIdReviewRoute
+}
+
+const LayoutDatasetsRouteChildren: LayoutDatasetsRouteChildren = {
+  LayoutDatasetsDatasetIdReviewRoute: LayoutDatasetsDatasetIdReviewRoute,
+}
+
+const LayoutDatasetsRouteWithChildren = LayoutDatasetsRoute._addFileChildren(
+  LayoutDatasetsRouteChildren,
+)
+
 interface LayoutRouteChildren {
   LayoutAdminRoute: typeof LayoutAdminRoute
-  LayoutDatasetsRoute: typeof LayoutDatasetsRoute
+  LayoutDatasetsRoute: typeof LayoutDatasetsRouteWithChildren
   LayoutMinioInstancesRoute: typeof LayoutMinioInstancesRoute
   LayoutSettingsRoute: typeof LayoutSettingsRoute
   LayoutTagsRoute: typeof LayoutTagsRoute
   LayoutIndexRoute: typeof LayoutIndexRoute
+  LayoutSamplesSampleIdRoute: typeof LayoutSamplesSampleIdRoute
   LayoutSamplesImportRoute: typeof LayoutSamplesImportRoute
   LayoutSamplesIndexRoute: typeof LayoutSamplesIndexRoute
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutAdminRoute: LayoutAdminRoute,
-  LayoutDatasetsRoute: LayoutDatasetsRoute,
+  LayoutDatasetsRoute: LayoutDatasetsRouteWithChildren,
   LayoutMinioInstancesRoute: LayoutMinioInstancesRoute,
   LayoutSettingsRoute: LayoutSettingsRoute,
   LayoutTagsRoute: LayoutTagsRoute,
   LayoutIndexRoute: LayoutIndexRoute,
+  LayoutSamplesSampleIdRoute: LayoutSamplesSampleIdRoute,
   LayoutSamplesImportRoute: LayoutSamplesImportRoute,
   LayoutSamplesIndexRoute: LayoutSamplesIndexRoute,
 }

@@ -80,12 +80,8 @@ function Login() {
               <span>系统登录</span>
               <div className="h-px w-6 bg-gradient-to-l from-transparent to-primary" />
             </div>
-            <h1 className="text-2xl font-bold tracking-tight">
-              登录您的账户
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              输入凭据以访问系统
-            </p>
+            <h1 className="text-2xl font-bold tracking-tight">登录您的账户</h1>
+            <p className="text-sm text-muted-foreground">输入凭据以访问系统</p>
           </div>
 
           <div className="grid gap-5">
@@ -150,9 +146,7 @@ function Login() {
           </div>
 
           <div className="text-center text-sm pt-4 border-t border-border/50">
-            <span className="text-muted-foreground">
-              还没有账户？{" "}
-            </span>
+            <span className="text-muted-foreground">还没有账户？ </span>
             <RouterLink
               to="/signup"
               className="text-primary hover:text-accent transition-colors font-semibold underline-offset-4 hover:underline"
