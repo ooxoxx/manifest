@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
+import { MinioInstancesService } from "@/client"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -53,18 +54,8 @@ export default function AddMinIOInstance({ open, onOpenChange }: Props) {
   })
 
   const mutation = useMutation({
-    mutationFn: async (data: FormData) => {
-      const response = await fetch("/api/v1/minio-instances/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-        body: JSON.stringify(data),
-      })
-      if (!response.ok) throw new Error("创建实例失败")
-      return response.json()
-    },
+    mutationFn: (data: FormData) =>
+      MinioInstancesService.createMinioInstanceEndpoint({ requestBody: data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["minio-instances"] })
       onOpenChange(false)

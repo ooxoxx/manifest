@@ -2,6 +2,7 @@ import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
 import { Plus } from "lucide-react"
 import { Suspense, useState } from "react"
+import { MinioInstancesService } from "@/client"
 import { DataTable } from "@/components/Common/DataTable"
 import AddMinIOInstance from "@/components/MinIO/AddInstance"
 import { columns } from "@/components/MinIO/columns"
@@ -15,14 +16,7 @@ export const Route = createFileRoute("/_layout/minio-instances")({
 function MinIOInstancesTable() {
   const { data } = useSuspenseQuery({
     queryKey: ["minio-instances"],
-    queryFn: async () => {
-      const response = await fetch("/api/v1/minio-instances/", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-      })
-      return response.json()
-    },
+    queryFn: () => MinioInstancesService.readMinioInstances(),
   })
 
   return <DataTable columns={columns} data={data?.data || []} />

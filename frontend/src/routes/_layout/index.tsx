@@ -8,6 +8,7 @@ import {
   Tags,
   TrendingUp,
 } from "lucide-react"
+import { DashboardService } from "@/client"
 import { StatsCard } from "@/components/Dashboard/StatsCard"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import useAuth from "@/hooks/useAuth"
@@ -23,36 +24,12 @@ export const Route = createFileRoute("/_layout/")({
   }),
 })
 
-interface DashboardOverview {
-  total_samples: number
-  total_tags: number
-  total_datasets: number
-  total_minio_instances: number
-  samples_today: number
-  storage_bytes: number
-}
-
-function formatBytes(bytes: number) {
-  if (bytes === 0) return "0 B"
-  const k = 1024
-  const sizes = ["B", "KB", "MB", "GB", "TB"]
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return `${parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`
-}
-
 function Dashboard() {
   const { user: currentUser } = useAuth()
 
-  const { data: overview } = useQuery<DashboardOverview>({
+  const { data: overview } = useQuery({
     queryKey: ["dashboard", "overview"],
-    queryFn: async () => {
-      const response = await fetch("/api/v1/dashboard/overview", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-      })
-      return response.json()
-    },
+    queryFn: () => DashboardService.getDashboardOverview(),
   })
 
   return (
@@ -106,9 +83,9 @@ function Dashboard() {
         </div>
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-[400ms]">
           <StatsCard
-            title="存储空间"
-            value={formatBytes(overview?.storage_bytes ?? 0)}
-            description={`${overview?.total_minio_instances ?? 0} 个 MinIO 实例`}
+            title="MinIO 实例"
+            value={overview?.total_minio_instances ?? 0}
+            description="存储节点"
             icon={Server}
           />
         </div>
@@ -183,9 +160,9 @@ function Dashboard() {
                 </span>
               </div>
               <div className="flex justify-between items-center p-3 rounded-lg bg-muted/30 border border-border/50">
-                <span className="text-muted-foreground">存储总量</span>
+                <span className="text-muted-foreground">本周新增</span>
                 <span className="font-mono font-semibold text-primary">
-                  {formatBytes(overview?.storage_bytes ?? 0)}
+                  {overview?.samples_this_week ?? 0} 个样本
                 </span>
               </div>
               <div className="flex justify-between items-center p-3 rounded-lg bg-muted/30 border border-border/50">

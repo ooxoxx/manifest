@@ -2,6 +2,7 @@ import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
 import { Plus } from "lucide-react"
 import { Suspense, useState } from "react"
+import { TagsService } from "@/client"
 import { DataTable } from "@/components/Common/DataTable"
 import { PendingComponent } from "@/components/Pending/PendingComponent"
 import AddTag from "@/components/Tags/AddTag"
@@ -15,14 +16,7 @@ export const Route = createFileRoute("/_layout/tags")({
 function TagsTable() {
   const { data } = useSuspenseQuery({
     queryKey: ["tags"],
-    queryFn: async () => {
-      const response = await fetch("/api/v1/tags/", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-      })
-      return response.json()
-    },
+    queryFn: () => TagsService.readTags(),
   })
 
   return <DataTable columns={columns} data={data?.data || []} />

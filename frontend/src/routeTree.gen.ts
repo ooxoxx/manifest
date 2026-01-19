@@ -23,7 +23,9 @@ import { Route as LayoutAdminRouteImport } from './routes/_layout/admin'
 import { Route as LayoutSamplesIndexRouteImport } from './routes/_layout/samples/index'
 import { Route as LayoutSamplesImportRouteImport } from './routes/_layout/samples/import'
 import { Route as LayoutSamplesSampleIdRouteImport } from './routes/_layout/samples/$sampleId'
+import { Route as LayoutDatasetsBuildRouteImport } from './routes/_layout/datasets/build'
 import { Route as LayoutDatasetsDatasetIdReviewRouteImport } from './routes/_layout/datasets/$datasetId/review'
+import { Route as LayoutDatasetsDatasetIdAddSamplesRouteImport } from './routes/_layout/datasets/$datasetId.add-samples'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -94,10 +96,21 @@ const LayoutSamplesSampleIdRoute = LayoutSamplesSampleIdRouteImport.update({
   path: '/samples/$sampleId',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutDatasetsBuildRoute = LayoutDatasetsBuildRouteImport.update({
+  id: '/build',
+  path: '/build',
+  getParentRoute: () => LayoutDatasetsRoute,
+} as any)
 const LayoutDatasetsDatasetIdReviewRoute =
   LayoutDatasetsDatasetIdReviewRouteImport.update({
     id: '/$datasetId/review',
     path: '/$datasetId/review',
+    getParentRoute: () => LayoutDatasetsRoute,
+  } as any)
+const LayoutDatasetsDatasetIdAddSamplesRoute =
+  LayoutDatasetsDatasetIdAddSamplesRouteImport.update({
+    id: '/$datasetId/add-samples',
+    path: '/$datasetId/add-samples',
     getParentRoute: () => LayoutDatasetsRoute,
   } as any)
 
@@ -112,9 +125,11 @@ export interface FileRoutesByFullPath {
   '/settings': typeof LayoutSettingsRoute
   '/tags': typeof LayoutTagsRoute
   '/': typeof LayoutIndexRoute
+  '/datasets/build': typeof LayoutDatasetsBuildRoute
   '/samples/$sampleId': typeof LayoutSamplesSampleIdRoute
   '/samples/import': typeof LayoutSamplesImportRoute
   '/samples': typeof LayoutSamplesIndexRoute
+  '/datasets/$datasetId/add-samples': typeof LayoutDatasetsDatasetIdAddSamplesRoute
   '/datasets/$datasetId/review': typeof LayoutDatasetsDatasetIdReviewRoute
 }
 export interface FileRoutesByTo {
@@ -128,9 +143,11 @@ export interface FileRoutesByTo {
   '/settings': typeof LayoutSettingsRoute
   '/tags': typeof LayoutTagsRoute
   '/': typeof LayoutIndexRoute
+  '/datasets/build': typeof LayoutDatasetsBuildRoute
   '/samples/$sampleId': typeof LayoutSamplesSampleIdRoute
   '/samples/import': typeof LayoutSamplesImportRoute
   '/samples': typeof LayoutSamplesIndexRoute
+  '/datasets/$datasetId/add-samples': typeof LayoutDatasetsDatasetIdAddSamplesRoute
   '/datasets/$datasetId/review': typeof LayoutDatasetsDatasetIdReviewRoute
 }
 export interface FileRoutesById {
@@ -146,9 +163,11 @@ export interface FileRoutesById {
   '/_layout/settings': typeof LayoutSettingsRoute
   '/_layout/tags': typeof LayoutTagsRoute
   '/_layout/': typeof LayoutIndexRoute
+  '/_layout/datasets/build': typeof LayoutDatasetsBuildRoute
   '/_layout/samples/$sampleId': typeof LayoutSamplesSampleIdRoute
   '/_layout/samples/import': typeof LayoutSamplesImportRoute
   '/_layout/samples/': typeof LayoutSamplesIndexRoute
+  '/_layout/datasets/$datasetId/add-samples': typeof LayoutDatasetsDatasetIdAddSamplesRoute
   '/_layout/datasets/$datasetId/review': typeof LayoutDatasetsDatasetIdReviewRoute
 }
 export interface FileRouteTypes {
@@ -164,9 +183,11 @@ export interface FileRouteTypes {
     | '/settings'
     | '/tags'
     | '/'
+    | '/datasets/build'
     | '/samples/$sampleId'
     | '/samples/import'
     | '/samples'
+    | '/datasets/$datasetId/add-samples'
     | '/datasets/$datasetId/review'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -180,9 +201,11 @@ export interface FileRouteTypes {
     | '/settings'
     | '/tags'
     | '/'
+    | '/datasets/build'
     | '/samples/$sampleId'
     | '/samples/import'
     | '/samples'
+    | '/datasets/$datasetId/add-samples'
     | '/datasets/$datasetId/review'
   id:
     | '__root__'
@@ -197,9 +220,11 @@ export interface FileRouteTypes {
     | '/_layout/settings'
     | '/_layout/tags'
     | '/_layout/'
+    | '/_layout/datasets/build'
     | '/_layout/samples/$sampleId'
     | '/_layout/samples/import'
     | '/_layout/samples/'
+    | '/_layout/datasets/$datasetId/add-samples'
     | '/_layout/datasets/$datasetId/review'
   fileRoutesById: FileRoutesById
 }
@@ -311,6 +336,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutSamplesSampleIdRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/datasets/build': {
+      id: '/_layout/datasets/build'
+      path: '/build'
+      fullPath: '/datasets/build'
+      preLoaderRoute: typeof LayoutDatasetsBuildRouteImport
+      parentRoute: typeof LayoutDatasetsRoute
+    }
     '/_layout/datasets/$datasetId/review': {
       id: '/_layout/datasets/$datasetId/review'
       path: '/$datasetId/review'
@@ -318,14 +350,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutDatasetsDatasetIdReviewRouteImport
       parentRoute: typeof LayoutDatasetsRoute
     }
+    '/_layout/datasets/$datasetId/add-samples': {
+      id: '/_layout/datasets/$datasetId/add-samples'
+      path: '/$datasetId/add-samples'
+      fullPath: '/datasets/$datasetId/add-samples'
+      preLoaderRoute: typeof LayoutDatasetsDatasetIdAddSamplesRouteImport
+      parentRoute: typeof LayoutDatasetsRoute
+    }
   }
 }
 
 interface LayoutDatasetsRouteChildren {
+  LayoutDatasetsBuildRoute: typeof LayoutDatasetsBuildRoute
+  LayoutDatasetsDatasetIdAddSamplesRoute: typeof LayoutDatasetsDatasetIdAddSamplesRoute
   LayoutDatasetsDatasetIdReviewRoute: typeof LayoutDatasetsDatasetIdReviewRoute
 }
 
 const LayoutDatasetsRouteChildren: LayoutDatasetsRouteChildren = {
+  LayoutDatasetsBuildRoute: LayoutDatasetsBuildRoute,
+  LayoutDatasetsDatasetIdAddSamplesRoute:
+    LayoutDatasetsDatasetIdAddSamplesRoute,
   LayoutDatasetsDatasetIdReviewRoute: LayoutDatasetsDatasetIdReviewRoute,
 }
 

@@ -2,9 +2,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { ArrowLeft, Loader2, Search } from "lucide-react"
 import { useState } from "react"
-import FilterPanel, {
-  type FilterValues,
-} from "@/components/Datasets/Build/FilterPanel"
+import { DatasetsService, type FilterParams } from "@/client"
+import FilterPanel from "@/components/Datasets/Build/FilterPanel"
 import SamplingConfig, {
   type SamplingValues,
 } from "@/components/Datasets/Build/SamplingConfig"
@@ -24,10 +23,10 @@ function DatasetBuildWizard() {
 
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
-  const [filters, setFilters] = useState<FilterValues>({})
+  const [filters, setFilters] = useState<FilterParams>({})
   const [sampling, setSampling] = useState<SamplingValues>({ mode: "all" })
 
-  // Preview query
+  // Preview query - response has { count: number, samples: unknown[] }
   const {
     data: preview,
     isLoading: isPreviewLoading,
@@ -35,39 +34,23 @@ function DatasetBuildWizard() {
   } = useQuery({
     queryKey: ["filter-preview", filters],
     queryFn: async () => {
-      const response = await fetch("/api/v1/datasets/filter-preview", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-        body: JSON.stringify(filters),
-      })
-      if (!response.ok) throw new Error("Failed to preview")
-      return response.json()
+      const result = await DatasetsService.filterPreview({ requestBody: filters })
+      return result as { count: number; samples: unknown[] }
     },
     enabled: false,
   })
 
   // Build mutation
   const buildMutation = useMutation({
-    mutationFn: async () => {
-      const response = await fetch("/api/v1/datasets/build", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-        body: JSON.stringify({
+    mutationFn: () =>
+      DatasetsService.buildNewDataset({
+        requestBody: {
           name,
           description: description || undefined,
           filters,
           sampling,
-        }),
-      })
-      if (!response.ok) throw new Error("Failed to build dataset")
-      return response.json()
-    },
+        },
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["datasets"] })
       navigate({ to: "/datasets" })

@@ -2,6 +2,7 @@ import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { Plus, Wand2 } from "lucide-react"
 import { Suspense, useState } from "react"
+import { DatasetsService } from "@/client"
 import { DataTable } from "@/components/Common/DataTable"
 import AddDataset from "@/components/Datasets/AddDataset"
 import { columns } from "@/components/Datasets/columns"
@@ -15,14 +16,7 @@ export const Route = createFileRoute("/_layout/datasets")({
 function DatasetsTable() {
   const { data } = useSuspenseQuery({
     queryKey: ["datasets"],
-    queryFn: async () => {
-      const response = await fetch("/api/v1/datasets/", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-      })
-      return response.json()
-    },
+    queryFn: () => DatasetsService.readDatasets(),
   })
 
   return <DataTable columns={columns} data={data?.data || []} />

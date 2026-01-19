@@ -2,14 +2,19 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { ArrowLeft, Loader2, Search } from "lucide-react"
 import { useState } from "react"
-import FilterPanel, {
-  type FilterValues,
-} from "@/components/Datasets/Build/FilterPanel"
+import { DatasetsService, type FilterParams } from "@/client"
+import FilterPanel from "@/components/Datasets/Build/FilterPanel"
 import SamplingConfig, {
   type SamplingValues,
 } from "@/components/Datasets/Build/SamplingConfig"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+
+interface AddSamplesResponse {
+  result: {
+    added_count: number
+  }
+}
 
 export const Route = createFileRoute("/_layout/datasets/$datasetId/add-samples")(
   {
@@ -17,36 +22,21 @@ export const Route = createFileRoute("/_layout/datasets/$datasetId/add-samples")
   }
 )
 
-interface Dataset {
-  id: string
-  name: string
-  description?: string
-  sample_count: number
-}
-
 function AddSamplesToDataset() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { datasetId } = Route.useParams()
 
-  const [filters, setFilters] = useState<FilterValues>({})
+  const [filters, setFilters] = useState<FilterParams>({})
   const [sampling, setSampling] = useState<SamplingValues>({ mode: "all" })
 
   // Fetch dataset info
-  const { data: dataset } = useQuery<Dataset>({
+  const { data: dataset } = useQuery({
     queryKey: ["dataset", datasetId],
-    queryFn: async () => {
-      const response = await fetch(`/api/v1/datasets/${datasetId}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-      })
-      if (!response.ok) throw new Error("Failed to fetch dataset")
-      return response.json()
-    },
+    queryFn: () => DatasetsService.readDataset({ id: datasetId }),
   })
 
-  // Preview query
+  // Preview query - response has { count: number, samples: unknown[] }
   const {
     data: preview,
     isLoading: isPreviewLoading,
@@ -54,16 +44,8 @@ function AddSamplesToDataset() {
   } = useQuery({
     queryKey: ["filter-preview", filters],
     queryFn: async () => {
-      const response = await fetch("/api/v1/datasets/filter-preview", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-        body: JSON.stringify(filters),
-      })
-      if (!response.ok) throw new Error("Failed to preview")
-      return response.json()
+      const result = await DatasetsService.filterPreview({ requestBody: filters })
+      return result as { count: number; samples: unknown[] }
     },
     enabled: false,
   })
@@ -71,19 +53,11 @@ function AddSamplesToDataset() {
   // Add samples mutation
   const addMutation = useMutation({
     mutationFn: async () => {
-      const response = await fetch(
-        `/api/v1/datasets/${datasetId}/add-samples`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-          },
-          body: JSON.stringify({ filters, sampling }),
-        }
-      )
-      if (!response.ok) throw new Error("Failed to add samples")
-      return response.json()
+      const result = await DatasetsService.addFilteredSamplesToDataset({
+        datasetId,
+        requestBody: { filters, sampling },
+      })
+      return result as unknown as AddSamplesResponse
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["datasets"] })

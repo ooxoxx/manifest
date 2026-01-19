@@ -1,15 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table"
+import type { SamplePublic } from "@/client"
 import { Badge } from "@/components/ui/badge"
-
-export type Sample = {
-  id: string
-  file_name: string
-  bucket: string
-  file_size: number
-  status: string
-  source: string
-  created_at: string
-}
 
 function formatBytes(bytes: number) {
   if (bytes === 0) return "0 B"
@@ -19,7 +10,7 @@ function formatBytes(bytes: number) {
   return `${parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`
 }
 
-export const columns: ColumnDef<Sample>[] = [
+export const columns: ColumnDef<SamplePublic>[] = [
   {
     accessorKey: "file_name",
     header: "文件名",
@@ -31,7 +22,7 @@ export const columns: ColumnDef<Sample>[] = [
   {
     accessorKey: "file_size",
     header: "大小",
-    cell: ({ row }) => formatBytes(row.original.file_size),
+    cell: ({ row }) => formatBytes(row.original.file_size ?? 0),
   },
   {
     accessorKey: "status",

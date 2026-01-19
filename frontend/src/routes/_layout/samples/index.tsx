@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router"
 import { Database, Upload } from "lucide-react"
 import { Suspense } from "react"
 
+import { SamplesService } from "@/client"
 import { DataTable } from "@/components/Common/DataTable"
 import { PendingComponent } from "@/components/Pending/PendingComponent"
 import { columns } from "@/components/Samples/columns"
@@ -15,14 +16,7 @@ export const Route = createFileRoute("/_layout/samples/")({
 function SamplesTable() {
   const { data } = useSuspenseQuery({
     queryKey: ["samples"],
-    queryFn: async () => {
-      const response = await fetch("/api/v1/samples/", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-      })
-      return response.json()
-    },
+    queryFn: () => SamplesService.readSamples(),
   })
 
   return <DataTable columns={columns} data={data?.data || []} />

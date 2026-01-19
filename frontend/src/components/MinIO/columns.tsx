@@ -1,5 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table"
 import { MoreHorizontal, Plug } from "lucide-react"
+import { MinioInstancesService, type MinIOInstancePublic } from "@/client"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -9,16 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-export type MinIOInstance = {
-  id: string
-  name: string
-  endpoint: string
-  secure: boolean
-  is_active: boolean
-  created_at: string
-}
-
-export const columns: ColumnDef<MinIOInstance>[] = [
+export const columns: ColumnDef<MinIOInstancePublic>[] = [
   {
     accessorKey: "name",
     header: "名称",
@@ -51,19 +43,16 @@ export const columns: ColumnDef<MinIOInstance>[] = [
   },
 ]
 
-function ActionsMenu({ instance }: { instance: MinIOInstance }) {
+function ActionsMenu({ instance }: { instance: MinIOInstancePublic }) {
   const handleTest = async () => {
-    const response = await fetch(
-      `/api/v1/minio-instances/${instance.id}/test`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-      },
-    )
-    const result = await response.json()
-    alert(result.message)
+    try {
+      const result = await MinioInstancesService.testMinioConnection({
+        id: instance.id,
+      })
+      alert(result.message)
+    } catch {
+      alert("连接测试失败")
+    }
   }
 
   return (

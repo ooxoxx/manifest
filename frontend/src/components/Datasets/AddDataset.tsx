@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
+import { DatasetsService } from "@/client"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -42,18 +43,8 @@ export default function AddDataset({ open, onOpenChange }: Props) {
   })
 
   const mutation = useMutation({
-    mutationFn: async (data: FormData) => {
-      const response = await fetch("/api/v1/datasets/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-        body: JSON.stringify(data),
-      })
-      if (!response.ok) throw new Error("创建数据集失败")
-      return response.json()
-    },
+    mutationFn: (data: FormData) =>
+      DatasetsService.createDataset({ requestBody: data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["datasets"] })
       onOpenChange(false)

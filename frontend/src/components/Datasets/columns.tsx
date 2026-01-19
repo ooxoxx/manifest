@@ -1,6 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table"
 import { Link } from "@tanstack/react-router"
 import { MoreHorizontal, Plus } from "lucide-react"
+import type { DatasetPublic } from "@/client"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -10,15 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-export type Dataset = {
-  id: string
-  name: string
-  description: string | null
-  sample_count: number
-  created_at: string
-}
-
-export const columns: ColumnDef<Dataset>[] = [
+export const columns: ColumnDef<DatasetPublic>[] = [
   {
     accessorKey: "name",
     header: "名称",
@@ -59,7 +52,10 @@ export const columns: ColumnDef<Dataset>[] = [
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem asChild>
-            <Link to={`/datasets/${row.original.id}/add-samples`}>
+            <Link
+              to="/datasets/$datasetId/add-samples"
+              params={{ datasetId: row.original.id }}
+            >
               <Plus className="mr-2 h-4 w-4" />
               添加样本
             </Link>

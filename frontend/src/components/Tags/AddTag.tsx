@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
+import { TagsService } from "@/client"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -42,18 +43,8 @@ export default function AddTag({ open, onOpenChange }: Props) {
   })
 
   const mutation = useMutation({
-    mutationFn: async (data: FormData) => {
-      const response = await fetch("/api/v1/tags/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-        body: JSON.stringify(data),
-      })
-      if (!response.ok) throw new Error("创建标签失败")
-      return response.json()
-    },
+    mutationFn: (data: FormData) =>
+      TagsService.createTag({ requestBody: data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tags"] })
       onOpenChange(false)

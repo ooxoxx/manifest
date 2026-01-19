@@ -1,15 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table"
+import type { TagPublic } from "@/client"
 
-export type Tag = {
-  id: string
-  name: string
-  color: string | null
-  description: string | null
-  parent_id: string | null
-  created_at: string
-}
-
-export const columns: ColumnDef<Tag>[] = [
+export const columns: ColumnDef<TagPublic>[] = [
   {
     accessorKey: "name",
     header: "名称",

@@ -1,4 +1,9 @@
 import { useQuery } from "@tanstack/react-query"
+import {
+  MinioInstancesService,
+  type FilterParams,
+  type AnnotationStatus,
+} from "@/client"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -10,43 +15,28 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
-export interface FilterValues {
-  minio_instance_id?: string
-  bucket?: string
-  prefix?: string
-  date_from?: string
-  date_to?: string
-  annotation_status?: string
-}
-
 interface Props {
-  value: FilterValues
-  onChange: (value: FilterValues) => void
-}
-
-interface MinIOInstance {
-  id: string
-  name: string
+  value: FilterParams
+  onChange: (value: FilterParams) => void
 }
 
 export default function FilterPanel({ value, onChange }: Props) {
-  const { data: minioInstances } = useQuery<{ data: MinIOInstance[] }>({
+  const { data: minioInstances } = useQuery({
     queryKey: ["minio-instances"],
-    queryFn: async () => {
-      const response = await fetch("/api/v1/minio/", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-      })
-      if (!response.ok) throw new Error("Failed to fetch MinIO instances")
-      return response.json()
-    },
+    queryFn: () => MinioInstancesService.readMinioInstances(),
   })
 
-  const handleChange = (field: keyof FilterValues, newValue: string) => {
+  const handleChange = (field: keyof FilterParams, newValue: string) => {
     onChange({
       ...value,
       [field]: newValue || undefined,
+    })
+  }
+
+  const handleAnnotationStatusChange = (newValue: string) => {
+    onChange({
+      ...value,
+      annotation_status: newValue && newValue !== "all" ? (newValue as AnnotationStatus) : undefined,
     })
   }
 
@@ -119,7 +109,7 @@ export default function FilterPanel({ value, onChange }: Props) {
           <Label>标注状态</Label>
           <Select
             value={value.annotation_status || ""}
-            onValueChange={(v) => handleChange("annotation_status", v)}
+            onValueChange={handleAnnotationStatusChange}
           >
             <SelectTrigger>
               <SelectValue placeholder="全部状态" />
@@ -129,6 +119,7 @@ export default function FilterPanel({ value, onChange }: Props) {
               <SelectItem value="none">无标注</SelectItem>
               <SelectItem value="linked">已关联</SelectItem>
               <SelectItem value="conflict">冲突</SelectItem>
+              <SelectItem value="error">错误</SelectItem>
             </SelectContent>
           </Select>
         </div>

@@ -2,6 +2,7 @@ import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router"
 import { Suspense } from "react"
 
+import { SamplesService } from "@/client"
 import { PendingComponent } from "@/components/Pending/PendingComponent"
 import { SampleReviewer } from "@/components/Samples/SampleReviewer"
 
@@ -31,15 +32,7 @@ function SampleViewerContent() {
   // Fetch all samples in the list to verify they exist
   const { data: samplesData } = useSuspenseQuery({
     queryKey: ["samples", "list", sampleIds],
-    queryFn: async () => {
-      // Just verify the samples exist - the SampleViewer will fetch details
-      const response = await fetch("/api/v1/samples/", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-      })
-      return response.json()
-    },
+    queryFn: () => SamplesService.readSamples(),
   })
 
   // Filter to only existing sample IDs
