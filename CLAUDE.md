@@ -214,3 +214,4 @@ PLAYWRIGHT_BASE_URL=http://127.0.0.1:5273 npx playwright test --ui
     - Access Key: `minioadmin`
     - Secret Key: `minioadmin`
     - Secure: `false`
+- 前端调用后端API必须使用openapi客户端，而不是fetch某个url。每当你更新了后端api，就应该运行`scripts/generate-client.sh`重新生成前端openapi客户端，以保证协议的一致性。这个脚本需要先使用`backend/.venv/bin/activate`激活python开发环境才能运行，否则会有环境错误。
