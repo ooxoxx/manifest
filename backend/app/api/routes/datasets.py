@@ -10,6 +10,7 @@ from sqlmodel import col, func, select
 from app.api.deps import CurrentUser, SessionDep
 from app.models import (
     Dataset,
+    DatasetAddSamplesRequest,
     DatasetBuildRequest,
     DatasetCreate,
     DatasetPublic,
@@ -17,10 +18,21 @@ from app.models import (
     DatasetSamplesRequest,
     DatasetsPublic,
     DatasetUpdate,
+    FilterParams,
     Message,
     Sample,
     SampleTag,
     SampleStatus,
+    SamplingConfig,
+    SamplingMode,
+    SamplingResultResponse,
+)
+from app.services.sampling_service import (
+    build_sample_filter_query,
+    random_sample,
+    sample_by_class_targets,
+    ClassAchievement,
+    SamplingResult,
 )
 
 router = APIRouter(prefix="/datasets", tags=["datasets"])
@@ -51,6 +63,145 @@ def read_datasets(
     datasets = session.exec(query).all()
 
     return DatasetsPublic(data=datasets, count=count)
+
+
+@router.post("/filter-preview")
+def filter_preview(
+    session: SessionDep,
+    current_user: CurrentUser,
+    filters: FilterParams,
+    skip: int = 0,
+    limit: int = 20,
+) -> dict:
+    """Preview samples matching filter criteria."""
+    query = build_sample_filter_query(filters)
+
+    # Count total
+    count_query = select(func.count()).select_from(query.subquery())
+    total = session.exec(count_query).one()
+
+    # Get paginated samples
+    samples = session.exec(query.offset(skip).limit(limit)).all()
+
+    return {"count": total, "samples": samples}
+
+
+@router.post("/build")
+def build_new_dataset(
+    session: SessionDep,
+    current_user: CurrentUser,
+    request: DatasetBuildRequest,
+) -> dict:
+    """Create a new dataset with filtered and sampled data."""
+    # Create the dataset
+    dataset = Dataset(
+        name=request.name,
+        description=request.description,
+        owner_id=current_user.id,
+    )
+    session.add(dataset)
+    session.flush()
+
+    # Get filtered candidates
+    query = build_sample_filter_query(request.filters)
+    candidates = session.exec(query).all()
+
+    # Apply sampling
+    result = _apply_sampling(candidates, request.sampling)
+
+    # Add samples to dataset
+    for sample in result.selected_samples:
+        ds = DatasetSample(dataset_id=dataset.id, sample_id=sample.id)
+        session.add(ds)
+
+    dataset.sample_count = result.total_selected
+    session.commit()
+    session.refresh(dataset)
+
+    return {
+        "dataset": dataset,
+        "result": SamplingResultResponse(
+            added_count=result.total_selected,
+            mode=request.sampling.mode,
+            target_achievement={
+                k: {"target": v.target, "actual": v.actual, "status": v.status}
+                for k, v in result.target_achievement.items()
+            } if result.target_achievement else None,
+        ),
+    }
+
+
+@router.post("/{dataset_id}/add-samples")
+def add_filtered_samples_to_dataset(
+    session: SessionDep,
+    current_user: CurrentUser,
+    dataset_id: uuid.UUID,
+    request: DatasetAddSamplesRequest,
+) -> dict:
+    """Add samples to an existing dataset using filters and sampling."""
+    dataset = session.get(Dataset, dataset_id)
+    if not dataset:
+        raise HTTPException(status_code=404, detail="Dataset not found")
+
+    if dataset.owner_id != current_user.id and not current_user.is_superuser:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    # Get filtered candidates
+    query = build_sample_filter_query(request.filters)
+    candidates = session.exec(query).all()
+
+    # Exclude already-added samples
+    existing_ids = set(
+        session.exec(
+            select(DatasetSample.sample_id).where(
+                DatasetSample.dataset_id == dataset_id
+            )
+        ).all()
+    )
+    candidates = [s for s in candidates if s.id not in existing_ids]
+
+    # Apply sampling
+    result = _apply_sampling(candidates, request.sampling)
+
+    # Add samples to dataset
+    for sample in result.selected_samples:
+        ds = DatasetSample(dataset_id=dataset.id, sample_id=sample.id)
+        session.add(ds)
+
+    dataset.sample_count = (dataset.sample_count or 0) + result.total_selected
+    session.commit()
+    session.refresh(dataset)
+
+    return {
+        "dataset": dataset,
+        "result": SamplingResultResponse(
+            added_count=result.total_selected,
+            mode=request.sampling.mode,
+            target_achievement={
+                k: {"target": v.target, "actual": v.actual, "status": v.status}
+                for k, v in result.target_achievement.items()
+            } if result.target_achievement else None,
+        ),
+    }
+
+
+def _apply_sampling(candidates: list, config: SamplingConfig) -> SamplingResult:
+    """Apply sampling strategy to candidates."""
+    if config.mode == SamplingMode.all:
+        return SamplingResult(
+            selected_samples=candidates,
+            target_achievement=None,
+            total_selected=len(candidates),
+        )
+    elif config.mode == SamplingMode.random:
+        selected = random_sample(candidates, config.count or 0, config.seed)
+        return SamplingResult(
+            selected_samples=selected,
+            target_achievement=None,
+            total_selected=len(selected),
+        )
+    else:  # class_targets
+        return sample_by_class_targets(candidates, config.class_targets or {})
 
 
 @router.post("/", response_model=DatasetPublic)
