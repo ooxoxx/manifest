@@ -243,8 +243,7 @@ export default function ImportWizard() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <FileSpreadsheet className="w-6 h-6" />
-            从 CSV 导入样本
+            <FileSpreadsheet className="w-6 h-6" />从 CSV 导入样本
           </CardTitle>
           <CardDescription>
             从包含对象键和可选标签的 CSV 文件导入样本
@@ -552,9 +551,7 @@ export default function ImportWizard() {
                     <p className="text-2xl font-bold text-purple-500">
                       {importTask.tags_created}
                     </p>
-                    <p className="text-sm text-muted-foreground">
-                      创建的标签
-                    </p>
+                    <p className="text-sm text-muted-foreground">创建的标签</p>
                   </CardContent>
                 </Card>
               </div>
@@ -575,7 +572,8 @@ export default function ImportWizard() {
                           ))}
                         {importTask.error_details.length > 10 && (
                           <li className="text-muted-foreground">
-                            ... 还有 {importTask.error_details.length - 10} 个错误
+                            ... 还有 {importTask.error_details.length - 10}{" "}
+                            个错误
                           </li>
                         )}
                       </ul>

@@ -19,8 +19,9 @@ from app.models import (
     DatasetUpdate,
     Message,
     Sample,
-    SampleTag,
+    SamplesPublic,
     SampleStatus,
+    SampleTag,
 )
 
 router = APIRouter(prefix="/datasets", tags=["datasets"])
@@ -85,6 +86,43 @@ def read_dataset(
     if dataset.owner_id != current_user.id and not dataset.is_public:
         raise HTTPException(status_code=403, detail="Not enough permissions")
     return dataset
+
+
+@router.get("/{id}/samples", response_model=SamplesPublic)
+def get_dataset_samples(
+    session: SessionDep,
+    current_user: CurrentUser,
+    id: uuid.UUID,
+    skip: int = 0,
+    limit: int = 100,
+) -> Any:
+    """Get samples in a dataset."""
+    dataset = session.get(Dataset, id)
+    if not dataset:
+        raise HTTPException(status_code=404, detail="Dataset not found")
+    if dataset.owner_id != current_user.id and not dataset.is_public:
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+
+    # Count total samples in dataset
+    count_query = (
+        select(func.count())
+        .select_from(DatasetSample)
+        .where(DatasetSample.dataset_id == id)
+    )
+    count = session.exec(count_query).one()
+
+    # Get samples with pagination
+    query = (
+        select(Sample)
+        .join(DatasetSample, DatasetSample.sample_id == Sample.id)
+        .where(DatasetSample.dataset_id == id)
+        .order_by(col(Sample.created_at).desc())
+        .offset(skip)
+        .limit(limit)
+    )
+    samples = session.exec(query).all()
+
+    return SamplesPublic(data=samples, count=count)
 
 
 @router.put("/{id}", response_model=DatasetPublic)

@@ -110,9 +110,7 @@ const EditUser = ({ user, onSuccess }: EditUserProps) => {
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <DialogHeader>
               <DialogTitle>编辑用户</DialogTitle>
-              <DialogDescription>
-                更新下方的用户信息。
-              </DialogDescription>
+              <DialogDescription>更新下方的用户信息。</DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <FormField
@@ -157,11 +155,7 @@ const EditUser = ({ user, onSuccess }: EditUserProps) => {
                   <FormItem>
                     <FormLabel>设置密码</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="密码"
-                        type="password"
-                        {...field}
-                      />
+                      <Input placeholder="密码" type="password" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -175,11 +169,7 @@ const EditUser = ({ user, onSuccess }: EditUserProps) => {
                   <FormItem>
                     <FormLabel>确认密码</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="密码"
-                        type="password"
-                        {...field}
-                      />
+                      <Input placeholder="密码" type="password" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

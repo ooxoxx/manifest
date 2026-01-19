@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, UploadFile, File
+from fastapi import APIRouter, HTTPException
 from sqlmodel import func, select
 
 from app.api.deps import CurrentUser, SessionDep
@@ -12,8 +12,6 @@ from app.models import (
     Message,
     MinIOInstance,
     Sample,
-    SampleHistory,
-    SampleHistoryAction,
     SampleSource,
     SampleStatus,
     WatchedPath,

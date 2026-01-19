@@ -36,9 +36,7 @@ function Datasets() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">数据集</h1>
-          <p className="text-muted-foreground">
-            创建和管理训练样本集合
-          </p>
+          <p className="text-muted-foreground">创建和管理训练样本集合</p>
         </div>
         <Button onClick={() => setIsAddOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />

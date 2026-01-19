@@ -36,9 +36,7 @@ function MinIOInstances() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">MinIO 实例</h1>
-          <p className="text-muted-foreground">
-            管理您的 MinIO 存储连接
-          </p>
+          <p className="text-muted-foreground">管理您的 MinIO 存储连接</p>
         </div>
         <Button onClick={() => setIsAddOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />

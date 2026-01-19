@@ -500,6 +500,25 @@ class SampleWithTags(SamplePublic):
     tags: list[TagPublic] = []
 
 
+class SamplePreviewAnnotation(SQLModel):
+    """Annotation data for sample preview."""
+
+    objects: list[dict] | None = None
+    class_counts: dict[str, int] | None = None
+    image_width: int | None = None
+    image_height: int | None = None
+
+
+class SamplePreviewResponse(SQLModel):
+    """Response for sample preview API."""
+
+    presigned_url: str
+    expires_in: int  # seconds
+    annotation: SamplePreviewAnnotation | None = None
+    tags: list[TagPublic] = []
+    sample: SamplePublic
+
+
 class SamplesPublic(SQLModel):
     """Paginated samples response."""
 
