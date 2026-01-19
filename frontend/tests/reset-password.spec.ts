@@ -24,7 +24,9 @@ test("Input is visible, empty and editable", async ({ page }) => {
 test("Continue button is visible", async ({ page }) => {
   await page.goto("/recover-password")
 
-  await expect(page.getByRole("button", { name: /Continue|继续/i })).toBeVisible()
+  await expect(
+    page.getByRole("button", { name: /Continue|继续/i }),
+  ).toBeVisible()
 })
 
 test("User can reset password successfully using the link", async ({
@@ -67,7 +69,9 @@ test("User can reset password successfully using the link", async ({
   await page.getByTestId("new-password-input").fill(newPassword)
   await page.getByTestId("confirm-password-input").fill(newPassword)
   await page.getByRole("button", { name: /Reset Password|重置密码/i }).click()
-  await expect(page.getByText(/Password updated successfully|密码更新成功/i)).toBeVisible()
+  await expect(
+    page.getByText(/Password updated successfully|密码更新成功/i),
+  ).toBeVisible()
 
   // Check if the user is able to login with the new password
   await logInUser(page, email, newPassword)

@@ -36,7 +36,9 @@ test("Inputs are visible, empty and editable", async ({ page }) => {
 test("Sign Up button is visible", async ({ page }) => {
   await page.goto("/signup")
 
-  await expect(page.getByRole("button", { name: /注册|Sign Up/i })).toBeVisible()
+  await expect(
+    page.getByRole("button", { name: /注册|Sign Up/i }),
+  ).toBeVisible()
 })
 
 test("Log In link is visible", async ({ page }) => {
@@ -91,9 +93,7 @@ test("Sign up with existing email", async ({ page }) => {
   await fillForm(page, fullName, email, password, password)
   await page.getByRole("button", { name: /注册|Sign Up/i }).click()
 
-  await expect(
-    page.getByText(/已存在|already exists/i)
-  ).toBeVisible()
+  await expect(page.getByText(/已存在|already exists/i)).toBeVisible()
 })
 
 test("Sign up with weak password", async ({ page }) => {
@@ -122,7 +122,9 @@ test("Sign up with mismatched passwords", async ({ page }) => {
   await fillForm(page, fullName, email, password, password2)
   await page.getByRole("button", { name: /注册|Sign Up/i }).click()
 
-  await expect(page.getByText(/密码不一致|passwords don't match/i)).toBeVisible()
+  await expect(
+    page.getByText(/密码不一致|passwords don't match/i),
+  ).toBeVisible()
 })
 
 test("Sign up with missing full name", async ({ page }) => {
@@ -135,7 +137,9 @@ test("Sign up with missing full name", async ({ page }) => {
   await fillForm(page, fullName, email, password, password)
   await page.getByRole("button", { name: /注册|Sign Up/i }).click()
 
-  await expect(page.getByText(/请输入姓名|Full Name is required/i)).toBeVisible()
+  await expect(
+    page.getByText(/请输入姓名|Full Name is required/i),
+  ).toBeVisible()
 })
 
 test("Sign up with missing email", async ({ page }) => {

@@ -22,11 +22,9 @@ const TEST_MINIO = {
 
 test.describe("MinIO Instance Management - Full Flow", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/minio-instances")
+    await page.goto("/settings/minio")
     // Wait for page to be fully loaded
-    await expect(
-      page.getByRole("heading", { name: /MinIO/i })
-    ).toBeVisible()
+    await expect(page.getByRole("heading", { name: /MinIO/i })).toBeVisible()
   })
 
   test("Can view MinIO instances list", async ({ page }) => {
@@ -34,11 +32,17 @@ test.describe("MinIO Instance Management - Full Flow", () => {
     await expect(page.getByRole("table")).toBeVisible()
 
     // Should have table headers
-    await expect(page.getByRole("columnheader", { name: /名称|name/i })).toBeVisible()
-    await expect(page.getByRole("columnheader", { name: /endpoint/i })).toBeVisible()
+    await expect(
+      page.getByRole("columnheader", { name: /名称|name/i }),
+    ).toBeVisible()
+    await expect(
+      page.getByRole("columnheader", { name: /endpoint/i }),
+    ).toBeVisible()
   })
 
-  test("Full flow: Add instance → Verify in list → Test connection → Delete", async ({ page }) => {
+  test("Full flow: Add instance → Verify in list → Test connection → Delete", async ({
+    page,
+  }) => {
     // Step 1: Open add dialog
     const addButton = page.getByRole("button", { name: /添加|add/i })
     await expect(addButton).toBeVisible()
@@ -59,7 +63,9 @@ test.describe("MinIO Instance Management - Full Flow", () => {
     }
 
     // Step 3: Submit and verify API success
-    const submitButton = page.getByRole("button", { name: /保存|save|创建|create/i })
+    const submitButton = page.getByRole("button", {
+      name: /保存|save|创建|create/i,
+    })
     await submitButton.click()
 
     // Wait for dialog to close (indicates success)
@@ -67,12 +73,14 @@ test.describe("MinIO Instance Management - Full Flow", () => {
 
     // Step 4: Verify instance appears in list
     // This is the key assertion - if API call failed, this would fail
-    await expect(
-      page.getByRole("cell", { name: TEST_MINIO.name })
-    ).toBeVisible({ timeout: 5000 })
+    await expect(page.getByRole("cell", { name: TEST_MINIO.name })).toBeVisible(
+      { timeout: 5000 },
+    )
 
     // Step 5: Test connection
-    const instanceRow = page.getByRole("row").filter({ hasText: TEST_MINIO.name })
+    const instanceRow = page
+      .getByRole("row")
+      .filter({ hasText: TEST_MINIO.name })
     await expect(instanceRow).toBeVisible()
 
     // Click actions menu
@@ -84,9 +92,9 @@ test.describe("MinIO Instance Management - Full Flow", () => {
 
     // Wait for test result - should show success toast or status
     // The exact UI depends on implementation, but we should see some feedback
-    await expect(
-      page.getByText(/连接成功|success|ok/i)
-    ).toBeVisible({ timeout: 10000 })
+    await expect(page.getByText(/连接成功|success|ok/i)).toBeVisible({
+      timeout: 10000,
+    })
 
     // Step 6: Clean up - delete the instance
     // Re-open actions menu
@@ -94,18 +102,22 @@ test.describe("MinIO Instance Management - Full Flow", () => {
     await page.getByRole("menuitem", { name: /删除|delete/i }).click()
 
     // Confirm deletion if there's a confirmation dialog
-    const confirmButton = page.getByRole("button", { name: /确认|confirm|删除|delete/i })
+    const confirmButton = page.getByRole("button", {
+      name: /确认|confirm|删除|delete/i,
+    })
     if (await confirmButton.isVisible({ timeout: 1000 }).catch(() => false)) {
       await confirmButton.click()
     }
 
     // Verify instance is removed from list
     await expect(
-      page.getByRole("cell", { name: TEST_MINIO.name })
+      page.getByRole("cell", { name: TEST_MINIO.name }),
     ).not.toBeVisible({ timeout: 5000 })
   })
 
-  test("Shows error when adding instance with invalid endpoint", async ({ page }) => {
+  test("Shows error when adding instance with invalid endpoint", async ({
+    page,
+  }) => {
     // Open add dialog
     await page.getByRole("button", { name: /添加|add/i }).click()
     await expect(page.getByRole("dialog")).toBeVisible()
@@ -157,16 +169,16 @@ test.describe("MinIO Instance Management - Full Flow", () => {
     await page.getByRole("button", { name: /保存|save|创建|create/i }).click()
 
     // Should show duplicate error
-    await expect(
-      page.getByText(/已存在|duplicate|exists|重复/i)
-    ).toBeVisible({ timeout: 5000 })
+    await expect(page.getByText(/已存在|duplicate|exists|重复/i)).toBeVisible({
+      timeout: 5000,
+    })
   })
 })
 
 test.describe("MinIO Instance List Loading", () => {
   test("Shows loading state then data", async ({ page }) => {
     // Navigate and check loading
-    await page.goto("/minio-instances")
+    await page.goto("/settings/minio")
 
     // Should eventually show table (even if empty)
     await expect(page.getByRole("table")).toBeVisible({ timeout: 10000 })
@@ -175,20 +187,20 @@ test.describe("MinIO Instance List Loading", () => {
   test("Empty state shows helpful message", async ({ page }) => {
     // This test assumes no instances exist
     // If instances exist, the table will have data rows
-    await page.goto("/minio-instances")
+    await page.goto("/settings/minio")
 
     const table = page.getByRole("table")
     await expect(table).toBeVisible()
 
     // Check if table has data rows (beyond header)
-    const dataRows = page.getByRole("row").filter({ hasNot: page.getByRole("columnheader") })
+    const dataRows = page
+      .getByRole("row")
+      .filter({ hasNot: page.getByRole("columnheader") })
     const rowCount = await dataRows.count()
 
     if (rowCount === 0) {
       // Should show empty state message
-      await expect(
-        page.getByText(/暂无|no.*instance|empty/i)
-      ).toBeVisible()
+      await expect(page.getByText(/暂无|no.*instance|empty/i)).toBeVisible()
     }
   })
 })

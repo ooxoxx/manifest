@@ -18,11 +18,13 @@ test.describe("Dataset Build - Complete Flow", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/datasets/build")
     await expect(
-      page.getByRole("heading", { name: /构建数据集|build dataset/i })
+      page.getByRole("heading", { name: /构建数据集|build dataset/i }),
     ).toBeVisible()
   })
 
-  test("Full flow: Fill form → Preview → Build → Verify in list", async ({ page }) => {
+  test("Full flow: Fill form → Preview → Build → Verify in list", async ({
+    page,
+  }) => {
     const datasetName = generateDatasetName()
 
     // Step 1: Fill in dataset info
@@ -36,7 +38,11 @@ test.describe("Dataset Build - Complete Flow", () => {
 
     // Check if there are MinIO instances available
     await minioSelect.click()
-    const hasMinioOptions = await page.getByRole("option").first().isVisible({ timeout: 3000 }).catch(() => false)
+    const hasMinioOptions = await page
+      .getByRole("option")
+      .first()
+      .isVisible({ timeout: 3000 })
+      .catch(() => false)
 
     if (hasMinioOptions) {
       // Select first MinIO instance
@@ -62,7 +68,7 @@ test.describe("Dataset Build - Complete Flow", () => {
       // Wait for preview results (API call)
       // Should show preview count or "no samples" message
       await expect(
-        page.getByText(/找到|found|样本|samples|0|暂无/i)
+        page.getByText(/找到|found|样本|samples|0|暂无/i),
       ).toBeVisible({ timeout: 10000 })
     }
 
@@ -75,7 +81,9 @@ test.describe("Dataset Build - Complete Flow", () => {
     // Should either redirect to dataset page or show success message
     await Promise.race([
       page.waitForURL(/\/datasets\/[a-f0-9-]+/i, { timeout: 15000 }),
-      expect(page.getByText(/成功|success|created/i)).toBeVisible({ timeout: 15000 }),
+      expect(page.getByText(/成功|success|created/i)).toBeVisible({
+        timeout: 15000,
+      }),
     ])
 
     // Step 5: Verify dataset exists in list
@@ -83,9 +91,9 @@ test.describe("Dataset Build - Complete Flow", () => {
     await expect(page.getByRole("table")).toBeVisible()
 
     // The created dataset should appear in the list
-    await expect(
-      page.getByRole("cell", { name: datasetName })
-    ).toBeVisible({ timeout: 5000 })
+    await expect(page.getByRole("cell", { name: datasetName })).toBeVisible({
+      timeout: 5000,
+    })
 
     // Step 6: Cleanup - delete the dataset
     const datasetRow = page.getByRole("row").filter({ hasText: datasetName })
@@ -93,15 +101,17 @@ test.describe("Dataset Build - Complete Flow", () => {
     await page.getByRole("menuitem", { name: /删除|delete/i }).click()
 
     // Confirm deletion
-    const confirmButton = page.getByRole("button", { name: /确认|confirm|删除/i })
+    const confirmButton = page.getByRole("button", {
+      name: /确认|confirm|删除/i,
+    })
     if (await confirmButton.isVisible({ timeout: 1000 }).catch(() => false)) {
       await confirmButton.click()
     }
 
     // Verify deletion
-    await expect(
-      page.getByRole("cell", { name: datasetName })
-    ).not.toBeVisible({ timeout: 5000 })
+    await expect(page.getByRole("cell", { name: datasetName })).not.toBeVisible(
+      { timeout: 5000 },
+    )
   })
 
   test("Filter preview shows sample count", async ({ page }) => {
@@ -113,7 +123,11 @@ test.describe("Dataset Build - Complete Flow", () => {
     })
     await minioSelect.click()
 
-    const hasMinioOptions = await page.getByRole("option").first().isVisible({ timeout: 3000 }).catch(() => false)
+    const hasMinioOptions = await page
+      .getByRole("option")
+      .first()
+      .isVisible({ timeout: 3000 })
+      .catch(() => false)
 
     if (!hasMinioOptions) {
       test.skip(true, "No MinIO instances configured")
@@ -134,7 +148,7 @@ test.describe("Dataset Build - Complete Flow", () => {
     // Should show preview results from API
     // If API fails, this assertion will fail
     await expect(
-      page.getByText(/找到|found|样本|samples|结果|result/i)
+      page.getByText(/找到|found|样本|samples|结果|result/i),
     ).toBeVisible({ timeout: 10000 })
   })
 
@@ -154,7 +168,9 @@ test.describe("Dataset Build - Complete Flow", () => {
       hasText: /全部|all|采样模式/i,
     })
 
-    if (!(await samplingSelect.isVisible({ timeout: 2000 }).catch(() => false))) {
+    if (
+      !(await samplingSelect.isVisible({ timeout: 2000 }).catch(() => false))
+    ) {
       test.skip(true, "Sampling mode selector not found")
       return
     }
@@ -174,13 +190,17 @@ test.describe("Dataset Build - Complete Flow", () => {
 
 test.describe("Dataset Add Samples - Complete Flow", () => {
   // This test requires an existing dataset
-  test("Full flow: Select dataset → Filter → Add samples → Verify count", async ({ page }) => {
+  test("Full flow: Select dataset → Filter → Add samples → Verify count", async ({
+    page,
+  }) => {
     // First check if there are any datasets
     await page.goto("/datasets")
     await expect(page.getByRole("table")).toBeVisible()
 
     const datasetRow = page.getByRole("row").nth(1)
-    const hasDatasets = await datasetRow.isVisible({ timeout: 2000 }).catch(() => false)
+    const hasDatasets = await datasetRow
+      .isVisible({ timeout: 2000 })
+      .catch(() => false)
 
     if (!hasDatasets) {
       test.skip(true, "No datasets exist for testing add samples")
@@ -195,16 +215,18 @@ test.describe("Dataset Add Samples - Complete Flow", () => {
     await page.getByRole("menuitem", { name: /添加样本|add samples/i }).click()
 
     // Should navigate to add samples page
-    await page.waitForURL(/\/datasets\/[a-f0-9-]+\/add-samples/i, { timeout: 5000 })
+    await page.waitForURL(/\/datasets\/[a-f0-9-]+\/add-samples/i, {
+      timeout: 5000,
+    })
 
     // Page should load the filter panel
     await expect(page.getByText(/筛选条件|filter/i)).toBeVisible()
 
     // If API fails to load dataset details, the page would show an error
     // This tests the readDataset API call
-    await expect(
-      page.getByText(/错误|error|failed/i)
-    ).not.toBeVisible({ timeout: 3000 })
+    await expect(page.getByText(/错误|error|failed/i)).not.toBeVisible({
+      timeout: 3000,
+    })
   })
 })
 
@@ -216,9 +238,9 @@ test.describe("Dataset List - API Verification", () => {
     await expect(page.getByRole("table")).toBeVisible({ timeout: 10000 })
 
     // Should not show error state
-    await expect(
-      page.getByText(/错误|error|failed|无法加载/i)
-    ).not.toBeVisible({ timeout: 2000 })
+    await expect(page.getByText(/错误|error|failed|无法加载/i)).not.toBeVisible(
+      { timeout: 2000 },
+    )
   })
 
   test("Can create and immediately see new dataset", async ({ page }) => {
@@ -243,9 +265,9 @@ test.describe("Dataset List - API Verification", () => {
 
     // Dataset should appear in list immediately
     // This verifies the API call succeeded and list was refreshed
-    await expect(
-      page.getByRole("cell", { name: datasetName })
-    ).toBeVisible({ timeout: 5000 })
+    await expect(page.getByRole("cell", { name: datasetName })).toBeVisible({
+      timeout: 5000,
+    })
 
     // Cleanup
     const datasetRow = page.getByRole("row").filter({ hasText: datasetName })

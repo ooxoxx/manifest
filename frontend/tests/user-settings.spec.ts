@@ -10,16 +10,17 @@ const tabs = ["个人资料", "密码", "危险区域"]
 
 test("My profile tab is active by default", async ({ page }) => {
   await page.goto("/settings")
-  await expect(page.getByRole("tab", { name: /个人资料|My profile/i })).toHaveAttribute(
-    "aria-selected",
-    "true",
-  )
+  await expect(
+    page.getByRole("tab", { name: /个人资料|My profile/i }),
+  ).toHaveAttribute("aria-selected", "true")
 })
 
 test("All tabs are visible", async ({ page }) => {
   await page.goto("/settings")
   for (const tab of tabs) {
-    await expect(page.getByRole("tab", { name: new RegExp(tab, "i") })).toBeVisible()
+    await expect(
+      page.getByRole("tab", { name: new RegExp(tab, "i") }),
+    ).toBeVisible()
   }
 })
 
@@ -105,7 +106,10 @@ test.describe("Edit user with invalid data", () => {
     await page.getByRole("tab", { name: /个人资料|My profile/i }).click()
     await page.getByRole("button", { name: /编辑|Edit/i }).click()
     await page.getByLabel(/姓名|Full name/i).fill(updatedName)
-    await page.getByRole("button", { name: /取消|Cancel/i }).first().click()
+    await page
+      .getByRole("button", { name: /取消|Cancel/i })
+      .first()
+      .click()
     await expect(
       page.locator("form").getByText(user.full_name as string, { exact: true }),
     ).toBeVisible()
@@ -125,7 +129,10 @@ test.describe("Edit user with invalid data", () => {
     await page.getByRole("tab", { name: /个人资料|My profile/i }).click()
     await page.getByRole("button", { name: /编辑|Edit/i }).click()
     await page.getByLabel(/邮箱|Email/i).fill(updatedEmail)
-    await page.getByRole("button", { name: /取消|Cancel/i }).first().click()
+    await page
+      .getByRole("button", { name: /取消|Cancel/i })
+      .first()
+      .click()
     await expect(
       page.locator("form").getByText(email, { exact: true }),
     ).toBeVisible()
@@ -152,8 +159,12 @@ test.describe("Change password successfully", () => {
     await page.getByTestId("current-password-input").fill(password)
     await page.getByTestId("new-password-input").fill(NewPassword)
     await page.getByTestId("confirm-password-input").fill(NewPassword)
-    await page.getByRole("button", { name: /更新密码|Update Password/i }).click()
-    await expect(page.getByText(/密码更新成功|Password updated successfully/i)).toBeVisible()
+    await page
+      .getByRole("button", { name: /更新密码|Update Password/i })
+      .click()
+    await expect(
+      page.getByText(/密码更新成功|Password updated successfully/i),
+    ).toBeVisible()
 
     await logOutUser(page)
 
@@ -180,7 +191,9 @@ test.describe("Change password with invalid data", () => {
     await page.getByTestId("current-password-input").fill(password)
     await page.getByTestId("new-password-input").fill(weakPassword)
     await page.getByTestId("confirm-password-input").fill(weakPassword)
-    await page.getByRole("button", { name: /更新密码|Update Password/i }).click()
+    await page
+      .getByRole("button", { name: /更新密码|Update Password/i })
+      .click()
     await expect(
       page.getByText(/密码至少.*8|Password must be at least 8/i),
     ).toBeVisible()
@@ -204,8 +217,12 @@ test.describe("Change password with invalid data", () => {
     await page.getByTestId("current-password-input").fill(password)
     await page.getByTestId("new-password-input").fill(newPassword)
     await page.getByTestId("confirm-password-input").fill(confirmPassword)
-    await page.getByRole("button", { name: /更新密码|Update Password/i }).click()
-    await expect(page.getByText(/密码不一致|passwords don't match/i)).toBeVisible()
+    await page
+      .getByRole("button", { name: /更新密码|Update Password/i })
+      .click()
+    await expect(
+      page.getByText(/密码不一致|passwords don't match/i),
+    ).toBeVisible()
   })
 
   test("Current password and new password are the same", async ({ page }) => {
@@ -222,9 +239,13 @@ test.describe("Change password with invalid data", () => {
     await page.getByTestId("current-password-input").fill(password)
     await page.getByTestId("new-password-input").fill(password)
     await page.getByTestId("confirm-password-input").fill(password)
-    await page.getByRole("button", { name: /更新密码|Update Password/i }).click()
+    await page
+      .getByRole("button", { name: /更新密码|Update Password/i })
+      .click()
     await expect(
-      page.getByText(/新密码不能与当前密码相同|cannot be the same as the current one/i),
+      page.getByText(
+        /新密码不能与当前密码相同|cannot be the same as the current one/i,
+      ),
     ).toBeVisible()
   })
 })

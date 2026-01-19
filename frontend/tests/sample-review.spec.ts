@@ -21,7 +21,9 @@ test.describe("Sample Review Interface", () => {
 
     // Find a dataset with samples
     const datasetRow = page.getByRole("row").nth(1)
-    const hasDatasets = await datasetRow.isVisible({ timeout: 2000 }).catch(() => false)
+    const hasDatasets = await datasetRow
+      .isVisible({ timeout: 2000 })
+      .catch(() => false)
 
     if (!hasDatasets) {
       return { success: false, reason: "No datasets exist" }
@@ -64,7 +66,9 @@ test.describe("Sample Review Interface", () => {
 
     // Should show action buttons (in review mode)
     await expect(page.getByRole("button", { name: /keep|保留/i })).toBeVisible()
-    await expect(page.getByRole("button", { name: /remove|移除/i })).toBeVisible()
+    await expect(
+      page.getByRole("button", { name: /remove|移除/i }),
+    ).toBeVisible()
     await expect(page.getByRole("button", { name: /skip|跳过/i })).toBeVisible()
   })
 
@@ -79,8 +83,14 @@ test.describe("Sample Review Interface", () => {
     }
 
     // Either shows samples or empty message
-    const hasSamples = await page.getByText(/\d+ \/ \d+/).isVisible({ timeout: 5000 }).catch(() => false)
-    const hasEmptyMessage = await page.getByText(/no samples|暂无样本|没有样本/i).isVisible({ timeout: 1000 }).catch(() => false)
+    const hasSamples = await page
+      .getByText(/\d+ \/ \d+/)
+      .isVisible({ timeout: 5000 })
+      .catch(() => false)
+    const hasEmptyMessage = await page
+      .getByText(/no samples|暂无样本|没有样本/i)
+      .isVisible({ timeout: 1000 })
+      .catch(() => false)
 
     expect(hasSamples || hasEmptyMessage).toBeTruthy()
   })
@@ -94,7 +104,9 @@ test.describe("Sample Review Interface", () => {
     }
 
     // Wait for page to load
-    await expect(page.getByText(/\d+ \/ \d+|no samples/i)).toBeVisible({ timeout: 10000 })
+    await expect(page.getByText(/\d+ \/ \d+|no samples/i)).toBeVisible({
+      timeout: 10000,
+    })
 
     // Click back button
     await page.getByRole("button", { name: /back|返回/i }).click()
@@ -123,7 +135,7 @@ test.describe("Sample Review Interface", () => {
       return
     }
 
-    const [, currentPos, total] = match
+    const [, _currentPos, total] = match
     const totalSamples = parseInt(total, 10)
 
     if (totalSamples < 2) {
@@ -217,7 +229,9 @@ test.describe("Sample Review Interface", () => {
     await page.getByRole("button", { name: /keep|保留/i }).click()
 
     // Should show success toast
-    await expect(page.getByText(/kept|保留成功/i)).toBeVisible({ timeout: 3000 })
+    await expect(page.getByText(/kept|保留成功/i)).toBeVisible({
+      timeout: 3000,
+    })
 
     // Position should advance to 2
     await expect(page.getByText(/2 \/ \d+/)).toBeVisible()
@@ -433,7 +447,9 @@ test.describe("Sample Viewer in Review", () => {
     // Navigate to review
     await page.goto("/datasets")
     const datasetRow = page.getByRole("row").nth(1)
-    const hasDatasets = await datasetRow.isVisible({ timeout: 2000 }).catch(() => false)
+    const hasDatasets = await datasetRow
+      .isVisible({ timeout: 2000 })
+      .catch(() => false)
 
     if (!hasDatasets) {
       test.skip(true, "No datasets exist")
@@ -452,7 +468,10 @@ test.describe("Sample Viewer in Review", () => {
     await page.waitForURL(/\/datasets\/[a-f0-9-]+\/review/i, { timeout: 5000 })
 
     // Should show navigation first
-    const hasSamples = await page.getByText(/\d+ \/ \d+/).isVisible({ timeout: 10000 }).catch(() => false)
+    const hasSamples = await page
+      .getByText(/\d+ \/ \d+/)
+      .isVisible({ timeout: 10000 })
+      .catch(() => false)
 
     if (!hasSamples) {
       // No samples, that's ok
@@ -461,11 +480,19 @@ test.describe("Sample Viewer in Review", () => {
     }
 
     // Should have an image or canvas element
-    const hasImage = await page.locator("img, canvas").first().isVisible({ timeout: 5000 }).catch(() => false)
+    const hasImage = await page
+      .locator("img, canvas")
+      .first()
+      .isVisible({ timeout: 5000 })
+      .catch(() => false)
 
     // Or should show loading/error state
-    const hasContent = hasImage ||
-      await page.getByText(/loading|error|无法加载/i).isVisible({ timeout: 1000 }).catch(() => false)
+    const hasContent =
+      hasImage ||
+      (await page
+        .getByText(/loading|error|无法加载/i)
+        .isVisible({ timeout: 1000 })
+        .catch(() => false))
 
     expect(hasContent).toBeTruthy()
   })

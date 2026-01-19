@@ -10,7 +10,7 @@ test.describe("Dataset Build Wizard", () => {
   test("Datasets page shows build wizard link", async ({ page }) => {
     // Should show the build wizard button
     await expect(
-      page.getByRole("link", { name: /构建数据集|build/i })
+      page.getByRole("link", { name: /构建数据集|build/i }),
     ).toBeVisible()
   })
 
@@ -21,7 +21,7 @@ test.describe("Dataset Build Wizard", () => {
     // Should navigate to build page
     await page.waitForURL("/datasets/build")
     await expect(
-      page.getByRole("heading", { name: /构建数据集|build dataset/i })
+      page.getByRole("heading", { name: /构建数据集|build dataset/i }),
     ).toBeVisible()
   })
 
@@ -42,12 +42,12 @@ test.describe("Dataset Build Wizard", () => {
 
     // Should show preview button
     await expect(
-      page.getByRole("button", { name: /预览|preview/i })
+      page.getByRole("button", { name: /预览|preview/i }),
     ).toBeVisible()
 
     // Should show build button
     await expect(
-      page.getByRole("button", { name: /构建数据集|build/i })
+      page.getByRole("button", { name: /构建数据集|build/i }),
     ).toBeVisible()
   })
 
@@ -76,7 +76,7 @@ test.describe("Dataset Build Wizard", () => {
 
     // Should show mode options
     await expect(
-      page.getByRole("option", { name: /随机采样|random/i })
+      page.getByRole("option", { name: /随机采样|random/i }),
     ).toBeVisible()
   })
 
@@ -106,7 +106,7 @@ test.describe("Dataset Build Wizard", () => {
     // Should return to datasets page
     await page.waitForURL("/datasets")
     await expect(
-      page.getByRole("heading", { name: /数据集|datasets/i })
+      page.getByRole("heading", { name: /数据集|datasets/i }),
     ).toBeVisible()
   })
 
@@ -201,7 +201,11 @@ test.describe("Filter Panel", () => {
     await statusSelect.click()
 
     // Should show status options
-    await expect(page.getByRole("option", { name: /已关联|linked/i })).toBeVisible()
-    await expect(page.getByRole("option", { name: /无标注|none/i })).toBeVisible()
+    await expect(
+      page.getByRole("option", { name: /已关联|linked/i }),
+    ).toBeVisible()
+    await expect(
+      page.getByRole("option", { name: /无标注|none/i }),
+    ).toBeVisible()
   })
 })

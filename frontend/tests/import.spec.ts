@@ -4,7 +4,7 @@ import { expect, test } from "@playwright/test"
 
 test.describe("Import Wizard", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/samples/import")
+    await page.goto("/import")
   })
 
   test("Import page is accessible from navigation", async ({ page }) => {
@@ -15,7 +15,7 @@ test.describe("Import Wizard", () => {
     await page.getByRole("link", { name: /import/i }).click()
 
     // Should navigate to import page
-    await page.waitForURL("/samples/import")
+    await page.waitForURL("/import")
     await expect(page.getByRole("heading", { name: /import/i })).toBeVisible()
   })
 
@@ -229,7 +229,7 @@ images/sample001.jpg,cat`
 
 test.describe("Import Progress", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/samples/import")
+    await page.goto("/import")
   })
 
   test("Shows import progress during execution", async ({ page }) => {
@@ -286,7 +286,9 @@ images/sample002.png,dog`
     // Should show progress indicator or result
     // Either progress element or result (success/error) should appear
     await expect(
-      page.getByTestId("import-progress").or(page.getByText(/成功|失败|completed|error/i))
+      page
+        .getByTestId("import-progress")
+        .or(page.getByText(/成功|失败|completed|error/i)),
     ).toBeVisible({ timeout: 15000 })
   })
 
@@ -338,7 +340,7 @@ images/sample001.jpg`
     // Wait for import to complete - should show results
     // Results include counts for created/skipped/error
     await expect(
-      page.getByText(/创建|created|成功|完成|completed/i)
+      page.getByText(/创建|created|成功|完成|completed/i),
     ).toBeVisible({ timeout: 30000 })
   })
 
