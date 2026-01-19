@@ -24,11 +24,9 @@ type ViewMode = "list" | "single"
 function SamplesContent({
   viewMode,
   onViewModeChange,
-  onSampleSelect,
 }: {
   viewMode: ViewMode
   onViewModeChange: (mode: ViewMode) => void
-  onSampleSelect: (index: number) => void
 }) {
   const { data } = useSuspenseQuery({
     queryKey: ["samples"],
@@ -50,21 +48,13 @@ function SamplesContent({
 
   return (
     <div className="terminal-border bg-card/30 backdrop-blur-sm rounded-lg overflow-hidden">
-      <DataTable
-        columns={columns}
-        data={samples}
-        onRowClick={(_row, index) => {
-          onSampleSelect(index)
-          onViewModeChange("single")
-        }}
-      />
+      <DataTable columns={columns} data={samples} />
     </div>
   )
 }
 
 function Samples() {
   const [viewMode, setViewMode] = useState<ViewMode>("list")
-  const [_selectedIndex, setSelectedIndex] = useState(0)
 
   return (
     <div className="flex flex-col gap-6">
@@ -109,11 +99,7 @@ function Samples() {
       </div>
 
       <Suspense fallback={<PendingComponent />}>
-        <SamplesContent
-          viewMode={viewMode}
-          onViewModeChange={setViewMode}
-          onSampleSelect={setSelectedIndex}
-        />
+        <SamplesContent viewMode={viewMode} onViewModeChange={setViewMode} />
       </Suspense>
     </div>
   )

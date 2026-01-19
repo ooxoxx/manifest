@@ -1,13 +1,14 @@
 // frontend/src/components/MinIO/MinioManager.tsx
 import { useSuspenseQuery } from "@tanstack/react-query"
-import { Server } from "lucide-react"
-import { Suspense } from "react"
+import { Plus, Server } from "lucide-react"
+import { Suspense, useState } from "react"
 
 import { MinioInstancesService } from "@/client"
 import { DataTable } from "@/components/Common/DataTable"
-import { AddInstance } from "@/components/MinIO/AddInstance"
+import AddMinIOInstance from "@/components/MinIO/AddInstance"
 import { columns } from "@/components/MinIO/columns"
 import { PendingComponent } from "@/components/Pending/PendingComponent"
+import { Button } from "@/components/ui/button"
 
 function MinioTable() {
   const { data } = useSuspenseQuery({
@@ -19,6 +20,8 @@ function MinioTable() {
 }
 
 export default function MinioManager() {
+  const [isAddOpen, setIsAddOpen] = useState(false)
+
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
@@ -39,7 +42,10 @@ export default function MinioManager() {
               管理对象存储连接配置
             </p>
           </div>
-          <AddInstance />
+          <Button onClick={() => setIsAddOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            添加实例
+          </Button>
         </div>
       </div>
 
@@ -48,6 +54,8 @@ export default function MinioManager() {
           <MinioTable />
         </div>
       </Suspense>
+
+      <AddMinIOInstance open={isAddOpen} onOpenChange={setIsAddOpen} />
     </div>
   )
 }

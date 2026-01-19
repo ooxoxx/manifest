@@ -71,17 +71,15 @@ export default function OpsCenter() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">已标注</CardTitle>
+            <CardTitle className="text-sm font-medium">数据集</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {overview?.annotated_samples?.toLocaleString() ?? 0}
+              {overview?.total_datasets?.toLocaleString() ?? 0}
             </div>
             <p className="text-xs text-muted-foreground">
-              {overview?.total_samples
-                ? `${((overview.annotated_samples ?? 0) / overview.total_samples * 100).toFixed(1)}%`
-                : "0%"}
+              {overview?.total_tags ?? 0} 个标签
             </p>
           </CardContent>
         </Card>

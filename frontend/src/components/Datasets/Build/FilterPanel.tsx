@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query"
 import {
-  MinioInstancesService,
-  type FilterParams,
   type AnnotationStatus,
+  type FilterParams,
+  MinioInstancesService,
 } from "@/client"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -36,7 +36,10 @@ export default function FilterPanel({ value, onChange }: Props) {
   const handleAnnotationStatusChange = (newValue: string) => {
     onChange({
       ...value,
-      annotation_status: newValue && newValue !== "all" ? (newValue as AnnotationStatus) : undefined,
+      annotation_status:
+        newValue && newValue !== "all"
+          ? (newValue as AnnotationStatus)
+          : undefined,
     })
   }
 

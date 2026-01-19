@@ -24,13 +24,18 @@ interface Props {
   availableCount?: number
 }
 
-export default function SamplingConfig({ value, onChange, availableCount }: Props) {
+export default function SamplingConfig({
+  value,
+  onChange,
+  availableCount,
+}: Props) {
   const handleModeChange = (mode: SamplingMode) => {
     onChange({
       ...value,
       mode,
-      count: mode === "random" ? (value.count || 100) : undefined,
-      class_targets: mode === "class_targets" ? (value.class_targets || {}) : undefined,
+      count: mode === "random" ? value.count || 100 : undefined,
+      class_targets:
+        mode === "class_targets" ? value.class_targets || {} : undefined,
     })
   }
 
@@ -56,7 +61,9 @@ export default function SamplingConfig({ value, onChange, availableCount }: Prop
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">全部 - 添加所有匹配样本</SelectItem>
-              <SelectItem value="random">随机采样 - 随机选择指定数量</SelectItem>
+              <SelectItem value="random">
+                随机采样 - 随机选择指定数量
+              </SelectItem>
               <SelectItem value="class_targets">
                 类别目标 - 按类别数量采样
               </SelectItem>
@@ -96,7 +103,7 @@ export default function SamplingConfig({ value, onChange, availableCount }: Prop
                 value={value.seed ?? ""}
                 onChange={(e) =>
                   handleSeedChange(
-                    e.target.value ? Number(e.target.value) : undefined
+                    e.target.value ? Number(e.target.value) : undefined,
                   )
                 }
                 placeholder="留空使用随机"

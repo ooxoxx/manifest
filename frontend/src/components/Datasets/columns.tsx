@@ -1,5 +1,5 @@
-import type { ColumnDef } from "@tanstack/react-table"
 import { Link } from "@tanstack/react-router"
+import type { ColumnDef } from "@tanstack/react-table"
 import { MoreHorizontal, Plus } from "lucide-react"
 import type { DatasetPublic } from "@/client"
 import { Badge } from "@/components/ui/badge"
@@ -15,9 +15,7 @@ export const columns: ColumnDef<DatasetPublic>[] = [
   {
     accessorKey: "name",
     header: "名称",
-    cell: ({ row }) => (
-      <span className="font-medium">{row.original.name}</span>
-    ),
+    cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
   },
   {
     accessorKey: "description",

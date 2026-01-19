@@ -1,6 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table"
 import { MoreHorizontal, Plug } from "lucide-react"
-import { MinioInstancesService, type MinIOInstancePublic } from "@/client"
+import { type MinIOInstancePublic, MinioInstancesService } from "@/client"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {

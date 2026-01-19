@@ -1,11 +1,11 @@
 // frontend/src/components/Tags/TagsManager.tsx
 import { useSuspenseQuery } from "@tanstack/react-query"
-import { ChevronRight, Tags as TagsIcon } from "lucide-react"
+import { ChevronRight, Plus, Tags as TagsIcon } from "lucide-react"
 import { Suspense, useState } from "react"
 
 import { TagsService, type TagPublic } from "@/client"
 import { PendingComponent } from "@/components/Pending/PendingComponent"
-import { AddTag } from "@/components/Tags/AddTag"
+import AddTag from "@/components/Tags/AddTag"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
@@ -62,7 +62,7 @@ function TagTree({
   )
 }
 
-function TagsContent() {
+function TagsContent({ onAddClick }: { onAddClick: () => void }) {
   const [selectedTag, setSelectedTag] = useState<TagPublic | null>(null)
 
   const { data } = useSuspenseQuery({
@@ -72,13 +72,44 @@ function TagsContent() {
 
   const tags = data?.data ?? []
 
+  // Calculate level from parent chain
+  const getTagLevel = (tag: TagPublic): number => {
+    let level = 0
+    let currentParentId = tag.parent_id
+    while (currentParentId) {
+      level++
+      const parent = tags.find((t) => t.id === currentParentId)
+      currentParentId = parent?.parent_id ?? null
+    }
+    return level
+  }
+
+  // Build full path from parent chain
+  const getFullPath = (tag: TagPublic): string => {
+    const parts: string[] = [tag.name]
+    let currentParentId = tag.parent_id
+    while (currentParentId) {
+      const parent = tags.find((t) => t.id === currentParentId)
+      if (parent) {
+        parts.unshift(parent.name)
+        currentParentId = parent.parent_id
+      } else {
+        break
+      }
+    }
+    return parts.join(" / ")
+  }
+
   return (
     <div className="grid gap-6 md:grid-cols-2">
       {/* Left: Tag Tree */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>标签树</CardTitle>
-          <AddTag />
+          <Button size="sm" onClick={onAddClick}>
+            <Plus className="mr-2 h-4 w-4" />
+            添加标签
+          </Button>
         </CardHeader>
         <CardContent>
           <TagTree
@@ -98,19 +129,23 @@ function TagsContent() {
           {selectedTag ? (
             <div className="space-y-4">
               <div>
-                <p className="text-sm text-muted-foreground">完整路径</p>
-                <p className="font-medium">{selectedTag.full_path}</p>
+                <p className="text-sm text-muted-foreground">名称</p>
+                <p className="font-medium">{selectedTag.name}</p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">关联样本</p>
-                <p className="font-medium">
-                  {selectedTag.sample_count?.toLocaleString() ?? 0}
-                </p>
+                <p className="text-sm text-muted-foreground">完整路径</p>
+                <p className="font-medium">{getFullPath(selectedTag)}</p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">层级</p>
-                <p className="font-medium">{selectedTag.level}</p>
+                <p className="font-medium">{getTagLevel(selectedTag)}</p>
               </div>
+              {selectedTag.description && (
+                <div>
+                  <p className="text-sm text-muted-foreground">描述</p>
+                  <p className="font-medium">{selectedTag.description}</p>
+                </div>
+              )}
               <div className="flex gap-2 pt-4">
                 <Button variant="outline" size="sm">
                   编辑
@@ -132,6 +167,8 @@ function TagsContent() {
 }
 
 export default function TagsManager() {
+  const [isAddOpen, setIsAddOpen] = useState(false)
+
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
@@ -152,8 +189,10 @@ export default function TagsManager() {
       </div>
 
       <Suspense fallback={<PendingComponent />}>
-        <TagsContent />
+        <TagsContent onAddClick={() => setIsAddOpen(true)} />
       </Suspense>
+
+      <AddTag open={isAddOpen} onOpenChange={setIsAddOpen} />
     </div>
   )
 }

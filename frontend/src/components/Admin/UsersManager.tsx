@@ -3,19 +3,26 @@ import { useSuspenseQuery } from "@tanstack/react-query"
 import { Users } from "lucide-react"
 import { Suspense } from "react"
 
-import { UsersService } from "@/client"
-import { AddUser } from "@/components/Admin/AddUser"
-import { columns } from "@/components/Admin/columns"
+import { type UserPublic, UsersService } from "@/client"
+import AddUser from "@/components/Admin/AddUser"
+import { columns, type UserTableData } from "@/components/Admin/columns"
 import { DataTable } from "@/components/Common/DataTable"
 import { PendingComponent } from "@/components/Pending/PendingComponent"
+import useAuth from "@/hooks/useAuth"
 
-function UsersTable() {
+function UsersTableContent() {
+  const { user: currentUser } = useAuth()
   const { data } = useSuspenseQuery({
     queryKey: ["users"],
     queryFn: () => UsersService.readUsers(),
   })
 
-  return <DataTable columns={columns} data={data?.data ?? []} />
+  const tableData: UserTableData[] = (data?.data ?? []).map((user: UserPublic) => ({
+    ...user,
+    isCurrentUser: currentUser?.id === user.id,
+  }))
+
+  return <DataTable columns={columns} data={tableData} />
 }
 
 export default function UsersManager() {
@@ -45,7 +52,7 @@ export default function UsersManager() {
 
       <Suspense fallback={<PendingComponent />}>
         <div className="terminal-border bg-card/30 backdrop-blur-sm rounded-lg overflow-hidden">
-          <UsersTable />
+          <UsersTableContent />
         </div>
       </Suspense>
     </div>
