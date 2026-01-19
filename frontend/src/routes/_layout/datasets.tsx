@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
-import { createFileRoute } from "@tanstack/react-router"
-import { Plus } from "lucide-react"
+import { createFileRoute, Link } from "@tanstack/react-router"
+import { Plus, Wand2 } from "lucide-react"
 import { Suspense, useState } from "react"
 import { DataTable } from "@/components/Common/DataTable"
 import AddDataset from "@/components/Datasets/AddDataset"
@@ -38,10 +38,18 @@ function Datasets() {
           <h1 className="text-2xl font-bold tracking-tight">数据集</h1>
           <p className="text-muted-foreground">创建和管理训练样本集合</p>
         </div>
-        <Button onClick={() => setIsAddOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          创建数据集
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" asChild>
+            <Link to="/datasets/build">
+              <Wand2 className="mr-2 h-4 w-4" />
+              构建数据集
+            </Link>
+          </Button>
+          <Button onClick={() => setIsAddOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            创建空数据集
+          </Button>
+        </div>
       </div>
       <Suspense fallback={<PendingComponent />}>
         <DatasetsTable />
