@@ -23,7 +23,9 @@ import { Route as LayoutImportRouteImport } from './routes/_layout/import'
 import { Route as LayoutDatasetsRouteImport } from './routes/_layout/datasets'
 import { Route as LayoutBuildRouteImport } from './routes/_layout/build'
 import { Route as LayoutAdminRouteImport } from './routes/_layout/admin'
+import { Route as LayoutSettingsIndexRouteImport } from './routes/_layout/settings/index'
 import { Route as LayoutSamplesIndexRouteImport } from './routes/_layout/samples/index'
+import { Route as LayoutDatasetsIndexRouteImport } from './routes/_layout/datasets/index'
 import { Route as LayoutSettingsUsersRouteImport } from './routes/_layout/settings/users'
 import { Route as LayoutSettingsTagsRouteImport } from './routes/_layout/settings/tags'
 import { Route as LayoutSettingsMinioRouteImport } from './routes/_layout/settings/minio'
@@ -101,10 +103,20 @@ const LayoutAdminRoute = LayoutAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutSettingsIndexRoute = LayoutSettingsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LayoutSettingsRoute,
+} as any)
 const LayoutSamplesIndexRoute = LayoutSamplesIndexRouteImport.update({
   id: '/samples/',
   path: '/samples/',
   getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutDatasetsIndexRoute = LayoutDatasetsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LayoutDatasetsRoute,
 } as any)
 const LayoutSettingsUsersRoute = LayoutSettingsUsersRouteImport.update({
   id: '/users',
@@ -163,7 +175,9 @@ export interface FileRoutesByFullPath {
   '/settings/minio': typeof LayoutSettingsMinioRoute
   '/settings/tags': typeof LayoutSettingsTagsRoute
   '/settings/users': typeof LayoutSettingsUsersRoute
+  '/datasets/': typeof LayoutDatasetsIndexRoute
   '/samples': typeof LayoutSamplesIndexRoute
+  '/settings/': typeof LayoutSettingsIndexRoute
   '/datasets/$datasetId/add-samples': typeof LayoutDatasetsDatasetIdAddSamplesRoute
   '/datasets/$datasetId/review': typeof LayoutDatasetsDatasetIdReviewRoute
 }
@@ -174,11 +188,9 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/admin': typeof LayoutAdminRoute
   '/build': typeof LayoutBuildRoute
-  '/datasets': typeof LayoutDatasetsRouteWithChildren
   '/import': typeof LayoutImportRoute
   '/minio-instances': typeof LayoutMinioInstancesRoute
   '/ops': typeof LayoutOpsRoute
-  '/settings': typeof LayoutSettingsRouteWithChildren
   '/tags': typeof LayoutTagsRoute
   '/': typeof LayoutIndexRoute
   '/datasets/build': typeof LayoutDatasetsBuildRoute
@@ -186,7 +198,9 @@ export interface FileRoutesByTo {
   '/settings/minio': typeof LayoutSettingsMinioRoute
   '/settings/tags': typeof LayoutSettingsTagsRoute
   '/settings/users': typeof LayoutSettingsUsersRoute
+  '/datasets': typeof LayoutDatasetsIndexRoute
   '/samples': typeof LayoutSamplesIndexRoute
+  '/settings': typeof LayoutSettingsIndexRoute
   '/datasets/$datasetId/add-samples': typeof LayoutDatasetsDatasetIdAddSamplesRoute
   '/datasets/$datasetId/review': typeof LayoutDatasetsDatasetIdReviewRoute
 }
@@ -211,7 +225,9 @@ export interface FileRoutesById {
   '/_layout/settings/minio': typeof LayoutSettingsMinioRoute
   '/_layout/settings/tags': typeof LayoutSettingsTagsRoute
   '/_layout/settings/users': typeof LayoutSettingsUsersRoute
+  '/_layout/datasets/': typeof LayoutDatasetsIndexRoute
   '/_layout/samples/': typeof LayoutSamplesIndexRoute
+  '/_layout/settings/': typeof LayoutSettingsIndexRoute
   '/_layout/datasets/$datasetId/add-samples': typeof LayoutDatasetsDatasetIdAddSamplesRoute
   '/_layout/datasets/$datasetId/review': typeof LayoutDatasetsDatasetIdReviewRoute
 }
@@ -236,7 +252,9 @@ export interface FileRouteTypes {
     | '/settings/minio'
     | '/settings/tags'
     | '/settings/users'
+    | '/datasets/'
     | '/samples'
+    | '/settings/'
     | '/datasets/$datasetId/add-samples'
     | '/datasets/$datasetId/review'
   fileRoutesByTo: FileRoutesByTo
@@ -247,11 +265,9 @@ export interface FileRouteTypes {
     | '/signup'
     | '/admin'
     | '/build'
-    | '/datasets'
     | '/import'
     | '/minio-instances'
     | '/ops'
-    | '/settings'
     | '/tags'
     | '/'
     | '/datasets/build'
@@ -259,7 +275,9 @@ export interface FileRouteTypes {
     | '/settings/minio'
     | '/settings/tags'
     | '/settings/users'
+    | '/datasets'
     | '/samples'
+    | '/settings'
     | '/datasets/$datasetId/add-samples'
     | '/datasets/$datasetId/review'
   id:
@@ -283,7 +301,9 @@ export interface FileRouteTypes {
     | '/_layout/settings/minio'
     | '/_layout/settings/tags'
     | '/_layout/settings/users'
+    | '/_layout/datasets/'
     | '/_layout/samples/'
+    | '/_layout/settings/'
     | '/_layout/datasets/$datasetId/add-samples'
     | '/_layout/datasets/$datasetId/review'
   fileRoutesById: FileRoutesById
@@ -396,12 +416,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutAdminRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/settings/': {
+      id: '/_layout/settings/'
+      path: '/'
+      fullPath: '/settings/'
+      preLoaderRoute: typeof LayoutSettingsIndexRouteImport
+      parentRoute: typeof LayoutSettingsRoute
+    }
     '/_layout/samples/': {
       id: '/_layout/samples/'
       path: '/samples'
       fullPath: '/samples'
       preLoaderRoute: typeof LayoutSamplesIndexRouteImport
       parentRoute: typeof LayoutRoute
+    }
+    '/_layout/datasets/': {
+      id: '/_layout/datasets/'
+      path: '/'
+      fullPath: '/datasets/'
+      preLoaderRoute: typeof LayoutDatasetsIndexRouteImport
+      parentRoute: typeof LayoutDatasetsRoute
     }
     '/_layout/settings/users': {
       id: '/_layout/settings/users'
@@ -457,12 +491,14 @@ declare module '@tanstack/react-router' {
 
 interface LayoutDatasetsRouteChildren {
   LayoutDatasetsBuildRoute: typeof LayoutDatasetsBuildRoute
+  LayoutDatasetsIndexRoute: typeof LayoutDatasetsIndexRoute
   LayoutDatasetsDatasetIdAddSamplesRoute: typeof LayoutDatasetsDatasetIdAddSamplesRoute
   LayoutDatasetsDatasetIdReviewRoute: typeof LayoutDatasetsDatasetIdReviewRoute
 }
 
 const LayoutDatasetsRouteChildren: LayoutDatasetsRouteChildren = {
   LayoutDatasetsBuildRoute: LayoutDatasetsBuildRoute,
+  LayoutDatasetsIndexRoute: LayoutDatasetsIndexRoute,
   LayoutDatasetsDatasetIdAddSamplesRoute:
     LayoutDatasetsDatasetIdAddSamplesRoute,
   LayoutDatasetsDatasetIdReviewRoute: LayoutDatasetsDatasetIdReviewRoute,
@@ -476,12 +512,14 @@ interface LayoutSettingsRouteChildren {
   LayoutSettingsMinioRoute: typeof LayoutSettingsMinioRoute
   LayoutSettingsTagsRoute: typeof LayoutSettingsTagsRoute
   LayoutSettingsUsersRoute: typeof LayoutSettingsUsersRoute
+  LayoutSettingsIndexRoute: typeof LayoutSettingsIndexRoute
 }
 
 const LayoutSettingsRouteChildren: LayoutSettingsRouteChildren = {
   LayoutSettingsMinioRoute: LayoutSettingsMinioRoute,
   LayoutSettingsTagsRoute: LayoutSettingsTagsRoute,
   LayoutSettingsUsersRoute: LayoutSettingsUsersRoute,
+  LayoutSettingsIndexRoute: LayoutSettingsIndexRoute,
 }
 
 const LayoutSettingsRouteWithChildren = LayoutSettingsRoute._addFileChildren(
