@@ -3,7 +3,7 @@ import { useSuspenseQuery } from "@tanstack/react-query"
 import { ChevronRight, Plus, Tags as TagsIcon } from "lucide-react"
 import { Suspense, useState } from "react"
 
-import { TagsService, type TagPublic } from "@/client"
+import { type TagPublic, TagsService } from "@/client"
 import { PendingComponent } from "@/components/Pending/PendingComponent"
 import AddTag from "@/components/Tags/AddTag"
 import { Button } from "@/components/ui/button"
@@ -33,16 +33,12 @@ function TagTree({
         <button
           type="button"
           className={`w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors ${
-            isSelected
-              ? "bg-primary text-primary-foreground"
-              : "hover:bg-muted"
+            isSelected ? "bg-primary text-primary-foreground" : "hover:bg-muted"
           }`}
           style={{ paddingLeft: `${level * 16 + 12}px` }}
           onClick={() => onSelect(tag)}
         >
-          {children.length > 0 && (
-            <ChevronRight className="h-4 w-4 shrink-0" />
-          )}
+          {children.length > 0 && <ChevronRight className="h-4 w-4 shrink-0" />}
           <span className="truncate">{tag.name}</span>
         </button>
         {children.map((child) => renderTag(child, level + 1))}

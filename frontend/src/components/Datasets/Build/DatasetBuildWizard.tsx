@@ -50,7 +50,9 @@ export default function DatasetBuildWizard() {
   } = useQuery({
     queryKey: ["filter-preview", filters],
     queryFn: async () => {
-      const result = await DatasetsService.filterPreview({ requestBody: filters })
+      const result = await DatasetsService.filterPreview({
+        requestBody: filters,
+      })
       return result as { count: number; samples: unknown[] }
     },
     enabled: false,
@@ -165,7 +167,8 @@ export default function DatasetBuildWizard() {
                 <div className="space-y-4">
                   <div className="rounded-lg bg-muted p-4">
                     <p className="text-lg font-medium">
-                      找到 <span className="text-primary">{preview.count}</span> 个匹配样本
+                      找到 <span className="text-primary">{preview.count}</span>{" "}
+                      个匹配样本
                     </p>
                     {sampling.mode === "random" && sampling.count && (
                       <p className="text-sm text-muted-foreground mt-1">
@@ -317,10 +320,7 @@ export default function DatasetBuildWizard() {
               上一步
             </Button>
             {currentStep < 5 && (
-              <Button
-                onClick={handleNext}
-                disabled={!canProceed(currentStep)}
-              >
+              <Button onClick={handleNext} disabled={!canProceed(currentStep)}>
                 下一步
               </Button>
             )}

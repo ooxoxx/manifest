@@ -38,9 +38,7 @@ export default function MinioManager() {
             <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
               MinIO 实例
             </h1>
-            <p className="text-muted-foreground mt-2">
-              管理对象存储连接配置
-            </p>
+            <p className="text-muted-foreground mt-2">管理对象存储连接配置</p>
           </div>
           <Button onClick={() => setIsAddOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />

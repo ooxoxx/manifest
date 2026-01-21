@@ -17,10 +17,12 @@ function UsersTableContent() {
     queryFn: () => UsersService.readUsers(),
   })
 
-  const tableData: UserTableData[] = (data?.data ?? []).map((user: UserPublic) => ({
-    ...user,
-    isCurrentUser: currentUser?.id === user.id,
-  }))
+  const tableData: UserTableData[] = (data?.data ?? []).map(
+    (user: UserPublic) => ({
+      ...user,
+      isCurrentUser: currentUser?.id === user.id,
+    }),
+  )
 
   return <DataTable columns={columns} data={tableData} />
 }
@@ -42,9 +44,7 @@ export default function UsersManager() {
             <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
               用户管理
             </h1>
-            <p className="text-muted-foreground mt-2">
-              管理系统用户和权限
-            </p>
+            <p className="text-muted-foreground mt-2">管理系统用户和权限</p>
           </div>
           <AddUser />
         </div>

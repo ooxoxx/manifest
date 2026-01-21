@@ -43,7 +43,10 @@ export default function OpsCenter() {
           </p>
         </div>
 
-        <Select value={timeRange} onValueChange={(v) => setTimeRange(v as TimeRange)}>
+        <Select
+          value={timeRange}
+          onValueChange={(v) => setTimeRange(v as TimeRange)}
+        >
           <SelectTrigger className="w-32">
             <SelectValue />
           </SelectTrigger>
