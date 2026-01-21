@@ -7,12 +7,15 @@ import 'dotenv/config'
  */
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:5173';
+const collectCoverage = process.env.VITE_COVERAGE === 'true';
 
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
   testDir: './tests',
+  globalSetup: collectCoverage ? './tests/global-setup.ts' : undefined,
+  globalTeardown: collectCoverage ? './tests/global-teardown.ts' : undefined,
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -86,8 +89,9 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'npm run dev',
+    command: collectCoverage ? 'VITE_COVERAGE=true npm run dev' : 'npm run dev',
     url: baseURL,
     reuseExistingServer: !process.env.CI,
+    timeout: 120000,
   },
 });
