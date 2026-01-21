@@ -54,6 +54,7 @@
       "Bash(git commit*)",
       "Bash(cat *)",
       "Bash(ls *)",
+      "Bash(lsof -i*)",
       "Bash(find *)",
       "Bash(grep *)",
       "Bash(head *)",

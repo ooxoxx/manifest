@@ -12,7 +12,15 @@ if [ -z "$FILE_PATH" ]; then
   exit 0
 fi
 
-cd "$CLAUDE_PROJECT_DIR"
+# 获取项目目录：优先使用 CLAUDE_PROJECT_DIR，否则从文件路径推断
+if [ -n "$CLAUDE_PROJECT_DIR" ]; then
+  PROJECT_DIR="$CLAUDE_PROJECT_DIR"
+else
+  # 从文件路径中提取项目根目录 (manifest)
+  PROJECT_DIR=$(echo "$FILE_PATH" | sed 's|\(.*manifest\).*|\1|')
+fi
+
+cd "$PROJECT_DIR" || exit 0
 
 # 判断文件类型并运行相应检查
 if [[ "$FILE_PATH" == *"/backend/"* ]] && [[ "$FILE_PATH" == *.py ]]; then
@@ -25,7 +33,7 @@ if [[ "$FILE_PATH" == *"/backend/"* ]] && [[ "$FILE_PATH" == *.py ]]; then
 
 elif [[ "$FILE_PATH" == *"/frontend/"* ]] && [[ "$FILE_PATH" == *.ts* ]]; then
   echo "🔍 Running frontend lint (Biome)..."
-  cd "$CLAUDE_PROJECT_DIR/frontend"
+  cd "$PROJECT_DIR/frontend"
 
   # 运行 Biome lint
   if ! pnpm run lint 2>&1; then

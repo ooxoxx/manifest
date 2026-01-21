@@ -28,3 +28,7 @@ openapi.json
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# Coverage
+/coverage/
+/.nyc_output/
