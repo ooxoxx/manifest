@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { DashboardGetDashboardOverviewResponse, DashboardGetDailyStatsData, DashboardGetDailyStatsResponse, DashboardGetTagDistributionData, DashboardGetTagDistributionResponse, DatasetsReadDatasetsData, DatasetsReadDatasetsResponse, DatasetsCreateDatasetData, DatasetsCreateDatasetResponse, DatasetsFilterPreviewData, DatasetsFilterPreviewResponse, DatasetsBuildNewDatasetData, DatasetsBuildNewDatasetResponse, DatasetsAddFilteredSamplesToDatasetData, DatasetsAddFilteredSamplesToDatasetResponse, DatasetsReadDatasetData, DatasetsReadDatasetResponse, DatasetsUpdateDatasetData, DatasetsUpdateDatasetResponse, DatasetsDeleteDatasetData, DatasetsDeleteDatasetResponse, DatasetsGetDatasetSamplesData, DatasetsGetDatasetSamplesResponse, DatasetsAddSamplesToDatasetData, DatasetsAddSamplesToDatasetResponse, DatasetsRemoveSamplesFromDatasetData, DatasetsRemoveSamplesFromDatasetResponse, DatasetsBuildDatasetData, DatasetsBuildDatasetResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, MinioInstancesReadMinioInstancesData, MinioInstancesReadMinioInstancesResponse, MinioInstancesCreateMinioInstanceEndpointData, MinioInstancesCreateMinioInstanceEndpointResponse, MinioInstancesReadMinioInstanceData, MinioInstancesReadMinioInstanceResponse, MinioInstancesUpdateMinioInstanceEndpointData, MinioInstancesUpdateMinioInstanceEndpointResponse, MinioInstancesDeleteMinioInstanceData, MinioInstancesDeleteMinioInstanceResponse, MinioInstancesTestMinioConnectionData, MinioInstancesTestMinioConnectionResponse, MinioInstancesListMinioBucketsData, MinioInstancesListMinioBucketsResponse, PrivateCreateUserData, PrivateCreateUserResponse, SamplesReadSamplesData, SamplesReadSamplesResponse, SamplesListImportTasksData, SamplesListImportTasksResponse, SamplesImportSamplesData, SamplesImportSamplesResponse, SamplesGetImportStatusData, SamplesGetImportStatusResponse, SamplesPreviewImportCsvData, SamplesPreviewImportCsvResponse, SamplesReadSampleData, SamplesReadSampleResponse, SamplesDeleteSampleData, SamplesDeleteSampleResponse, SamplesGetSamplePreviewUrlData, SamplesGetSamplePreviewUrlResponse, SamplesGetSamplePreviewData, SamplesGetSamplePreviewResponse, SamplesGetSampleHistoryData, SamplesGetSampleHistoryResponse, SamplesBatchTagSamplesData, SamplesBatchTagSamplesResponse, TagsReadTagsData, TagsReadTagsResponse, TagsCreateTagData, TagsCreateTagResponse, TagsGetTagTreeResponse, TagsUpdateTagData, TagsUpdateTagResponse, TagsDeleteTagData, TagsDeleteTagResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, WatchedPathsReadWatchedPathsData, WatchedPathsReadWatchedPathsResponse, WatchedPathsCreateWatchedPathData, WatchedPathsCreateWatchedPathResponse, WatchedPathsUpdateWatchedPathData, WatchedPathsUpdateWatchedPathResponse, WatchedPathsDeleteWatchedPathData, WatchedPathsDeleteWatchedPathResponse, WatchedPathsSyncWatchedPathData, WatchedPathsSyncWatchedPathResponse, WebhooksReceiveMinioWebhookData, WebhooksReceiveMinioWebhookResponse } from './types.gen';
+import type { DashboardGetDashboardOverviewResponse, DashboardGetDailyStatsData, DashboardGetDailyStatsResponse, DashboardGetTagDistributionData, DashboardGetTagDistributionResponse, DatasetsReadDatasetsData, DatasetsReadDatasetsResponse, DatasetsCreateDatasetData, DatasetsCreateDatasetResponse, DatasetsFilterPreviewData, DatasetsFilterPreviewResponse, DatasetsFilterClassStatsData, DatasetsFilterClassStatsResponse, DatasetsBuildNewDatasetData, DatasetsBuildNewDatasetResponse, DatasetsAddFilteredSamplesToDatasetData, DatasetsAddFilteredSamplesToDatasetResponse, DatasetsReadDatasetData, DatasetsReadDatasetResponse, DatasetsUpdateDatasetData, DatasetsUpdateDatasetResponse, DatasetsDeleteDatasetData, DatasetsDeleteDatasetResponse, DatasetsGetDatasetClassStatsData, DatasetsGetDatasetClassStatsResponse, DatasetsGetDatasetSamplesData, DatasetsGetDatasetSamplesResponse, DatasetsAddSamplesToDatasetData, DatasetsAddSamplesToDatasetResponse, DatasetsRemoveSamplesFromDatasetData, DatasetsRemoveSamplesFromDatasetResponse, DatasetsBuildDatasetData, DatasetsBuildDatasetResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, MinioInstancesReadMinioInstancesData, MinioInstancesReadMinioInstancesResponse, MinioInstancesCreateMinioInstanceEndpointData, MinioInstancesCreateMinioInstanceEndpointResponse, MinioInstancesReadMinioInstanceData, MinioInstancesReadMinioInstanceResponse, MinioInstancesUpdateMinioInstanceEndpointData, MinioInstancesUpdateMinioInstanceEndpointResponse, MinioInstancesDeleteMinioInstanceData, MinioInstancesDeleteMinioInstanceResponse, MinioInstancesTestMinioConnectionData, MinioInstancesTestMinioConnectionResponse, MinioInstancesListMinioBucketsData, MinioInstancesListMinioBucketsResponse, PrivateCreateUserData, PrivateCreateUserResponse, SamplesReadSamplesData, SamplesReadSamplesResponse, SamplesGetSampleThumbnailsData, SamplesGetSampleThumbnailsResponse, SamplesListImportTasksData, SamplesListImportTasksResponse, SamplesImportSamplesData, SamplesImportSamplesResponse, SamplesGetImportStatusData, SamplesGetImportStatusResponse, SamplesPreviewImportCsvData, SamplesPreviewImportCsvResponse, SamplesReadSampleData, SamplesReadSampleResponse, SamplesDeleteSampleData, SamplesDeleteSampleResponse, SamplesGetSamplePreviewUrlData, SamplesGetSamplePreviewUrlResponse, SamplesGetSamplePreviewData, SamplesGetSamplePreviewResponse, SamplesGetSampleHistoryData, SamplesGetSampleHistoryResponse, SamplesBatchTagSamplesData, SamplesBatchTagSamplesResponse, TagsReadTagsData, TagsReadTagsResponse, TagsCreateTagData, TagsCreateTagResponse, TagsGetTagTreeResponse, TagsUpdateTagData, TagsUpdateTagResponse, TagsDeleteTagData, TagsDeleteTagResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, WatchedPathsReadWatchedPathsData, WatchedPathsReadWatchedPathsResponse, WatchedPathsCreateWatchedPathData, WatchedPathsCreateWatchedPathResponse, WatchedPathsUpdateWatchedPathData, WatchedPathsUpdateWatchedPathResponse, WatchedPathsDeleteWatchedPathData, WatchedPathsDeleteWatchedPathResponse, WatchedPathsSyncWatchedPathData, WatchedPathsSyncWatchedPathResponse, WebhooksReceiveMinioWebhookData, WebhooksReceiveMinioWebhookResponse } from './types.gen';
 
 export class DashboardService {
     /**
@@ -133,6 +133,26 @@ export class DatasetsService {
     }
     
     /**
+     * Filter Class Stats
+     * Get class statistics for samples matching filter criteria.
+     * @param data The data for the request.
+     * @param data.requestBody
+     * @returns ClassStatsResponse Successful Response
+     * @throws ApiError
+     */
+    public static filterClassStats(data: DatasetsFilterClassStatsData): CancelablePromise<DatasetsFilterClassStatsResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/datasets/filter-class-stats',
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
      * Build New Dataset
      * Create a new dataset with filtered and sampled data.
      * @param data The data for the request.
@@ -243,12 +263,37 @@ export class DatasetsService {
     }
     
     /**
+     * Get Dataset Class Stats
+     * Get class statistics for samples in a dataset.
+     * @param data The data for the request.
+     * @param data.id
+     * @returns ClassStatsResponse Successful Response
+     * @throws ApiError
+     */
+    public static getDatasetClassStats(data: DatasetsGetDatasetClassStatsData): CancelablePromise<DatasetsGetDatasetClassStatsResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/datasets/{id}/class-stats',
+            path: {
+                id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
      * Get Dataset Samples
      * Get samples in a dataset.
+     *
+     * Args:
+     * class_filter: Optional class name to filter samples containing that class.
      * @param data The data for the request.
      * @param data.id
      * @param data.skip
      * @param data.limit
+     * @param data.classFilter
      * @returns SamplesPublic Successful Response
      * @throws ApiError
      */
@@ -261,7 +306,8 @@ export class DatasetsService {
             },
             query: {
                 skip: data.skip,
-                limit: data.limit
+                limit: data.limit,
+                class_filter: data.classFilter
             },
             errors: {
                 422: 'Validation Error'
@@ -618,6 +664,13 @@ export class SamplesService {
     /**
      * Read Samples
      * Retrieve samples with filtering.
+     *
+     * Supports advanced filtering with:
+     * - tag_filter: DNF logic - JSON array like [[uuid1,uuid2],[uuid3]] = (A AND B) OR C
+     * - date_from/date_to: Date range filter
+     * - annotation_status: Filter by annotation status (none, linked, conflict, error)
+     * - search: Fuzzy search on file_name
+     * - sort: Field to sort by, prefix with - for descending (default: -created_at)
      * @param data The data for the request.
      * @param data.skip
      * @param data.limit
@@ -626,7 +679,12 @@ export class SamplesService {
      * @param data.bucket
      * @param data.tagId
      * @param data.search
-     * @returns SamplesPublic Successful Response
+     * @param data.tagFilter
+     * @param data.dateFrom
+     * @param data.dateTo
+     * @param data.annotationStatus
+     * @param data.sort
+     * @returns SampleListResponse Successful Response
      * @throws ApiError
      */
     public static readSamples(data: SamplesReadSamplesData = {}): CancelablePromise<SamplesReadSamplesResponse> {
@@ -640,8 +698,36 @@ export class SamplesService {
                 minio_instance_id: data.minioInstanceId,
                 bucket: data.bucket,
                 tag_id: data.tagId,
-                search: data.search
+                search: data.search,
+                tag_filter: data.tagFilter,
+                date_from: data.dateFrom,
+                date_to: data.dateTo,
+                annotation_status: data.annotationStatus,
+                sort: data.sort
             },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Get Sample Thumbnails
+     * Batch get sample thumbnails with presigned URLs.
+     *
+     * Returns thumbnail data for multiple samples at once, optimized for grid view.
+     * Includes presigned URLs, file metadata, and annotation class counts.
+     * @param data The data for the request.
+     * @param data.requestBody
+     * @returns SampleThumbnail Successful Response
+     * @throws ApiError
+     */
+    public static getSampleThumbnails(data: SamplesGetSampleThumbnailsData): CancelablePromise<SamplesGetSampleThumbnailsResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/samples/thumbnails',
+            body: data.requestBody,
+            mediaType: 'application/json',
             errors: {
                 422: 'Validation Error'
             }

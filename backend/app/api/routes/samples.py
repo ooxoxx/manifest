@@ -1,16 +1,20 @@
 """Samples API routes."""
 
+import json
 import uuid
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from io import BytesIO
 from typing import Any
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from sqlalchemy import func as sa_func
+from sqlalchemy import or_
 from sqlmodel import col, func, select
 
 from app.api.deps import CurrentUser, SessionDep
 from app.models import (
     Annotation,
+    AnnotationStatus,
     BatchTagRequest,
     CSVPreviewResponse,
     ImportTask,
@@ -22,12 +26,14 @@ from app.models import (
     SampleHistory,
     SampleHistoryAction,
     SampleHistoryPublic,
+    SampleListResponse,
     SamplePreviewAnnotation,
     SamplePreviewResponse,
     SamplePublic,
-    SamplesPublic,
     SampleStatus,
     SampleTag,
+    SampleThumbnail,
+    SampleThumbnailsRequest,
     SampleWithTags,
     Tag,
 )
@@ -41,43 +47,194 @@ from app.services.minio_service import MinIOService
 router = APIRouter(prefix="/samples", tags=["samples"])
 
 
-@router.get("/", response_model=SamplesPublic)
+@router.get("/", response_model=SampleListResponse)
 def read_samples(
     session: SessionDep,
     current_user: CurrentUser,
     skip: int = 0,
-    limit: int = 100,
+    limit: int = 50,
     status: SampleStatus | None = None,
     minio_instance_id: uuid.UUID | None = None,
     bucket: str | None = None,
     tag_id: uuid.UUID | None = None,
     search: str | None = None,
+    # New filtering parameters for sample browser
+    tag_filter: str | None = None,  # JSON: [[uuid1,uuid2],[uuid3]] for DNF logic
+    date_from: date | None = None,
+    date_to: date | None = None,
+    annotation_status: AnnotationStatus | None = None,
+    sort: str = "-created_at",  # Sorting field with direction prefix
 ) -> Any:
-    """Retrieve samples with filtering."""
+    """Retrieve samples with filtering.
+
+    Supports advanced filtering with:
+    - tag_filter: DNF logic - JSON array like [[uuid1,uuid2],[uuid3]] = (A AND B) OR C
+    - date_from/date_to: Date range filter
+    - annotation_status: Filter by annotation status (none, linked, conflict, error)
+    - search: Fuzzy search on file_name
+    - sort: Field to sort by, prefix with - for descending (default: -created_at)
+    """
     # Build base query
     query = select(Sample).where(Sample.owner_id == current_user.id)
 
-    # Apply filters
+    # Apply status filter (default to active)
     if status:
         query = query.where(Sample.status == status)
+    else:
+        query = query.where(Sample.status == SampleStatus.active)
+
     if minio_instance_id:
         query = query.where(Sample.minio_instance_id == minio_instance_id)
     if bucket:
         query = query.where(Sample.bucket == bucket)
     if search:
         query = query.where(col(Sample.file_name).ilike(f"%{search}%"))
+
+    # Legacy single tag filter
     if tag_id:
         query = query.join(SampleTag).where(SampleTag.tag_id == tag_id)
+
+    # DNF tag filter: [[tagA, tagB], [tagC]] = (A AND B) OR C
+    if tag_filter:
+        try:
+            tag_groups = json.loads(tag_filter)
+            if tag_groups and isinstance(tag_groups, list):
+                or_conditions = []
+                for tag_group in tag_groups:
+                    if tag_group and isinstance(tag_group, list):
+                        # Each group: sample must have ALL tags in the group (AND)
+                        tag_uuids = [uuid.UUID(t) for t in tag_group]
+                        subquery = (
+                            select(SampleTag.sample_id)
+                            .where(col(SampleTag.tag_id).in_(tag_uuids))
+                            .group_by(col(SampleTag.sample_id))
+                            .having(sa_func.count(col(SampleTag.tag_id)) == len(tag_uuids))
+                        )
+                        or_conditions.append(col(Sample.id).in_(subquery))
+                if or_conditions:
+                    # Groups are connected by OR
+                    query = query.where(or_(*or_conditions))
+        except (json.JSONDecodeError, ValueError):
+            pass  # Invalid JSON, ignore filter
+
+    # Date range filters
+    if date_from:
+        query = query.where(Sample.created_at >= datetime.combine(date_from, datetime.min.time()))
+    if date_to:
+        query = query.where(Sample.created_at <= datetime.combine(date_to, datetime.max.time()))
+
+    # Annotation status filter
+    if annotation_status:
+        query = query.where(Sample.annotation_status == annotation_status)
 
     # Get count
     count_query = select(func.count()).select_from(query.subquery())
     count = session.exec(count_query).one()
 
-    # Get samples
-    query = query.order_by(col(Sample.created_at).desc()).offset(skip).limit(limit)
+    # Apply sorting
+    if sort.startswith("-"):
+        sort_field = sort[1:]
+        descending = True
+    else:
+        sort_field = sort
+        descending = False
+
+    # Map sort field to column
+    sort_columns = {
+        "created_at": Sample.created_at,
+        "file_name": Sample.file_name,
+        "file_size": Sample.file_size,
+    }
+    sort_column = sort_columns.get(sort_field, Sample.created_at)
+    if descending:
+        query = query.order_by(col(sort_column).desc())
+    else:
+        query = query.order_by(col(sort_column).asc())
+
+    # Apply pagination
+    query = query.offset(skip).limit(limit)
     samples = session.exec(query).all()
 
-    return SamplesPublic(data=samples, count=count)
+    return SampleListResponse(
+        items=[SamplePublic.model_validate(s) for s in samples],
+        total=count,
+        has_more=(skip + len(samples)) < count,
+    )
+
+
+@router.post("/thumbnails", response_model=list[SampleThumbnail])
+def get_sample_thumbnails(
+    session: SessionDep,
+    current_user: CurrentUser,
+    request: SampleThumbnailsRequest,
+) -> Any:
+    """Batch get sample thumbnails with presigned URLs.
+
+    Returns thumbnail data for multiple samples at once, optimized for grid view.
+    Includes presigned URLs, file metadata, and annotation class counts.
+    """
+    if not request.sample_ids:
+        return []
+
+    # Get samples with their annotations
+    samples = session.exec(
+        select(Sample)
+        .where(col(Sample.id).in_(request.sample_ids))
+        .where(Sample.owner_id == current_user.id)
+    ).all()
+
+    if not samples:
+        return []
+
+    # Get annotations for all samples in one query
+    sample_ids = [s.id for s in samples]
+    annotations = session.exec(
+        select(Annotation).where(col(Annotation.sample_id).in_(sample_ids))
+    ).all()
+    annotation_map = {a.sample_id: a for a in annotations}
+
+    # Get MinIO instances for URL generation
+    minio_instance_ids = {s.minio_instance_id for s in samples}
+    minio_instances = session.exec(
+        select(MinIOInstance).where(col(MinIOInstance.id).in_(minio_instance_ids))
+    ).all()
+    minio_map = {m.id: m for m in minio_instances}
+
+    # Build response
+    results = []
+    for sample in samples:
+        # Generate presigned URL
+        minio_instance = minio_map.get(sample.minio_instance_id)
+        if not minio_instance:
+            continue
+
+        try:
+            presigned_url = MinIOService.get_presigned_url(
+                instance=minio_instance,
+                bucket=sample.bucket,
+                object_key=sample.object_key,
+                expires=timedelta(hours=1),
+            )
+        except Exception:
+            continue  # Skip samples we can't get URLs for
+
+        # Get class counts from annotation if available
+        annotation = annotation_map.get(sample.id)
+        class_counts = annotation.class_counts if annotation else None
+
+        results.append(
+            SampleThumbnail(
+                id=sample.id,
+                presigned_url=presigned_url,
+                file_name=sample.file_name,
+                file_size=sample.file_size,
+                created_at=sample.created_at,
+                annotation_status=sample.annotation_status,
+                class_counts=class_counts,
+            )
+        )
+
+    return results
 
 
 @router.get("/import", response_model=list[ImportTaskPublic])

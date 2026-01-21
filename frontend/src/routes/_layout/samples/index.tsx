@@ -1,63 +1,104 @@
 // frontend/src/routes/_layout/samples/index.tsx
-import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { Database, Grid, List, Upload } from "lucide-react"
-import { Suspense, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 
-import { SamplesService } from "@/client"
-import { DataTable } from "@/components/Common/DataTable"
-import { PendingComponent } from "@/components/Pending/PendingComponent"
-import { columns } from "@/components/Samples/columns"
-import { SampleReviewer } from "@/components/Samples/SampleReviewer"
+import type { AnnotationStatus } from "@/client"
+import {
+  type FilterParams,
+  SampleFilters,
+} from "@/components/Samples/SampleFilters"
+import { SampleGrid } from "@/components/Samples/SampleGrid"
 import { Button } from "@/components/ui/button"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 
+interface SampleSearch {
+  tag_filter?: string
+  date_from?: string
+  date_to?: string
+  annotation_status?: AnnotationStatus
+  search?: string
+}
+
 export const Route = createFileRoute("/_layout/samples/")({
-  component: Samples,
+  component: SamplesPage,
+  validateSearch: (search: Record<string, unknown>): SampleSearch => ({
+    tag_filter: search.tag_filter as string | undefined,
+    date_from: search.date_from as string | undefined,
+    date_to: search.date_to as string | undefined,
+    annotation_status: search.annotation_status as AnnotationStatus | undefined,
+    search: search.search as string | undefined,
+  }),
   head: () => ({
     meta: [{ title: "样本浏览 - Manifest" }],
   }),
 })
 
-type ViewMode = "list" | "single"
+type ViewMode = "grid" | "list"
 
-function SamplesContent({
-  viewMode,
-  onViewModeChange,
-}: {
-  viewMode: ViewMode
-  onViewModeChange: (mode: ViewMode) => void
-}) {
-  const { data } = useSuspenseQuery({
-    queryKey: ["samples"],
-    queryFn: () => SamplesService.readSamples(),
-  })
+function SamplesPage() {
+  const [viewMode, setViewMode] = useState<ViewMode>("grid")
+  const search = Route.useSearch()
+  const navigate = Route.useNavigate()
 
-  const samples = data?.data ?? []
-  const sampleIds = samples.map((s) => s.id)
+  // Convert URL search params to FilterParams
+  const filters: FilterParams = useMemo(() => {
+    let tagFilter: string[][] = []
+    if (search.tag_filter) {
+      try {
+        const parsed = JSON.parse(search.tag_filter)
+        if (Array.isArray(parsed)) {
+          tagFilter = parsed
+        }
+      } catch {
+        // Invalid JSON, ignore
+      }
+    }
 
-  if (viewMode === "single" && samples.length > 0) {
-    return (
-      <SampleReviewer
-        sampleIds={sampleIds}
-        mode="browse"
-        onBack={() => onViewModeChange("list")}
-      />
-    )
-  }
+    return {
+      tagFilter,
+      dateFrom: search.date_from ?? null,
+      dateTo: search.date_to ?? null,
+      annotationStatus: search.annotation_status ?? null,
+      search: search.search ?? "",
+    }
+  }, [search])
 
-  return (
-    <div className="terminal-border bg-card/30 backdrop-blur-sm rounded-lg overflow-hidden">
-      <DataTable columns={columns} data={samples} />
-    </div>
+  // Update URL when filters change
+  const handleFiltersChange = useCallback(
+    (newFilters: FilterParams) => {
+      // Serialize tag filter to JSON
+      const tagFilterStr =
+        newFilters.tagFilter.length > 0
+          ? JSON.stringify(newFilters.tagFilter)
+          : undefined
+
+      navigate({
+        search: (prev) => ({
+          ...prev,
+          tag_filter: tagFilterStr,
+          date_from: newFilters.dateFrom ?? undefined,
+          date_to: newFilters.dateTo ?? undefined,
+          annotation_status: newFilters.annotationStatus ?? undefined,
+          search: newFilters.search || undefined,
+        }),
+        replace: true,
+      })
+    },
+    [navigate],
   )
-}
 
-function Samples() {
-  const [viewMode, setViewMode] = useState<ViewMode>("list")
+  // Clear all filters
+  const handleClearFilters = useCallback(() => {
+    navigate({
+      search: {},
+      replace: true,
+    })
+  }, [navigate])
 
   return (
     <div className="flex flex-col gap-6">
+      {/* Header */}
       <div className="relative">
         <div className="flex items-center gap-3 mb-2">
           <div className="h-px w-8 bg-gradient-to-r from-primary to-transparent" />
@@ -81,11 +122,11 @@ function Samples() {
               value={viewMode}
               onValueChange={(v) => v && setViewMode(v as ViewMode)}
             >
+              <ToggleGroupItem value="grid" aria-label="网格模式">
+                <Grid className="h-4 w-4" />
+              </ToggleGroupItem>
               <ToggleGroupItem value="list" aria-label="列表模式">
                 <List className="h-4 w-4" />
-              </ToggleGroupItem>
-              <ToggleGroupItem value="single" aria-label="逐张模式">
-                <Grid className="h-4 w-4" />
               </ToggleGroupItem>
             </ToggleGroup>
             <Link to="/import">
@@ -98,9 +139,25 @@ function Samples() {
         </div>
       </div>
 
-      <Suspense fallback={<PendingComponent />}>
-        <SamplesContent viewMode={viewMode} onViewModeChange={setViewMode} />
-      </Suspense>
+      {/* Filters */}
+      <div className="terminal-border bg-card/30 backdrop-blur-sm rounded-lg p-4">
+        <SampleFilters
+          filters={filters}
+          onChange={handleFiltersChange}
+          onClear={handleClearFilters}
+        />
+      </div>
+
+      {/* Content */}
+      <div className="terminal-border bg-card/30 backdrop-blur-sm rounded-lg p-4">
+        {viewMode === "grid" ? (
+          <SampleGrid filters={filters} />
+        ) : (
+          <div className="text-center py-12 text-muted-foreground">
+            列表视图即将推出
+          </div>
+        )}
+      </div>
     </div>
   )
 }

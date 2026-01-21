@@ -669,17 +669,32 @@ class SamplingMode(str, Enum):
 class FilterParams(SQLModel):
     """Parameters for filtering samples."""
 
+    # DNF tag filter: [[tagA, tagB], [tagC]] = (A AND B) OR C
+    tag_filter: list[list[uuid.UUID]] | None = None
+    # Legacy fields - kept for backwards compatibility but deprecated
     tags_include: list[uuid.UUID] | None = None
     tags_exclude: list[uuid.UUID] | None = None
-    minio_instance_id: uuid.UUID | None = None
-    bucket: str | None = None
-    prefix: str | None = None
     date_from: date | None = None
     date_to: date | None = None
     annotation_classes: list[str] | None = None
     object_count_min: int | None = None
     object_count_max: int | None = None
     annotation_status: AnnotationStatus | None = None
+
+
+class ClassStat(SQLModel):
+    """Statistics for a single class."""
+
+    name: str
+    count: int
+
+
+class ClassStatsResponse(SQLModel):
+    """Response for filter class stats."""
+
+    classes: list[ClassStat]
+    total_samples: int
+    total_objects: int
 
 
 class SamplingConfig(SQLModel):
@@ -881,3 +896,34 @@ class ImportStartRequest(SQLModel):
     minio_instance_id: uuid.UUID
     bucket: str | None = None
     validate_files: bool = True
+
+
+# ============================================================================
+# Sample Browser Models
+# ============================================================================
+
+
+class SampleListResponse(SQLModel):
+    """Response for paginated sample list with infinite scroll support."""
+
+    items: list["SamplePublic"]
+    total: int
+    has_more: bool
+
+
+class SampleThumbnail(SQLModel):
+    """Thumbnail data for a single sample."""
+
+    id: uuid.UUID
+    presigned_url: str
+    file_name: str
+    file_size: int
+    created_at: datetime
+    annotation_status: AnnotationStatus
+    class_counts: dict[str, int] | None = None
+
+
+class SampleThumbnailsRequest(SQLModel):
+    """Request for batch sample thumbnails."""
+
+    sample_ids: list[uuid.UUID]

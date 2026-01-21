@@ -34,6 +34,23 @@ export type Body_samples_preview_import_csv = {
 };
 
 /**
+ * Statistics for a single class.
+ */
+export type ClassStat = {
+    name: string;
+    count: number;
+};
+
+/**
+ * Response for filter class stats.
+ */
+export type ClassStatsResponse = {
+    classes: Array<ClassStat>;
+    total_samples: number;
+    total_objects: number;
+};
+
+/**
  * CSV preview response for API.
  */
 export type CSVPreviewResponse = {
@@ -136,11 +153,9 @@ export type DatasetUpdate = {
  * Parameters for filtering samples.
  */
 export type FilterParams = {
+    tag_filter?: (Array<Array<(string)>> | null);
     tags_include?: (Array<(string)> | null);
     tags_exclude?: (Array<(string)> | null);
-    minio_instance_id?: (string | null);
-    bucket?: (string | null);
-    prefix?: (string | null);
     date_from?: (string | null);
     date_to?: (string | null);
     annotation_classes?: (Array<(string)> | null);
@@ -261,6 +276,15 @@ export type SampleHistoryPublic = {
 };
 
 /**
+ * Response for paginated sample list with infinite scroll support.
+ */
+export type SampleListResponse = {
+    items: Array<SamplePublic>;
+    total: number;
+    has_more: boolean;
+};
+
+/**
  * Annotation data for sample preview.
  */
 export type SamplePreviewAnnotation = {
@@ -329,6 +353,28 @@ export type SamplesPublic = {
  * Sample status enum.
  */
 export type SampleStatus = 'active' | 'deleted' | 'archived';
+
+/**
+ * Thumbnail data for a single sample.
+ */
+export type SampleThumbnail = {
+    id: string;
+    presigned_url: string;
+    file_name: string;
+    file_size: number;
+    created_at: string;
+    annotation_status: AnnotationStatus;
+    class_counts?: ({
+    [key: string]: (number);
+} | null);
+};
+
+/**
+ * Request for batch sample thumbnails.
+ */
+export type SampleThumbnailsRequest = {
+    sample_ids: Array<(string)>;
+};
 
 /**
  * Sample with tags for detailed view.
@@ -578,6 +624,12 @@ export type DatasetsFilterPreviewResponse = ({
     [key: string]: unknown;
 });
 
+export type DatasetsFilterClassStatsData = {
+    requestBody: FilterParams;
+};
+
+export type DatasetsFilterClassStatsResponse = (ClassStatsResponse);
+
 export type DatasetsBuildNewDatasetData = {
     requestBody: DatasetBuildRequest;
 };
@@ -614,7 +666,14 @@ export type DatasetsDeleteDatasetData = {
 
 export type DatasetsDeleteDatasetResponse = (Message);
 
+export type DatasetsGetDatasetClassStatsData = {
+    id: string;
+};
+
+export type DatasetsGetDatasetClassStatsResponse = (ClassStatsResponse);
+
 export type DatasetsGetDatasetSamplesData = {
+    classFilter?: (string | null);
     id: string;
     limit?: number;
     skip?: number;
@@ -730,16 +789,27 @@ export type PrivateCreateUserData = {
 export type PrivateCreateUserResponse = (UserPublic);
 
 export type SamplesReadSamplesData = {
+    annotationStatus?: (AnnotationStatus | null);
     bucket?: (string | null);
+    dateFrom?: (string | null);
+    dateTo?: (string | null);
     limit?: number;
     minioInstanceId?: (string | null);
     search?: (string | null);
     skip?: number;
+    sort?: string;
     status?: (SampleStatus | null);
+    tagFilter?: (string | null);
     tagId?: (string | null);
 };
 
-export type SamplesReadSamplesResponse = (SamplesPublic);
+export type SamplesReadSamplesResponse = (SampleListResponse);
+
+export type SamplesGetSampleThumbnailsData = {
+    requestBody: SampleThumbnailsRequest;
+};
+
+export type SamplesGetSampleThumbnailsResponse = (Array<SampleThumbnail>);
 
 export type SamplesListImportTasksData = {
     limit?: number;

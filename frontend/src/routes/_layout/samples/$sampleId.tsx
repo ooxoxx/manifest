@@ -1,73 +1,59 @@
-import { useSuspenseQuery } from "@tanstack/react-query"
-import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router"
-import { Suspense } from "react"
+// frontend/src/routes/_layout/samples/$sampleId.tsx
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router"
+import { ArrowLeft, Database } from "lucide-react"
 
-import { SamplesService } from "@/client"
-import { PendingComponent } from "@/components/Pending/PendingComponent"
-import { SampleReviewer } from "@/components/Samples/SampleReviewer"
-
-// Define search params schema
-interface SampleSearchParams {
-  ids?: string
-  index?: number
-}
+import { SampleViewer } from "@/components/Samples/SampleViewer"
+import { Button } from "@/components/ui/button"
 
 export const Route = createFileRoute("/_layout/samples/$sampleId")({
-  component: SampleViewerPage,
-  validateSearch: (search: Record<string, unknown>): SampleSearchParams => ({
-    ids: typeof search.ids === "string" ? search.ids : undefined,
-    index: typeof search.index === "number" ? search.index : undefined,
+  component: SampleDetailPage,
+  head: () => ({
+    meta: [{ title: "样本详情 - Manifest" }],
   }),
 })
 
-function SampleViewerContent() {
+function SampleDetailPage() {
   const { sampleId } = Route.useParams()
-  const search = useSearch({ from: "/_layout/samples/$sampleId" })
-  const navigate = useNavigate()
-
-  // Parse sample IDs from search params or use single sample
-  const sampleIds = search.ids ? search.ids.split(",") : [sampleId]
-  const initialIndex = search.index ?? sampleIds.indexOf(sampleId)
-
-  // Fetch all samples in the list to verify they exist
-  const { data: samplesData } = useSuspenseQuery({
-    queryKey: ["samples", "list", sampleIds],
-    queryFn: () => SamplesService.readSamples(),
-  })
-
-  // Filter to only existing sample IDs
-  const validSampleIds = sampleIds.filter((id) =>
-    samplesData?.data?.some((s: { id: string }) => s.id === id),
-  )
+  const router = useRouter()
 
   const handleBack = () => {
-    navigate({ to: "/samples" })
+    // Navigate back preserving filter state in history
+    router.history.back()
   }
 
-  if (validSampleIds.length === 0) {
-    return (
-      <div className="flex h-[calc(100vh-8rem)] items-center justify-center">
-        <p className="text-muted-foreground">Sample not found</p>
+  return (
+    <div className="flex flex-col h-[calc(100vh-8rem)]">
+      {/* Header */}
+      <div className="relative mb-4">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="h-px w-8 bg-gradient-to-r from-primary to-transparent" />
+          <Database className="h-4 w-4 text-primary animate-pulse" />
+          <span className="text-xs font-mono tracking-wider text-muted-foreground uppercase">
+            详情
+          </span>
+        </div>
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="sm" onClick={handleBack}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              返回
+            </Button>
+            <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+              样本详情
+            </h1>
+          </div>
+          <Link to="/samples">
+            <Button variant="outline" size="sm">
+              浏览全部样本
+            </Button>
+          </Link>
+        </div>
       </div>
-    )
-  }
 
-  return (
-    <div className="h-[calc(100vh-8rem)]">
-      <SampleReviewer
-        sampleIds={validSampleIds}
-        initialIndex={Math.max(0, initialIndex)}
-        mode="browse"
-        onBack={handleBack}
-      />
+      {/* Sample Viewer */}
+      <div className="flex-1 terminal-border bg-card/30 backdrop-blur-sm rounded-lg overflow-hidden">
+        <SampleViewer sampleId={sampleId} className="h-full" />
+      </div>
     </div>
-  )
-}
-
-function SampleViewerPage() {
-  return (
-    <Suspense fallback={<PendingComponent />}>
-      <SampleViewerContent />
-    </Suspense>
   )
 }

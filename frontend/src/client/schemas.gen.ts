@@ -174,6 +174,47 @@ export const CSVPreviewResponseSchema = {
     description: 'CSV preview response for API.'
 } as const;
 
+export const ClassStatSchema = {
+    properties: {
+        name: {
+            type: 'string',
+            title: 'Name'
+        },
+        count: {
+            type: 'integer',
+            title: 'Count'
+        }
+    },
+    type: 'object',
+    required: ['name', 'count'],
+    title: 'ClassStat',
+    description: 'Statistics for a single class.'
+} as const;
+
+export const ClassStatsResponseSchema = {
+    properties: {
+        classes: {
+            items: {
+                '$ref': '#/components/schemas/ClassStat'
+            },
+            type: 'array',
+            title: 'Classes'
+        },
+        total_samples: {
+            type: 'integer',
+            title: 'Total Samples'
+        },
+        total_objects: {
+            type: 'integer',
+            title: 'Total Objects'
+        }
+    },
+    type: 'object',
+    required: ['classes', 'total_samples', 'total_objects'],
+    title: 'ClassStatsResponse',
+    description: 'Response for filter class stats.'
+} as const;
+
 export const DailyStatsSchema = {
     properties: {
         date: {
@@ -442,6 +483,24 @@ export const DatasetsPublicSchema = {
 
 export const FilterParamsSchema = {
     properties: {
+        tag_filter: {
+            anyOf: [
+                {
+                    items: {
+                        items: {
+                            type: 'string',
+                            format: 'uuid'
+                        },
+                        type: 'array'
+                    },
+                    type: 'array'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Tag Filter'
+        },
         tags_include: {
             anyOf: [
                 {
@@ -471,40 +530,6 @@ export const FilterParamsSchema = {
                 }
             ],
             title: 'Tags Exclude'
-        },
-        minio_instance_id: {
-            anyOf: [
-                {
-                    type: 'string',
-                    format: 'uuid'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Minio Instance Id'
-        },
-        bucket: {
-            anyOf: [
-                {
-                    type: 'string'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Bucket'
-        },
-        prefix: {
-            anyOf: [
-                {
-                    type: 'string'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Prefix'
         },
         date_from: {
             anyOf: [
@@ -1008,6 +1033,30 @@ export const SampleHistoryPublicSchema = {
     description: 'Properties to return via API.'
 } as const;
 
+export const SampleListResponseSchema = {
+    properties: {
+        items: {
+            items: {
+                '$ref': '#/components/schemas/SamplePublic'
+            },
+            type: 'array',
+            title: 'Items'
+        },
+        total: {
+            type: 'integer',
+            title: 'Total'
+        },
+        has_more: {
+            type: 'boolean',
+            title: 'Has More'
+        }
+    },
+    type: 'object',
+    required: ['items', 'total', 'has_more'],
+    title: 'SampleListResponse',
+    description: 'Response for paginated sample list with infinite scroll support.'
+} as const;
+
 export const SamplePreviewAnnotationSchema = {
     properties: {
         objects: {
@@ -1265,6 +1314,71 @@ export const SampleStatusSchema = {
     enum: ['active', 'deleted', 'archived'],
     title: 'SampleStatus',
     description: 'Sample status enum.'
+} as const;
+
+export const SampleThumbnailSchema = {
+    properties: {
+        id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Id'
+        },
+        presigned_url: {
+            type: 'string',
+            title: 'Presigned Url'
+        },
+        file_name: {
+            type: 'string',
+            title: 'File Name'
+        },
+        file_size: {
+            type: 'integer',
+            title: 'File Size'
+        },
+        created_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Created At'
+        },
+        annotation_status: {
+            '$ref': '#/components/schemas/AnnotationStatus'
+        },
+        class_counts: {
+            anyOf: [
+                {
+                    additionalProperties: {
+                        type: 'integer'
+                    },
+                    type: 'object'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Class Counts'
+        }
+    },
+    type: 'object',
+    required: ['id', 'presigned_url', 'file_name', 'file_size', 'created_at', 'annotation_status'],
+    title: 'SampleThumbnail',
+    description: 'Thumbnail data for a single sample.'
+} as const;
+
+export const SampleThumbnailsRequestSchema = {
+    properties: {
+        sample_ids: {
+            items: {
+                type: 'string',
+                format: 'uuid'
+            },
+            type: 'array',
+            title: 'Sample Ids'
+        }
+    },
+    type: 'object',
+    required: ['sample_ids'],
+    title: 'SampleThumbnailsRequest',
+    description: 'Request for batch sample thumbnails.'
 } as const;
 
 export const SampleWithTagsSchema = {
