@@ -24,12 +24,16 @@ export const test = base.extend({
       try {
         const coverage = await page.evaluate(() => {
           // window.__coverage__ is injected by istanbul
-          return (window as unknown as { __coverage__?: Record<string, unknown> }).__coverage__
+          return (
+            window as unknown as { __coverage__?: Record<string, unknown> }
+          ).__coverage__
         })
 
         if (coverage) {
           coverageCounter++
-          const sanitizedTitle = testInfo.title.replace(/[^a-zA-Z0-9]/g, "_").slice(0, 50)
+          const sanitizedTitle = testInfo.title
+            .replace(/[^a-zA-Z0-9]/g, "_")
+            .slice(0, 50)
           const fileName = `coverage-${coverageCounter}-${sanitizedTitle}.json`
           const filePath = path.join(coverageDir, fileName)
           fs.writeFileSync(filePath, JSON.stringify(coverage))

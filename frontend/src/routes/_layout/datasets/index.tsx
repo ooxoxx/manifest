@@ -1,7 +1,8 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
-import { createFileRoute, Link } from "@tanstack/react-router"
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
 import { Plus, Wand2 } from "lucide-react"
 import { Suspense, useState } from "react"
+import type { DatasetPublic } from "@/client"
 import { DatasetsService } from "@/client"
 import { DataTable } from "@/components/Common/DataTable"
 import AddDataset from "@/components/Datasets/AddDataset"
@@ -14,12 +15,26 @@ export const Route = createFileRoute("/_layout/datasets/")({
 })
 
 function DatasetsTable() {
+  const navigate = useNavigate()
   const { data } = useSuspenseQuery({
     queryKey: ["datasets"],
     queryFn: () => DatasetsService.readDatasets(),
   })
 
-  return <DataTable columns={columns} data={data?.data || []} />
+  const handleRowClick = (dataset: DatasetPublic) => {
+    navigate({
+      to: "/datasets/$datasetId",
+      params: { datasetId: dataset.id },
+    })
+  }
+
+  return (
+    <DataTable
+      columns={columns}
+      data={data?.data || []}
+      onRowClick={handleRowClick}
+    />
+  )
 }
 
 function Datasets() {

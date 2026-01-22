@@ -4,12 +4,11 @@ import random
 from dataclasses import dataclass
 from typing import Any, TypeVar
 
-from sqlalchemy import Select
-from sqlmodel import select
+from sqlalchemy import Select, func, or_
+from sqlmodel import col, select
 
 from app.models import (
     Annotation,
-    AnnotationStatus,
     FilterParams,
     Sample,
     SampleStatus,
@@ -43,15 +42,6 @@ def build_sample_filter_query(filters: FilterParams) -> Select:
     """
     query = select(Sample).where(Sample.status == SampleStatus.active)
 
-    if filters.minio_instance_id:
-        query = query.where(Sample.minio_instance_id == filters.minio_instance_id)
-
-    if filters.bucket:
-        query = query.where(Sample.bucket == filters.bucket)
-
-    if filters.prefix:
-        query = query.where(Sample.object_key.startswith(filters.prefix))
-
     if filters.date_from:
         query = query.where(Sample.created_at >= filters.date_from)
 
@@ -61,12 +51,30 @@ def build_sample_filter_query(filters: FilterParams) -> Select:
     if filters.annotation_status:
         query = query.where(Sample.annotation_status == filters.annotation_status)
 
+    # DNF tag filter: [[tagA, tagB], [tagC]] = (A AND B) OR C
+    if filters.tag_filter:
+        or_conditions = []
+        for tag_group in filters.tag_filter:
+            if tag_group:
+                # Each group: sample must have ALL tags in the group (AND)
+                subquery = (
+                    select(SampleTag.sample_id)
+                    .where(col(SampleTag.tag_id).in_(tag_group))
+                    .group_by(col(SampleTag.sample_id))
+                    .having(func.count(col(SampleTag.tag_id)) == len(tag_group))
+                )
+                or_conditions.append(col(Sample.id).in_(subquery))
+        if or_conditions:
+            # Groups are connected by OR
+            query = query.where(or_(*or_conditions))
+
+    # Legacy tag filters (kept for backwards compatibility)
     if filters.tags_include:
-        query = query.join(SampleTag).where(SampleTag.tag_id.in_(filters.tags_include))
+        query = query.join(SampleTag).where(col(SampleTag.tag_id).in_(filters.tags_include))
 
     if filters.tags_exclude:
-        subq = select(SampleTag.sample_id).where(SampleTag.tag_id.in_(filters.tags_exclude))
-        query = query.where(Sample.id.notin_(subq))
+        subq = select(SampleTag.sample_id).where(col(SampleTag.tag_id).in_(filters.tags_exclude))
+        query = query.where(col(Sample.id).notin_(subq))
 
     if filters.annotation_classes:
         query = query.join(Annotation).where(

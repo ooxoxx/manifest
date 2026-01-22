@@ -42,24 +42,26 @@ export const columns: ColumnDef<DatasetPublic>[] = [
     id: "actions",
     header: "操作",
     cell: ({ row }) => (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="sm">
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem asChild>
-            <Link
-              to="/datasets/$datasetId/add-samples"
-              params={{ datasetId: row.original.id }}
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              添加样本
-            </Link>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <div onClick={(e) => e.stopPropagation()}>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem asChild>
+              <Link
+                to="/datasets/$datasetId/add-samples"
+                params={{ datasetId: row.original.id }}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                添加样本
+              </Link>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     ),
   },
 ]

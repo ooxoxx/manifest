@@ -1,5 +1,6 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router"
 
+import { ApiError, UsersService } from "@/client"
 import { Footer } from "@/components/Common/Footer"
 import AppSidebar from "@/components/Sidebar/AppSidebar"
 import {
@@ -12,10 +13,26 @@ import { isLoggedIn } from "@/hooks/useAuth"
 export const Route = createFileRoute("/_layout")({
   component: Layout,
   beforeLoad: async () => {
+    // Check if token exists first
     if (!isLoggedIn()) {
       throw redirect({
         to: "/login",
       })
+    }
+
+    // Validate token with backend
+    try {
+      await UsersService.readUserMe()
+    } catch (error) {
+      // Token is invalid, clear it and redirect to login
+      if (error instanceof ApiError && [401, 403].includes(error.status)) {
+        localStorage.removeItem("access_token")
+        throw redirect({
+          to: "/login",
+        })
+      }
+      // Re-throw other errors (e.g., network errors) to let error boundary handle them
+      throw error
     }
   },
 })

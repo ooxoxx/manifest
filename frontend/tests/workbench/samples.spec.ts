@@ -15,114 +15,56 @@ test.describe("Samples Browser", () => {
 
   test("view mode toggle buttons are visible", async ({ page }) => {
     // The page should have view mode toggles - using aria-label
-    await expect(page.getByLabel(/列表模式/)).toBeVisible({ timeout: 10000 })
-    await expect(page.getByLabel(/逐张模式/)).toBeVisible()
+    await expect(page.getByLabel(/网格模式/)).toBeVisible({ timeout: 10000 })
+    await expect(page.getByLabel(/列表模式/)).toBeVisible()
   })
 
-  test("data table or empty state is displayed", async ({ page }) => {
-    // Wait for data to load - either table or empty state
+  test("grid view shows samples or empty state", async ({ page }) => {
+    // Grid mode is the default, wait for content to load
+    // Either shows sample count or empty state message
     await expect(
-      page.locator("table").or(page.getByText(/暂无/)),
-    ).toBeVisible({
-      timeout: 10000,
+      page.getByText(/共.*个样本/).or(page.getByText(/没有找到/)),
+    ).toBeVisible({ timeout: 10000 })
+  })
+
+  test("clicking list mode toggle shows coming soon message", async ({
+    page,
+  }) => {
+    // Wait for grid content to load first
+    await expect(
+      page.getByText(/共.*个样本/).or(page.getByText(/没有找到/)),
+    ).toBeVisible({ timeout: 10000 })
+
+    // Click list view mode toggle
+    await page.getByLabel(/列表模式/).click()
+
+    // Should show coming soon message
+    await expect(page.getByText(/列表视图即将推出/)).toBeVisible({
+      timeout: 5000,
     })
   })
 
-  test("selecting samples shows batch operation bar", async ({ page }) => {
-    // Wait for table to load
-    const table = page.locator("table")
-    const hasData = await table.isVisible({ timeout: 5000 }).catch(() => false)
-
-    if (hasData) {
-      // Try to find and click a checkbox in the first row
-      const firstCheckbox = page
-        .locator("table tbody tr")
-        .first()
-        .getByRole("checkbox")
-      const checkboxVisible = await firstCheckbox.isVisible({ timeout: 3000 }).catch(() => false)
-      if (checkboxVisible) {
-        await firstCheckbox.click()
-        // Should show batch action bar or selection count
-        await expect(page.getByText(/选中/)).toBeVisible({ timeout: 5000 })
-      }
-    }
-  })
-
-  test("clicking toggle switches to single view mode", async ({ page }) => {
-    // Wait for page content to load
+  test("can switch between grid and list modes", async ({ page }) => {
+    // Wait for grid content to load
     await expect(
-      page.locator("table").or(page.getByText(/暂无/)),
+      page.getByText(/共.*个样本/).or(page.getByText(/没有找到/)),
     ).toBeVisible({ timeout: 10000 })
 
-    // Click single view mode toggle using aria-label
-    await page.getByLabel(/逐张模式/).click()
+    // Switch to list mode
+    await page.getByLabel(/列表模式/).click()
+    await expect(page.getByText(/列表视图即将推出/)).toBeVisible()
 
-    // The toggle should be pressed after clicking
-    const singleToggle = page.getByLabel(/逐张模式/)
-    await expect(singleToggle).toBeVisible()
-
-    // If samples exist, we should see the reviewer with back button
-    // If no samples, we stay in list view - either case is valid
-    const backButton = page.getByRole("button", { name: /Back/ })
-    const table = page.locator("table")
-
-    // One of these should be visible (reviewer back button or data table)
-    await expect(backButton.or(table)).toBeVisible({ timeout: 10000 })
+    // Switch back to grid mode
+    await page.getByLabel(/网格模式/).click()
+    await expect(
+      page.getByText(/共.*个样本/).or(page.getByText(/没有找到/)),
+    ).toBeVisible({ timeout: 5000 })
   })
 
-  test("single view shows back button when samples exist", async ({ page }) => {
-    // Wait for page content to load
-    await expect(
-      page.locator("table").or(page.getByText(/暂无/)),
-    ).toBeVisible({ timeout: 10000 })
-
-    // Check if table has data
-    const table = page.locator("table")
-    const rows = page.locator("table tbody tr")
-    const rowCount = await rows.count().catch(() => 0)
-
-    if (rowCount > 0) {
-      // Switch to single mode using aria-label
-      await page.getByLabel(/逐张模式/).click()
-
-      // Should show back button in reviewer
-      await expect(
-        page.getByRole("button", { name: /Back/ }),
-      ).toBeVisible({ timeout: 10000 })
-    } else {
-      // No data - test passes as there's nothing to show in single view
-      await expect(table.or(page.getByText(/暂无/))).toBeVisible()
-    }
-  })
-
-  test("keyboard navigation works in single view when samples exist", async ({
-    page,
-  }) => {
-    // Wait for page content to load
-    await expect(
-      page.locator("table").or(page.getByText(/暂无/)),
-    ).toBeVisible({ timeout: 10000 })
-
-    // Check if table has data
-    const rows = page.locator("table tbody tr")
-    const rowCount = await rows.count().catch(() => 0)
-
-    if (rowCount > 0) {
-      // Switch to single mode first using aria-label
-      await page.getByLabel(/逐张模式/).click()
-
-      // Should show back button in reviewer
-      const backButton = page.getByRole("button", { name: /Back/ })
-      await expect(backButton).toBeVisible({ timeout: 10000 })
-
-      // Press Escape to go back to list
-      await page.keyboard.press("Escape")
-
-      // Should return to list view
-      await expect(page.getByLabel(/逐张模式/)).toBeVisible({ timeout: 10000 })
-    } else {
-      // No data - test passes, nothing to navigate
-      await expect(page.locator("table").or(page.getByText(/暂无/))).toBeVisible()
-    }
+  test("import button is visible", async ({ page }) => {
+    // Should have an import button
+    await expect(page.getByRole("link", { name: /导入样本/ })).toBeVisible({
+      timeout: 10000,
+    })
   })
 })

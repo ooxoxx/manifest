@@ -89,7 +89,9 @@ test.describe("Dataset Build Wizard", () => {
     await page.getByRole("button", { name: /上一步/ }).click()
 
     // Should be back at step 1
-    await expect(page.getByPlaceholder(/输入数据集名称/)).toBeVisible({ timeout: 10000 })
+    await expect(page.getByPlaceholder(/输入数据集名称/)).toBeVisible({
+      timeout: 10000,
+    })
   })
 
   test("step 3 sampling mode toggle exists", async ({ page }) => {

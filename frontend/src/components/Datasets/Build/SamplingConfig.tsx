@@ -1,3 +1,4 @@
+import type { FilterParams } from "@/client"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -8,6 +9,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+
+import ClassTargetSelector from "./ClassTargetSelector"
 
 export type SamplingMode = "all" | "random" | "class_targets"
 
@@ -22,12 +25,14 @@ interface Props {
   value: SamplingValues
   onChange: (value: SamplingValues) => void
   availableCount?: number
+  filters: FilterParams
 }
 
 export default function SamplingConfig({
   value,
   onChange,
   availableCount,
+  filters,
 }: Props) {
   const handleModeChange = (mode: SamplingMode) => {
     onChange({
@@ -45,6 +50,10 @@ export default function SamplingConfig({
 
   const handleSeedChange = (seed: number | undefined) => {
     onChange({ ...value, seed })
+  }
+
+  const handleClassTargetsChange = (classTargets: Record<string, number>) => {
+    onChange({ ...value, class_targets: classTargets })
   }
 
   return (
@@ -120,9 +129,11 @@ export default function SamplingConfig({
             <div className="text-sm text-muted-foreground">
               类别目标采样: 系统将智能选择样本以满足每个类别的目标数量。
             </div>
-            <div className="text-sm text-amber-600">
-              注意: 此模式需要样本有标注数据。请确保筛选条件包含已标注的样本。
-            </div>
+            <ClassTargetSelector
+              filters={filters}
+              value={value.class_targets || {}}
+              onChange={handleClassTargetsChange}
+            />
           </div>
         )}
       </CardContent>

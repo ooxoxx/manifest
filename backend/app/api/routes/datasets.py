@@ -9,6 +9,9 @@ from sqlmodel import col, func, select
 
 from app.api.deps import CurrentUser, SessionDep
 from app.models import (
+    Annotation,
+    ClassStat,
+    ClassStatsResponse,
     Dataset,
     DatasetAddSamplesRequest,
     DatasetBuildRequest,
@@ -23,17 +26,16 @@ from app.models import (
     Sample,
     SamplesPublic,
     SampleStatus,
-SampleTag,
+    SampleTag,
     SamplingConfig,
     SamplingMode,
     SamplingResultResponse,
 )
 from app.services.sampling_service import (
+    SamplingResult,
     build_sample_filter_query,
     random_sample,
     sample_by_class_targets,
-    ClassAchievement,
-    SamplingResult,
 )
 
 router = APIRouter(prefix="/datasets", tags=["datasets"])
@@ -85,6 +87,47 @@ def filter_preview(
     samples = session.exec(query.offset(skip).limit(limit)).all()
 
     return {"count": total, "samples": samples}
+
+
+@router.post("/filter-class-stats", response_model=ClassStatsResponse)
+def filter_class_stats(
+    session: SessionDep,
+    current_user: CurrentUser,
+    filters: FilterParams,
+) -> ClassStatsResponse:
+    """Get class statistics for samples matching filter criteria."""
+    query = build_sample_filter_query(filters)
+
+    # Get all samples matching the filter
+    samples = session.exec(query).all()
+    sample_ids = [s.id for s in samples]
+
+    if not sample_ids:
+        return ClassStatsResponse(classes=[], total_samples=0, total_objects=0)
+
+    # Get annotations for these samples
+    annotations = session.exec(
+        select(Annotation).where(col(Annotation.sample_id).in_(sample_ids))
+    ).all()
+
+    # Aggregate class counts
+    class_counts: dict[str, int] = {}
+    total_objects = 0
+    for ann in annotations:
+        if ann.class_counts:
+            for cls_name, count in ann.class_counts.items():
+                class_counts[cls_name] = class_counts.get(cls_name, 0) + count
+                total_objects += count
+
+    # Sort by count descending
+    sorted_classes = sorted(class_counts.items(), key=lambda x: x[1], reverse=True)
+    classes = [ClassStat(name=name, count=count) for name, count in sorted_classes]
+
+    return ClassStatsResponse(
+        classes=classes,
+        total_samples=len(sample_ids),
+        total_objects=total_objects,
+    )
 
 
 @router.post("/build")
@@ -239,6 +282,54 @@ def read_dataset(
     return dataset
 
 
+@router.get("/{id}/class-stats", response_model=ClassStatsResponse)
+def get_dataset_class_stats(
+    session: SessionDep,
+    current_user: CurrentUser,
+    id: uuid.UUID,
+) -> ClassStatsResponse:
+    """Get class statistics for samples in a dataset."""
+    dataset = session.get(Dataset, id)
+    if not dataset:
+        raise HTTPException(status_code=404, detail="Dataset not found")
+    if dataset.owner_id != current_user.id and not dataset.is_public:
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+
+    # Get all sample IDs in dataset
+    sample_ids = list(
+        session.exec(
+            select(DatasetSample.sample_id).where(DatasetSample.dataset_id == id)
+        ).all()
+    )
+
+    if not sample_ids:
+        return ClassStatsResponse(classes=[], total_samples=0, total_objects=0)
+
+    # Get annotations for these samples
+    annotations = session.exec(
+        select(Annotation).where(col(Annotation.sample_id).in_(sample_ids))
+    ).all()
+
+    # Aggregate class counts
+    class_counts: dict[str, int] = {}
+    total_objects = 0
+    for ann in annotations:
+        if ann.class_counts:
+            for cls_name, count in ann.class_counts.items():
+                class_counts[cls_name] = class_counts.get(cls_name, 0) + count
+                total_objects += count
+
+    # Sort by count descending
+    sorted_classes = sorted(class_counts.items(), key=lambda x: x[1], reverse=True)
+    classes = [ClassStat(name=name, count=count) for name, count in sorted_classes]
+
+    return ClassStatsResponse(
+        classes=classes,
+        total_samples=len(sample_ids),
+        total_objects=total_objects,
+    )
+
+
 @router.get("/{id}/samples", response_model=SamplesPublic)
 def get_dataset_samples(
     session: SessionDep,
@@ -246,31 +337,41 @@ def get_dataset_samples(
     id: uuid.UUID,
     skip: int = 0,
     limit: int = 100,
+    class_filter: str | None = None,
 ) -> Any:
-    """Get samples in a dataset."""
+    """Get samples in a dataset.
+
+    Args:
+        class_filter: Optional class name to filter samples containing that class.
+    """
     dataset = session.get(Dataset, id)
     if not dataset:
         raise HTTPException(status_code=404, detail="Dataset not found")
     if dataset.owner_id != current_user.id and not dataset.is_public:
         raise HTTPException(status_code=403, detail="Not enough permissions")
 
-    # Count total samples in dataset
-    count_query = (
-        select(func.count())
-        .select_from(DatasetSample)
-        .where(DatasetSample.dataset_id == id)
-    )
-    count = session.exec(count_query).one()
-
-    # Get samples with pagination
-    query = (
+    # Base query for samples in dataset
+    base_query = (
         select(Sample)
         .join(DatasetSample, DatasetSample.sample_id == Sample.id)
         .where(DatasetSample.dataset_id == id)
-        .order_by(col(Sample.created_at).desc())
-        .offset(skip)
-        .limit(limit)
     )
+
+    # Apply class filter if provided
+    if class_filter:
+        # Join with Annotation and filter by class_counts containing the class
+        base_query = base_query.join(
+            Annotation, Annotation.sample_id == Sample.id
+        ).where(
+            Annotation.class_counts.op("??")(class_filter)
+        )
+
+    # Count total samples matching the filter
+    count_query = select(func.count()).select_from(base_query.subquery())
+    count = session.exec(count_query).one()
+
+    # Get samples with pagination
+    query = base_query.order_by(col(Sample.created_at).desc()).offset(skip).limit(limit)
     samples = session.exec(query).all()
 
     return SamplesPublic(data=samples, count=count)

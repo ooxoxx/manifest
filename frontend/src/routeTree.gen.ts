@@ -31,6 +31,7 @@ import { Route as LayoutSettingsTagsRouteImport } from './routes/_layout/setting
 import { Route as LayoutSettingsMinioRouteImport } from './routes/_layout/settings/minio'
 import { Route as LayoutSamplesSampleIdRouteImport } from './routes/_layout/samples/$sampleId'
 import { Route as LayoutDatasetsBuildRouteImport } from './routes/_layout/datasets/build'
+import { Route as LayoutDatasetsDatasetIdIndexRouteImport } from './routes/_layout/datasets/$datasetId/index'
 import { Route as LayoutDatasetsDatasetIdReviewRouteImport } from './routes/_layout/datasets/$datasetId/review'
 import { Route as LayoutDatasetsDatasetIdAddSamplesRouteImport } from './routes/_layout/datasets/$datasetId.add-samples'
 
@@ -143,6 +144,12 @@ const LayoutDatasetsBuildRoute = LayoutDatasetsBuildRouteImport.update({
   path: '/build',
   getParentRoute: () => LayoutDatasetsRoute,
 } as any)
+const LayoutDatasetsDatasetIdIndexRoute =
+  LayoutDatasetsDatasetIdIndexRouteImport.update({
+    id: '/$datasetId/',
+    path: '/$datasetId/',
+    getParentRoute: () => LayoutDatasetsRoute,
+  } as any)
 const LayoutDatasetsDatasetIdReviewRoute =
   LayoutDatasetsDatasetIdReviewRouteImport.update({
     id: '/$datasetId/review',
@@ -180,6 +187,7 @@ export interface FileRoutesByFullPath {
   '/settings/': typeof LayoutSettingsIndexRoute
   '/datasets/$datasetId/add-samples': typeof LayoutDatasetsDatasetIdAddSamplesRoute
   '/datasets/$datasetId/review': typeof LayoutDatasetsDatasetIdReviewRoute
+  '/datasets/$datasetId': typeof LayoutDatasetsDatasetIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
@@ -203,6 +211,7 @@ export interface FileRoutesByTo {
   '/settings': typeof LayoutSettingsIndexRoute
   '/datasets/$datasetId/add-samples': typeof LayoutDatasetsDatasetIdAddSamplesRoute
   '/datasets/$datasetId/review': typeof LayoutDatasetsDatasetIdReviewRoute
+  '/datasets/$datasetId': typeof LayoutDatasetsDatasetIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -230,6 +239,7 @@ export interface FileRoutesById {
   '/_layout/settings/': typeof LayoutSettingsIndexRoute
   '/_layout/datasets/$datasetId/add-samples': typeof LayoutDatasetsDatasetIdAddSamplesRoute
   '/_layout/datasets/$datasetId/review': typeof LayoutDatasetsDatasetIdReviewRoute
+  '/_layout/datasets/$datasetId/': typeof LayoutDatasetsDatasetIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -257,6 +267,7 @@ export interface FileRouteTypes {
     | '/settings/'
     | '/datasets/$datasetId/add-samples'
     | '/datasets/$datasetId/review'
+    | '/datasets/$datasetId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -280,6 +291,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/datasets/$datasetId/add-samples'
     | '/datasets/$datasetId/review'
+    | '/datasets/$datasetId'
   id:
     | '__root__'
     | '/_layout'
@@ -306,6 +318,7 @@ export interface FileRouteTypes {
     | '/_layout/settings/'
     | '/_layout/datasets/$datasetId/add-samples'
     | '/_layout/datasets/$datasetId/review'
+    | '/_layout/datasets/$datasetId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -472,6 +485,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutDatasetsBuildRouteImport
       parentRoute: typeof LayoutDatasetsRoute
     }
+    '/_layout/datasets/$datasetId/': {
+      id: '/_layout/datasets/$datasetId/'
+      path: '/$datasetId'
+      fullPath: '/datasets/$datasetId'
+      preLoaderRoute: typeof LayoutDatasetsDatasetIdIndexRouteImport
+      parentRoute: typeof LayoutDatasetsRoute
+    }
     '/_layout/datasets/$datasetId/review': {
       id: '/_layout/datasets/$datasetId/review'
       path: '/$datasetId/review'
@@ -494,6 +514,7 @@ interface LayoutDatasetsRouteChildren {
   LayoutDatasetsIndexRoute: typeof LayoutDatasetsIndexRoute
   LayoutDatasetsDatasetIdAddSamplesRoute: typeof LayoutDatasetsDatasetIdAddSamplesRoute
   LayoutDatasetsDatasetIdReviewRoute: typeof LayoutDatasetsDatasetIdReviewRoute
+  LayoutDatasetsDatasetIdIndexRoute: typeof LayoutDatasetsDatasetIdIndexRoute
 }
 
 const LayoutDatasetsRouteChildren: LayoutDatasetsRouteChildren = {
@@ -502,6 +523,7 @@ const LayoutDatasetsRouteChildren: LayoutDatasetsRouteChildren = {
   LayoutDatasetsDatasetIdAddSamplesRoute:
     LayoutDatasetsDatasetIdAddSamplesRoute,
   LayoutDatasetsDatasetIdReviewRoute: LayoutDatasetsDatasetIdReviewRoute,
+  LayoutDatasetsDatasetIdIndexRoute: LayoutDatasetsDatasetIdIndexRoute,
 }
 
 const LayoutDatasetsRouteWithChildren = LayoutDatasetsRoute._addFileChildren(

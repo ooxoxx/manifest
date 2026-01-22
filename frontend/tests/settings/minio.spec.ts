@@ -58,11 +58,15 @@ test.describe("MinIO Instances Manager", () => {
   test("test connection button exists for instances", async ({ page }) => {
     // Wait for table to load
     const table = page.locator("table")
-    const tableVisible = await table.isVisible({ timeout: 5000 }).catch(() => false)
+    const tableVisible = await table
+      .isVisible({ timeout: 5000 })
+      .catch(() => false)
     if (tableVisible) {
       // Look for test connection button in table
       const testButton = page.getByRole("button", { name: /测试/ }).first()
-      const buttonVisible = await testButton.isVisible({ timeout: 3000 }).catch(() => false)
+      const buttonVisible = await testButton
+        .isVisible({ timeout: 3000 })
+        .catch(() => false)
       if (buttonVisible) {
         await expect(testButton).toBeEnabled()
       }
@@ -72,11 +76,15 @@ test.describe("MinIO Instances Manager", () => {
   test("delete button exists for instances", async ({ page }) => {
     // Wait for table to load
     const table = page.locator("table")
-    const tableVisible = await table.isVisible({ timeout: 5000 }).catch(() => false)
+    const tableVisible = await table
+      .isVisible({ timeout: 5000 })
+      .catch(() => false)
     if (tableVisible) {
       // Look for delete button in table actions
       const deleteButton = page.getByRole("button", { name: /删除/ }).first()
-      const buttonVisible = await deleteButton.isVisible({ timeout: 3000 }).catch(() => false)
+      const buttonVisible = await deleteButton
+        .isVisible({ timeout: 3000 })
+        .catch(() => false)
       if (buttonVisible) {
         await expect(deleteButton).toBeEnabled()
       }

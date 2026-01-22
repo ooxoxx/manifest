@@ -17,7 +17,9 @@ export default async function globalTeardown() {
     return
   }
 
-  console.log(`E2E Coverage: Found ${files.length} coverage file(s). Generating report...`)
+  console.log(
+    `E2E Coverage: Found ${files.length} coverage file(s). Generating report...`,
+  )
 
   try {
     // Generate coverage report using nyc

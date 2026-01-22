@@ -1,5 +1,5 @@
-import { expect, test } from "../fixtures"
 import { firstSuperuser, firstSuperuserPassword } from "../config"
+import { expect, test } from "../fixtures"
 
 // Login tests need fresh context without stored auth
 test.use({ storageState: { cookies: [], origins: [] } })
@@ -21,11 +21,15 @@ test.describe("Login Page", () => {
   })
 
   test("page shows forgot password link", async ({ page }) => {
-    await expect(page.getByRole("link", { name: /忘记密码|Forgot password/i })).toBeVisible()
+    await expect(
+      page.getByRole("link", { name: /忘记密码|Forgot password/i }),
+    ).toBeVisible()
   })
 
   test("page shows sign up link", async ({ page }) => {
-    await expect(page.getByRole("link", { name: /注册|Sign up/i })).toBeVisible()
+    await expect(
+      page.getByRole("link", { name: /注册|Sign up/i }),
+    ).toBeVisible()
   })
 
   test("clicking sign up link navigates to signup page", async ({ page }) => {
@@ -33,7 +37,9 @@ test.describe("Login Page", () => {
     await expect(page).toHaveURL(/signup/)
   })
 
-  test("clicking forgot password link navigates to recover page", async ({ page }) => {
+  test("clicking forgot password link navigates to recover page", async ({
+    page,
+  }) => {
     await page.getByRole("link", { name: /忘记密码|Forgot password/i }).click()
     await expect(page).toHaveURL(/recover/)
   })
@@ -55,7 +61,9 @@ test.describe("Login Page", () => {
     await page.getByTestId("email-input").blur()
 
     // Wait for the specific validation error message
-    await expect(page.locator("[data-slot='form-message']").first()).toBeVisible()
+    await expect(
+      page.locator("[data-slot='form-message']").first(),
+    ).toBeVisible()
   })
 
   test("wrong password shows authentication error", async ({ page }) => {

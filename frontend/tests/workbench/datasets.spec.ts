@@ -44,14 +44,18 @@ test.describe("Datasets Browser", () => {
   test("clicking view expands sample list", async ({ page }) => {
     // Wait for table to load
     const table = page.locator("table")
-    const tableVisible = await table.isVisible({ timeout: 5000 }).catch(() => false)
+    const tableVisible = await table
+      .isVisible({ timeout: 5000 })
+      .catch(() => false)
     if (tableVisible) {
       // Look for expand/view button in first row
       const viewButton = page
         .locator("table tbody tr")
         .first()
         .getByRole("button", { name: /查看|View/i })
-      const viewVisible = await viewButton.isVisible({ timeout: 3000 }).catch(() => false)
+      const viewVisible = await viewButton
+        .isVisible({ timeout: 3000 })
+        .catch(() => false)
       if (viewVisible) {
         await viewButton.click()
         // Should expand or navigate to show samples
@@ -63,18 +67,24 @@ test.describe("Datasets Browser", () => {
   test("clicking review enters review mode", async ({ page }) => {
     // Wait for table to load
     const table = page.locator("table")
-    const tableVisible = await table.isVisible({ timeout: 5000 }).catch(() => false)
+    const tableVisible = await table
+      .isVisible({ timeout: 5000 })
+      .catch(() => false)
     if (tableVisible) {
       // Look for review button in first row
       const reviewButton = page
         .locator("table tbody tr")
         .first()
         .getByRole("link", { name: /审核|Review/i })
-      const reviewVisible = await reviewButton.isVisible({ timeout: 3000 }).catch(() => false)
+      const reviewVisible = await reviewButton
+        .isVisible({ timeout: 3000 })
+        .catch(() => false)
       if (reviewVisible) {
         await reviewButton.click()
         // Should navigate to review page
-        await expect(page).toHaveURL(/\/datasets\/.*\/review/, { timeout: 10000 })
+        await expect(page).toHaveURL(/\/datasets\/.*\/review/, {
+          timeout: 10000,
+        })
       }
     }
   })
@@ -82,16 +92,22 @@ test.describe("Datasets Browser", () => {
   test("review mode supports keep/remove actions", async ({ page }) => {
     // Navigate to first dataset review if available
     const table = page.locator("table")
-    const tableVisible = await table.isVisible({ timeout: 5000 }).catch(() => false)
+    const tableVisible = await table
+      .isVisible({ timeout: 5000 })
+      .catch(() => false)
     if (tableVisible) {
       const reviewButton = page
         .locator("table tbody tr")
         .first()
         .getByRole("link", { name: /审核|Review/i })
-      const reviewVisible = await reviewButton.isVisible({ timeout: 3000 }).catch(() => false)
+      const reviewVisible = await reviewButton
+        .isVisible({ timeout: 3000 })
+        .catch(() => false)
       if (reviewVisible) {
         await reviewButton.click()
-        await expect(page).toHaveURL(/\/datasets\/.*\/review/, { timeout: 10000 })
+        await expect(page).toHaveURL(/\/datasets\/.*\/review/, {
+          timeout: 10000,
+        })
 
         // Should show review interface with action buttons
         await expect(

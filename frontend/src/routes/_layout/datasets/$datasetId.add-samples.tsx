@@ -27,7 +27,9 @@ function AddSamplesToDataset() {
   const queryClient = useQueryClient()
   const { datasetId } = Route.useParams()
 
-  const [filters, setFilters] = useState<FilterParams>({})
+  const [filters, setFilters] = useState<FilterParams>({
+    annotation_status: "linked",
+  })
   const [sampling, setSampling] = useState<SamplingValues>({ mode: "all" })
 
   // Fetch dataset info
@@ -116,6 +118,7 @@ function AddSamplesToDataset() {
             value={sampling}
             onChange={setSampling}
             availableCount={preview?.count}
+            filters={filters}
           />
 
           {/* Preview & Actions */}

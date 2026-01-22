@@ -26,14 +26,18 @@ test.describe("User Settings / Profile", () => {
 
   test("profile tab shows edit button by default", async ({ page }) => {
     // Should show edit button (not save - save only appears in edit mode)
-    await expect(page.getByRole("button", { name: /编辑/ })).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole("button", { name: /编辑/ })).toBeVisible({
+      timeout: 10000,
+    })
   })
 
   test("clicking edit button enables form editing", async ({ page }) => {
     // Click edit button
     await page.getByRole("button", { name: /编辑/ }).click()
     // Should now show save button
-    await expect(page.getByRole("button", { name: /保存/ })).toBeVisible({ timeout: 5000 })
+    await expect(page.getByRole("button", { name: /保存/ })).toBeVisible({
+      timeout: 5000,
+    })
   })
 
   test("password tab allows changing password", async ({ page }) => {
@@ -41,7 +45,9 @@ test.describe("User Settings / Profile", () => {
     await page.getByRole("tab", { name: "密码" }).click()
 
     // Should show password change content - "修改密码" heading
-    await expect(page.getByText(/修改密码|更改密码|Change Password/i)).toBeVisible({
+    await expect(
+      page.getByText(/修改密码|更改密码|Change Password/i),
+    ).toBeVisible({
       timeout: 10000,
     })
   })
@@ -87,7 +93,9 @@ test.describe("User Settings / Profile", () => {
 
   test("all tabs are visible", async ({ page }) => {
     // Verify all three tabs are present
-    await expect(page.getByRole("tab", { name: /我的信息|个人资料/i })).toBeVisible()
+    await expect(
+      page.getByRole("tab", { name: /我的信息|个人资料/i }),
+    ).toBeVisible()
     await expect(page.getByRole("tab", { name: "密码" })).toBeVisible()
     await expect(page.getByRole("tab", { name: "危险区域" })).toBeVisible()
   })
@@ -102,7 +110,9 @@ test.describe("User Settings / Profile", () => {
 
     // Switch to danger zone tab
     await page.getByRole("tab", { name: "危险区域" }).click()
-    await expect(page.getByRole("button", { name: /删除/ })).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole("button", { name: /删除/ })).toBeVisible({
+      timeout: 10000,
+    })
 
     // Switch back to profile tab
     await page.getByRole("tab", { name: /我的信息|个人资料/i }).click()

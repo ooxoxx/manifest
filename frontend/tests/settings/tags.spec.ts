@@ -75,7 +75,9 @@ test.describe("Tags Manager", () => {
   test("add tag dialog shows save button", async ({ page }) => {
     await page.getByRole("button", { name: /添加标签/ }).click()
     await expect(page.getByRole("dialog")).toBeVisible()
-    await expect(page.getByRole("button", { name: /保存|确认|创建/ })).toBeVisible()
+    await expect(
+      page.getByRole("button", { name: /保存|确认|创建/ }),
+    ).toBeVisible()
   })
 
   test("add tag dialog shows create button", async ({ page }) => {

@@ -1,12 +1,11 @@
-import { expect, test } from "../fixtures"
 import { firstSuperuser } from "../config"
+import { expect, test } from "../fixtures"
 
 // Reset password tests need fresh context without stored auth
 test.use({ storageState: { cookies: [], origins: [] } })
 
 // Mailcatcher host - use localhost when running locally, container name in Docker
-const MAILCATCHER_HOST =
-  process.env.MAILCATCHER_HOST || "http://127.0.0.1:1080"
+const MAILCATCHER_HOST = process.env.MAILCATCHER_HOST || "http://127.0.0.1:1080"
 
 test.describe("Password Reset", () => {
   test("recover password page loads correctly", async ({ page }) => {
@@ -26,7 +25,9 @@ test.describe("Password Reset", () => {
     await expect(page.getByRole("link", { name: /登录|Log in/i })).toBeVisible()
   })
 
-  test("clicking login link from recover page navigates to login", async ({ page }) => {
+  test("clicking login link from recover page navigates to login", async ({
+    page,
+  }) => {
     await page.goto("/recover-password")
     await page.getByRole("link", { name: /登录|Log in/i }).click()
     await expect(page).toHaveURL(/login/)

@@ -1,5 +1,5 @@
-import { expect, test } from "../fixtures"
 import { firstSuperuser } from "../config"
+import { expect, test } from "../fixtures"
 import { randomEmail, randomPassword } from "../utils/random"
 
 // Sign-up tests need fresh context without stored auth
@@ -86,9 +86,9 @@ test.describe("Sign Up Page", () => {
 
     // Should show password strength error (min 8 characters)
     // The message is "密码至少需要 8 个字符"
-    await expect(
-      page.getByText(/密码至少需要|至少.*8|8.*字符/i),
-    ).toBeVisible({ timeout: 5000 })
+    await expect(page.getByText(/密码至少需要|至少.*8|8.*字符/i)).toBeVisible({
+      timeout: 5000,
+    })
   })
 
   test("full name input accepts value", async ({ page }) => {

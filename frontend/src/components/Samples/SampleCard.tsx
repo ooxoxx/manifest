@@ -23,7 +23,9 @@ function formatDate(dateStr: string): string {
   return format(date, "yy-MM-dd")
 }
 
-function formatClassCounts(counts: Record<string, number> | null | undefined): string {
+function formatClassCounts(
+  counts: Record<string, number> | null | undefined,
+): string {
   if (!counts || Object.keys(counts).length === 0) return "—"
   const entries = Object.entries(counts)
     .sort((a, b) => b[1] - a[1])

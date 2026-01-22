@@ -52,7 +52,9 @@ test.describe("Import Wizard", () => {
     })
 
     // Should show filename - the component displays selectedFile.name in a span
-    await expect(page.getByText("test-samples.csv")).toBeVisible({ timeout: 10000 })
+    await expect(page.getByText("test-samples.csv")).toBeVisible({
+      timeout: 10000,
+    })
   })
 
   test("next button requires file selection", async ({ page }) => {
@@ -68,7 +70,9 @@ test.describe("Import Wizard", () => {
       buffer: Buffer.from("object_key\ntest.jpg"),
     })
 
-    await expect(page.getByRole("button", { name: /下一步/ })).toBeEnabled({ timeout: 5000 })
+    await expect(page.getByRole("button", { name: /下一步/ })).toBeEnabled({
+      timeout: 5000,
+    })
   })
 
   test("can navigate back from step 2", async ({ page }) => {

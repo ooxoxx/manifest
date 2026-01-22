@@ -1,9 +1,4 @@
-import { useQuery } from "@tanstack/react-query"
-import {
-  type AnnotationStatus,
-  type FilterParams,
-  MinioInstancesService,
-} from "@/client"
+import type { AnnotationStatus, FilterParams } from "@/client"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -15,18 +10,18 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
+import DNFTagFilter from "./DNFTagFilter"
+
 interface Props {
   value: FilterParams
   onChange: (value: FilterParams) => void
 }
 
 export default function FilterPanel({ value, onChange }: Props) {
-  const { data: minioInstances } = useQuery({
-    queryKey: ["minio-instances"],
-    queryFn: () => MinioInstancesService.readMinioInstances(),
-  })
-
-  const handleChange = (field: keyof FilterParams, newValue: string) => {
+  const handleDateChange = (
+    field: "date_from" | "date_to",
+    newValue: string,
+  ) => {
     onChange({
       ...value,
       [field]: newValue || undefined,
@@ -43,75 +38,51 @@ export default function FilterPanel({ value, onChange }: Props) {
     })
   }
 
+  const handleTagFilterChange = (tagFilter: string[][]) => {
+    onChange({
+      ...value,
+      tag_filter: tagFilter.length > 0 ? tagFilter : undefined,
+    })
+  }
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>筛选条件</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-6">
+        {/* Tag Filter */}
+        <DNFTagFilter
+          value={value.tag_filter ?? []}
+          onChange={handleTagFilterChange}
+        />
+
+        {/* Date Range */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label>MinIO 实例</Label>
-            <Select
-              value={value.minio_instance_id || ""}
-              onValueChange={(v) => handleChange("minio_instance_id", v)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="选择 MinIO 实例" />
-              </SelectTrigger>
-              <SelectContent>
-                {minioInstances?.data?.map((instance) => (
-                  <SelectItem key={instance.id} value={instance.id}>
-                    {instance.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Bucket</Label>
-            <Input
-              placeholder="输入 bucket 名称"
-              value={value.bucket || ""}
-              onChange={(e) => handleChange("bucket", e.target.value)}
-            />
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label>对象前缀</Label>
-          <Input
-            placeholder="例如: images/train/"
-            value={value.prefix || ""}
-            onChange={(e) => handleChange("prefix", e.target.value)}
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label>开始日期</Label>
+            <Label>获取时间起始</Label>
             <Input
               type="date"
-              value={value.date_from || ""}
-              onChange={(e) => handleChange("date_from", e.target.value)}
+              value={value.date_from ?? ""}
+              onChange={(e) => handleDateChange("date_from", e.target.value)}
             />
           </div>
 
           <div className="space-y-2">
-            <Label>结束日期</Label>
+            <Label>获取时间截止</Label>
             <Input
               type="date"
-              value={value.date_to || ""}
-              onChange={(e) => handleChange("date_to", e.target.value)}
+              value={value.date_to ?? ""}
+              onChange={(e) => handleDateChange("date_to", e.target.value)}
             />
           </div>
         </div>
 
+        {/* Annotation Status */}
         <div className="space-y-2">
           <Label>标注状态</Label>
           <Select
-            value={value.annotation_status || ""}
+            value={value.annotation_status ?? ""}
             onValueChange={handleAnnotationStatusChange}
           >
             <SelectTrigger>
@@ -120,7 +91,7 @@ export default function FilterPanel({ value, onChange }: Props) {
             <SelectContent>
               <SelectItem value="all">全部</SelectItem>
               <SelectItem value="none">无标注</SelectItem>
-              <SelectItem value="linked">已关联</SelectItem>
+              <SelectItem value="linked">已标注</SelectItem>
               <SelectItem value="conflict">冲突</SelectItem>
               <SelectItem value="error">错误</SelectItem>
             </SelectContent>

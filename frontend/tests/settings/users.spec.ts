@@ -1,6 +1,4 @@
 import { expect, test } from "../fixtures"
-import { randomEmail, randomPassword } from "../utils/random"
-import { signUpNewUser } from "../utils/user"
 
 test.describe("Users Manager (Admin)", () => {
   test.beforeEach(async ({ page }) => {
@@ -21,9 +19,9 @@ test.describe("Users Manager (Admin)", () => {
 
   test("users list table is visible", async ({ page }) => {
     // Wait for table to load
-    await expect(
-      page.locator("table").or(page.getByText(/暂无/)),
-    ).toBeVisible({ timeout: 15000 })
+    await expect(page.locator("table").or(page.getByText(/暂无/))).toBeVisible({
+      timeout: 15000,
+    })
   })
 
   test("add user button is visible", async ({ page }) => {

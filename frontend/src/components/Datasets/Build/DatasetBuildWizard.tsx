@@ -39,7 +39,9 @@ export default function DatasetBuildWizard() {
   const [currentStep, setCurrentStep] = useState<Step>(1)
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
-  const [filters, setFilters] = useState<FilterParams>({})
+  const [filters, setFilters] = useState<FilterParams>({
+    annotation_status: "linked",
+  })
   const [sampling, setSampling] = useState<SamplingValues>({ mode: "all" })
 
   // Preview query
@@ -149,6 +151,7 @@ export default function DatasetBuildWizard() {
             value={sampling}
             onChange={setSampling}
             availableCount={preview?.count}
+            filters={filters}
           />
         )
 
