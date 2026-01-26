@@ -18,6 +18,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { TAG_CATEGORIES, type TagCategoryKey } from "@/lib/tagCategories"
 import { cn } from "@/lib/utils"
 
 interface Props {
@@ -50,6 +51,10 @@ export default function TagGroupSelector({ selectedTagIds, onChange }: Props) {
     }
     return parts.join(" / ")
   }
+
+  // Group tags by category
+  const getTagsByCategory = (category: TagCategoryKey): TagPublic[] =>
+    tags.filter((t) => t.category === category)
 
   const selectedTags = tags.filter((t) => selectedTagIds.includes(t.id))
 
@@ -86,25 +91,33 @@ export default function TagGroupSelector({ selectedTagIds, onChange }: Props) {
             <CommandInput placeholder="搜索标签..." />
             <CommandList>
               <CommandEmpty>未找到标签</CommandEmpty>
-              <CommandGroup>
-                {tags.map((tag) => (
-                  <CommandItem
-                    key={tag.id}
-                    value={getFullPath(tag)}
-                    onSelect={() => handleSelect(tag.id)}
-                  >
-                    <Check
-                      className={cn(
-                        "mr-2 h-4 w-4",
-                        selectedTagIds.includes(tag.id)
-                          ? "opacity-100"
-                          : "opacity-0",
-                      )}
-                    />
-                    <span className="truncate">{getFullPath(tag)}</span>
-                  </CommandItem>
-                ))}
-              </CommandGroup>
+
+              {TAG_CATEGORIES.map((category) => {
+                const categoryTags = getTagsByCategory(category.key)
+                if (categoryTags.length === 0) return null
+
+                return (
+                  <CommandGroup key={category.key} heading={category.label}>
+                    {categoryTags.map((tag) => (
+                      <CommandItem
+                        key={tag.id}
+                        value={`${category.key}:${getFullPath(tag)}`}
+                        onSelect={() => handleSelect(tag.id)}
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            selectedTagIds.includes(tag.id)
+                              ? "opacity-100"
+                              : "opacity-0",
+                          )}
+                        />
+                        <span className="truncate">{getFullPath(tag)}</span>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                )
+              })}
             </CommandList>
           </Command>
         </PopoverContent>

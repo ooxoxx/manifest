@@ -96,6 +96,14 @@ class AnnotationFormat(str, Enum):
     coco = "coco"
 
 
+class TagCategory(str, Enum):
+    """Tag category for semantic grouping."""
+
+    system = "system"  # 系统标签（状态、来源）
+    business = "business"  # 业务标签（领域、场景）
+    user = "user"  # 用户自定义标签
+
+
 class SampleSource(str, Enum):
     """Sample source enum."""
 
@@ -272,6 +280,7 @@ class TagBase(SQLModel):
     name: str = Field(min_length=1, max_length=255, index=True)
     color: str | None = Field(default=None, max_length=7)
     description: str | None = Field(default=None, max_length=1024)
+    category: TagCategory = Field(default=TagCategory.user)
 
 
 class TagCreate(TagBase):
@@ -286,6 +295,7 @@ class TagUpdate(SQLModel):
     name: str | None = Field(default=None, min_length=1, max_length=255)
     color: str | None = Field(default=None, max_length=7)
     description: str | None = Field(default=None, max_length=1024)
+    category: TagCategory | None = None
     parent_id: uuid.UUID | None = None
 
 
@@ -301,6 +311,7 @@ class Tag(TagBase, table=True):
     owner_id: uuid.UUID = Field(
         foreign_key="user.id", nullable=False, ondelete="CASCADE"
     )
+    is_system_managed: bool = Field(default=False)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
@@ -321,6 +332,7 @@ class TagPublic(TagBase):
     id: uuid.UUID
     parent_id: uuid.UUID | None
     owner_id: uuid.UUID
+    is_system_managed: bool
     created_at: datetime
     updated_at: datetime
 
@@ -336,6 +348,14 @@ class TagsPublic(SQLModel):
 
     data: list[TagPublic]
     count: int
+
+
+class TagsByCategoryResponse(SQLModel):
+    """Tags grouped by category."""
+
+    system: list[TagPublic] = []
+    business: list[TagPublic] = []
+    user: list[TagPublic] = []
 
 
 # ============================================================================

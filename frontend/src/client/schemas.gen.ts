@@ -1612,6 +1612,13 @@ export const SamplingModeSchema = {
     description: 'Sampling mode for dataset building.'
 } as const;
 
+export const TagCategorySchema = {
+    type: 'string',
+    enum: ['system', 'business', 'user'],
+    title: 'TagCategory',
+    description: 'Tag category for semantic grouping.'
+} as const;
+
 export const TagCreateSchema = {
     properties: {
         name: {
@@ -1643,6 +1650,10 @@ export const TagCreateSchema = {
                 }
             ],
             title: 'Description'
+        },
+        category: {
+            '$ref': '#/components/schemas/TagCategory',
+            default: 'user'
         },
         parent_id: {
             anyOf: [
@@ -1717,6 +1728,10 @@ export const TagPublicSchema = {
             ],
             title: 'Description'
         },
+        category: {
+            '$ref': '#/components/schemas/TagCategory',
+            default: 'user'
+        },
         id: {
             type: 'string',
             format: 'uuid',
@@ -1739,6 +1754,10 @@ export const TagPublicSchema = {
             format: 'uuid',
             title: 'Owner Id'
         },
+        is_system_managed: {
+            type: 'boolean',
+            title: 'Is System Managed'
+        },
         created_at: {
             type: 'string',
             format: 'date-time',
@@ -1751,7 +1770,7 @@ export const TagPublicSchema = {
         }
     },
     type: 'object',
-    required: ['name', 'id', 'parent_id', 'owner_id', 'created_at', 'updated_at'],
+    required: ['name', 'id', 'parent_id', 'owner_id', 'is_system_managed', 'created_at', 'updated_at'],
     title: 'TagPublic',
     description: 'Properties to return via API.'
 } as const;
@@ -1794,6 +1813,16 @@ export const TagUpdateSchema = {
                 }
             ],
             title: 'Description'
+        },
+        category: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/TagCategory'
+                },
+                {
+                    type: 'null'
+                }
+            ]
         },
         parent_id: {
             anyOf: [
@@ -1845,6 +1874,10 @@ export const TagWithChildrenSchema = {
             ],
             title: 'Description'
         },
+        category: {
+            '$ref': '#/components/schemas/TagCategory',
+            default: 'user'
+        },
         id: {
             type: 'string',
             format: 'uuid',
@@ -1867,6 +1900,10 @@ export const TagWithChildrenSchema = {
             format: 'uuid',
             title: 'Owner Id'
         },
+        is_system_managed: {
+            type: 'boolean',
+            title: 'Is System Managed'
+        },
         created_at: {
             type: 'string',
             format: 'date-time',
@@ -1887,9 +1924,41 @@ export const TagWithChildrenSchema = {
         }
     },
     type: 'object',
-    required: ['name', 'id', 'parent_id', 'owner_id', 'created_at', 'updated_at'],
+    required: ['name', 'id', 'parent_id', 'owner_id', 'is_system_managed', 'created_at', 'updated_at'],
     title: 'TagWithChildren',
     description: 'Tag with children for tree structure.'
+} as const;
+
+export const TagsByCategoryResponseSchema = {
+    properties: {
+        system: {
+            items: {
+                '$ref': '#/components/schemas/TagPublic'
+            },
+            type: 'array',
+            title: 'System',
+            default: []
+        },
+        business: {
+            items: {
+                '$ref': '#/components/schemas/TagPublic'
+            },
+            type: 'array',
+            title: 'Business',
+            default: []
+        },
+        user: {
+            items: {
+                '$ref': '#/components/schemas/TagPublic'
+            },
+            type: 'array',
+            title: 'User',
+            default: []
+        }
+    },
+    type: 'object',
+    title: 'TagsByCategoryResponse',
+    description: 'Tags grouped by category.'
 } as const;
 
 export const TagsPublicSchema = {

@@ -6,8 +6,15 @@ import { Suspense, useState } from "react"
 import { type TagPublic, TagsService } from "@/client"
 import { PendingComponent } from "@/components/Pending/PendingComponent"
 import AddTag from "@/components/Tags/AddTag"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { TAG_CATEGORIES, type TagCategoryKey } from "@/lib/tagCategories"
 
 function TagTree({
   tags,
@@ -68,6 +75,10 @@ function TagsContent({ onAddClick }: { onAddClick: () => void }) {
 
   const tags = data?.data ?? []
 
+  // Group tags by category
+  const getTagsByCategory = (category: TagCategoryKey) =>
+    tags.filter((t) => t.category === category)
+
   // Calculate level from parent chain
   const getTagLevel = (tag: TagPublic): number => {
     let level = 0
@@ -98,21 +109,51 @@ function TagsContent({ onAddClick }: { onAddClick: () => void }) {
 
   return (
     <div className="grid gap-6 md:grid-cols-2">
-      {/* Left: Tag Tree */}
+      {/* Left: Tag Tree with Categories */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>标签树</CardTitle>
+          <CardTitle>标签分类</CardTitle>
           <Button size="sm" onClick={onAddClick}>
             <Plus className="mr-2 h-4 w-4" />
             添加标签
           </Button>
         </CardHeader>
         <CardContent>
-          <TagTree
-            tags={tags}
-            selectedId={selectedTag?.id ?? null}
-            onSelect={setSelectedTag}
-          />
+          <Accordion
+            type="multiple"
+            defaultValue={["system", "business", "user"]}
+            className="w-full"
+          >
+            {TAG_CATEGORIES.map((category) => {
+              const categoryTags = getTagsByCategory(category.key)
+              const Icon = category.icon
+
+              return (
+                <AccordionItem key={category.key} value={category.key}>
+                  <AccordionTrigger className="hover:no-underline">
+                    <div className="flex items-center gap-2">
+                      <Icon className="h-4 w-4" />
+                      <span>
+                        {category.label}{" "}
+                        <span className="text-muted-foreground">
+                          ({categoryTags.length})
+                        </span>
+                      </span>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="pt-2">
+                      <TagTree
+                        tags={categoryTags}
+                        selectedId={selectedTag?.id ?? null}
+                        onSelect={setSelectedTag}
+                      />
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              )
+            })}
+          </Accordion>
         </CardContent>
       </Card>
 
@@ -129,6 +170,15 @@ function TagsContent({ onAddClick }: { onAddClick: () => void }) {
                 <p className="font-medium">{selectedTag.name}</p>
               </div>
               <div>
+                <p className="text-sm text-muted-foreground">分类</p>
+                <p className="font-medium">
+                  {
+                    TAG_CATEGORIES.find((c) => c.key === selectedTag.category)
+                      ?.label
+                  }
+                </p>
+              </div>
+              <div>
                 <p className="text-sm text-muted-foreground">完整路径</p>
                 <p className="font-medium">{getFullPath(selectedTag)}</p>
               </div>
@@ -142,11 +192,23 @@ function TagsContent({ onAddClick }: { onAddClick: () => void }) {
                   <p className="font-medium">{selectedTag.description}</p>
                 </div>
               )}
+              {selectedTag.is_system_managed && (
+                <div>
+                  <p className="text-sm text-muted-foreground">系统管理</p>
+                  <p className="font-medium text-blue-600">
+                    系统托管标签（不可删除）
+                  </p>
+                </div>
+              )}
               <div className="flex gap-2 pt-4">
                 <Button variant="outline" size="sm">
                   编辑
                 </Button>
-                <Button variant="destructive" size="sm">
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  disabled={selectedTag.is_system_managed}
+                >
                   删除
                 </Button>
               </div>
@@ -180,7 +242,7 @@ export default function TagsManager() {
           标签管理
         </h1>
         <p className="text-muted-foreground mt-2">
-          管理层级标签体系，用于样本分类
+          管理层级标签体系，按分类组织标签
         </p>
       </div>
 

@@ -422,12 +422,18 @@ export type SamplingConfig = {
 export type SamplingMode = 'all' | 'random' | 'class_targets';
 
 /**
+ * Tag category for semantic grouping.
+ */
+export type TagCategory = 'system' | 'business' | 'user';
+
+/**
  * Properties to receive on tag creation.
  */
 export type TagCreate = {
     name: string;
     color?: (string | null);
     description?: (string | null);
+    category?: TagCategory;
     parent_id?: (string | null);
 };
 
@@ -447,11 +453,22 @@ export type TagPublic = {
     name: string;
     color?: (string | null);
     description?: (string | null);
+    category?: TagCategory;
     id: string;
     parent_id: (string | null);
     owner_id: string;
+    is_system_managed: boolean;
     created_at: string;
     updated_at: string;
+};
+
+/**
+ * Tags grouped by category.
+ */
+export type TagsByCategoryResponse = {
+    system?: Array<TagPublic>;
+    business?: Array<TagPublic>;
+    user?: Array<TagPublic>;
 };
 
 /**
@@ -469,6 +486,7 @@ export type TagUpdate = {
     name?: (string | null);
     color?: (string | null);
     description?: (string | null);
+    category?: (TagCategory | null);
     parent_id?: (string | null);
 };
 
@@ -479,9 +497,11 @@ export type TagWithChildren = {
     name: string;
     color?: (string | null);
     description?: (string | null);
+    category?: TagCategory;
     id: string;
     parent_id: (string | null);
     owner_id: string;
+    is_system_managed: boolean;
     created_at: string;
     updated_at: string;
     children?: Array<TagWithChildren>;
@@ -879,6 +899,7 @@ export type SamplesBatchTagSamplesResponse = ({
 });
 
 export type TagsReadTagsData = {
+    category?: (TagCategory | null);
     limit?: number;
     skip?: number;
 };
@@ -892,6 +913,8 @@ export type TagsCreateTagData = {
 export type TagsCreateTagResponse = (TagPublic);
 
 export type TagsGetTagTreeResponse = (Array<TagWithChildren>);
+
+export type TagsGetTagsByCategoryResponse = (TagsByCategoryResponse);
 
 export type TagsUpdateTagData = {
     id: string;

@@ -11,9 +11,11 @@ from app.api.deps import CurrentUser, SessionDep
 from app.models import (
     Message,
     Tag,
+    TagCategory,
     TagCreate,
     TagPublic,
     TagsPublic,
+    TagsByCategoryResponse,
     TagUpdate,
     TagWithChildren,
 )
@@ -27,22 +29,23 @@ def read_tags(
     current_user: CurrentUser,
     skip: int = 0,
     limit: int = 100,
+    category: TagCategory | None = None,
 ) -> Any:
-    """Retrieve tags."""
+    """Retrieve tags with optional category filtering."""
     count_query = (
         select(func.count())
         .select_from(Tag)
         .where(Tag.owner_id == current_user.id)
     )
-    count = session.exec(count_query).one()
+    query = select(Tag).where(Tag.owner_id == current_user.id)
 
-    query = (
-        select(Tag)
-        .where(Tag.owner_id == current_user.id)
-        .offset(skip)
-        .limit(limit)
-    )
-    tags = session.exec(query).all()
+    # Apply category filter if provided
+    if category:
+        count_query = count_query.where(Tag.category == category)
+        query = query.where(Tag.category == category)
+
+    count = session.exec(count_query).one()
+    tags = session.exec(query.offset(skip).limit(limit)).all()
 
     return TagsPublic(data=tags, count=count)
 
@@ -70,6 +73,33 @@ def get_tag_tree(
     return roots
 
 
+@router.get("/by-category", response_model=TagsByCategoryResponse)
+def get_tags_by_category(
+    session: SessionDep,
+    current_user: CurrentUser,
+) -> Any:
+    """Get tags grouped by category."""
+    tags = session.exec(
+        select(Tag).where(Tag.owner_id == current_user.id)
+    ).all()
+
+    # Group tags by category
+    categorized: dict[TagCategory, list[TagPublic]] = {
+        TagCategory.system: [],
+        TagCategory.business: [],
+        TagCategory.user: [],
+    }
+
+    for tag in tags:
+        categorized[tag.category].append(TagPublic.model_validate(tag))
+
+    return TagsByCategoryResponse(
+        system=categorized[TagCategory.system],
+        business=categorized[TagCategory.business],
+        user=categorized[TagCategory.user],
+    )
+
+
 @router.post("/", response_model=TagPublic)
 def create_tag(
     session: SessionDep,
@@ -86,6 +116,7 @@ def create_tag(
         name=tag_in.name,
         color=tag_in.color,
         description=tag_in.description,
+        category=tag_in.category,
         parent_id=tag_in.parent_id,
         owner_id=current_user.id,
     )
@@ -108,6 +139,13 @@ def update_tag(
         raise HTTPException(status_code=404, detail="Tag not found")
     if tag.owner_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not enough permissions")
+
+    # Protect system-managed tags from category changes
+    if tag.is_system_managed and tag_in.category and tag_in.category != tag.category:
+        raise HTTPException(
+            status_code=403,
+            detail="Cannot change category of system-managed tags"
+        )
 
     if tag_in.parent_id:
         parent = session.get(Tag, tag_in.parent_id)
@@ -135,6 +173,13 @@ def delete_tag(
         raise HTTPException(status_code=404, detail="Tag not found")
     if tag.owner_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not enough permissions")
+
+    # Protect system-managed tags from deletion
+    if tag.is_system_managed:
+        raise HTTPException(
+            status_code=403,
+            detail="Cannot delete system-managed tags"
+        )
 
     session.delete(tag)
     session.commit()

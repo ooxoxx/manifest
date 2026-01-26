@@ -14,8 +14,8 @@ test.describe("Tags Manager", () => {
   })
 
   test("tag tree card is visible", async ({ page }) => {
-    // Should show tag tree card
-    await expect(page.getByText("标签树")).toBeVisible()
+    // Should show tag categories card (was "标签树", now "标签分类")
+    await expect(page.getByText("标签分类")).toBeVisible()
   })
 
   test("tag details panel is visible", async ({ page }) => {
@@ -63,7 +63,7 @@ test.describe("Tags Manager", () => {
 
   test("page has proper layout with two panels", async ({ page }) => {
     // Verify both panels are visible
-    await expect(page.getByText("标签树")).toBeVisible()
+    await expect(page.getByText("标签分类")).toBeVisible()
     await expect(page.getByText("标签详情")).toBeVisible()
   })
 
@@ -84,5 +84,63 @@ test.describe("Tags Manager", () => {
     await page.getByRole("button", { name: /添加标签/ }).click()
     await expect(page.getByRole("dialog")).toBeVisible()
     await expect(page.getByRole("button", { name: /创建标签/ })).toBeVisible()
+  })
+
+  test("tag tree shows category sections", async ({ page }) => {
+    // Should show accordion sections for each category
+    await expect(page.getByText("系统标签")).toBeVisible()
+    await expect(page.getByText("业务标签")).toBeVisible()
+    await expect(page.getByText("用户标签")).toBeVisible()
+  })
+
+  test("category sections display tag counts", async ({ page }) => {
+    // Should show tag count for system tags (e.g., "系统标签 (2)")
+    // The text contains parentheses with counts
+    const systemSection = page.locator("text=/系统标签.*\\(\\d+\\)/")
+    await expect(systemSection).toBeVisible()
+  })
+
+  test("add tag dialog has category selector", async ({ page }) => {
+    await page.getByRole("button", { name: /添加标签/ }).click()
+    await expect(page.getByRole("dialog")).toBeVisible()
+
+    // Should show category field/label
+    await expect(page.getByText(/分类/)).toBeVisible()
+  })
+
+  test("category selector has three options", async ({ page }) => {
+    await page.getByRole("button", { name: /添加标签/ }).click()
+    await expect(page.getByRole("dialog")).toBeVisible()
+
+    // Click category selector to open dropdown
+    const categoryLabel = page.getByText(/^分类$/)
+    const categoryTrigger = categoryLabel.locator("..").getByRole("combobox")
+    await categoryTrigger.click()
+
+    // Should show three category options
+    await expect(page.getByText("系统标签")).toBeVisible()
+    await expect(page.getByText("业务标签")).toBeVisible()
+    await expect(page.getByText("用户标签")).toBeVisible()
+  })
+
+  test("selected tag details show category", async ({ page }) => {
+    // Note: This test assumes at least one tag exists in the database
+    // It will be skipped if no tags are present
+
+    // Try to find any tag in any category accordion
+    const firstTagButton = page
+      .locator('button[type="button"]')
+      .filter({
+        hasText: /^(?!系统标签|业务标签|用户标签|添加标签)/, // exclude category headers and add button
+      })
+      .first()
+
+    // Only run if a tag exists
+    if (await firstTagButton.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await firstTagButton.click()
+
+      // Tag details should show category information
+      await expect(page.getByText(/^分类$/).first()).toBeVisible()
+    }
   })
 })
