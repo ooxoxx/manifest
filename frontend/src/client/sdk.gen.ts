@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { DashboardGetDashboardOverviewResponse, DashboardGetDailyStatsData, DashboardGetDailyStatsResponse, DashboardGetTagDistributionData, DashboardGetTagDistributionResponse, DatasetsReadDatasetsData, DatasetsReadDatasetsResponse, DatasetsCreateDatasetData, DatasetsCreateDatasetResponse, DatasetsFilterPreviewData, DatasetsFilterPreviewResponse, DatasetsFilterClassStatsData, DatasetsFilterClassStatsResponse, DatasetsBuildNewDatasetData, DatasetsBuildNewDatasetResponse, DatasetsAddFilteredSamplesToDatasetData, DatasetsAddFilteredSamplesToDatasetResponse, DatasetsReadDatasetData, DatasetsReadDatasetResponse, DatasetsUpdateDatasetData, DatasetsUpdateDatasetResponse, DatasetsDeleteDatasetData, DatasetsDeleteDatasetResponse, DatasetsGetDatasetClassStatsData, DatasetsGetDatasetClassStatsResponse, DatasetsGetDatasetSamplesData, DatasetsGetDatasetSamplesResponse, DatasetsAddSamplesToDatasetData, DatasetsAddSamplesToDatasetResponse, DatasetsRemoveSamplesFromDatasetData, DatasetsRemoveSamplesFromDatasetResponse, DatasetsBuildDatasetData, DatasetsBuildDatasetResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, MinioInstancesReadMinioInstancesData, MinioInstancesReadMinioInstancesResponse, MinioInstancesCreateMinioInstanceEndpointData, MinioInstancesCreateMinioInstanceEndpointResponse, MinioInstancesReadMinioInstanceData, MinioInstancesReadMinioInstanceResponse, MinioInstancesUpdateMinioInstanceEndpointData, MinioInstancesUpdateMinioInstanceEndpointResponse, MinioInstancesDeleteMinioInstanceData, MinioInstancesDeleteMinioInstanceResponse, MinioInstancesTestMinioConnectionData, MinioInstancesTestMinioConnectionResponse, MinioInstancesListMinioBucketsData, MinioInstancesListMinioBucketsResponse, PrivateCreateUserData, PrivateCreateUserResponse, SamplesReadSamplesData, SamplesReadSamplesResponse, SamplesGetSampleThumbnailsData, SamplesGetSampleThumbnailsResponse, SamplesListImportTasksData, SamplesListImportTasksResponse, SamplesImportSamplesData, SamplesImportSamplesResponse, SamplesGetImportStatusData, SamplesGetImportStatusResponse, SamplesPreviewImportCsvData, SamplesPreviewImportCsvResponse, SamplesReadSampleData, SamplesReadSampleResponse, SamplesDeleteSampleData, SamplesDeleteSampleResponse, SamplesGetSamplePreviewUrlData, SamplesGetSamplePreviewUrlResponse, SamplesGetSamplePreviewData, SamplesGetSamplePreviewResponse, SamplesGetSampleHistoryData, SamplesGetSampleHistoryResponse, SamplesBatchTagSamplesData, SamplesBatchTagSamplesResponse, TagsReadTagsData, TagsReadTagsResponse, TagsCreateTagData, TagsCreateTagResponse, TagsGetTagTreeResponse, TagsGetTagsByCategoryResponse, TagsUpdateTagData, TagsUpdateTagResponse, TagsDeleteTagData, TagsDeleteTagResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, WatchedPathsReadWatchedPathsData, WatchedPathsReadWatchedPathsResponse, WatchedPathsCreateWatchedPathData, WatchedPathsCreateWatchedPathResponse, WatchedPathsUpdateWatchedPathData, WatchedPathsUpdateWatchedPathResponse, WatchedPathsDeleteWatchedPathData, WatchedPathsDeleteWatchedPathResponse, WatchedPathsSyncWatchedPathData, WatchedPathsSyncWatchedPathResponse, WebhooksReceiveMinioWebhookData, WebhooksReceiveMinioWebhookResponse } from './types.gen';
+import type { DashboardGetDashboardOverviewResponse, DashboardGetDailyStatsData, DashboardGetDailyStatsResponse, DashboardGetTagDistributionData, DashboardGetTagDistributionResponse, DatasetsReadDatasetsData, DatasetsReadDatasetsResponse, DatasetsCreateDatasetData, DatasetsCreateDatasetResponse, DatasetsFilterPreviewData, DatasetsFilterPreviewResponse, DatasetsFilterClassStatsData, DatasetsFilterClassStatsResponse, DatasetsBuildNewDatasetData, DatasetsBuildNewDatasetResponse, DatasetsAddFilteredSamplesToDatasetData, DatasetsAddFilteredSamplesToDatasetResponse, DatasetsReadDatasetData, DatasetsReadDatasetResponse, DatasetsUpdateDatasetData, DatasetsUpdateDatasetResponse, DatasetsDeleteDatasetData, DatasetsDeleteDatasetResponse, DatasetsGetDatasetClassStatsData, DatasetsGetDatasetClassStatsResponse, DatasetsGetDatasetSamplesData, DatasetsGetDatasetSamplesResponse, DatasetsAddSamplesToDatasetData, DatasetsAddSamplesToDatasetResponse, DatasetsRemoveSamplesFromDatasetData, DatasetsRemoveSamplesFromDatasetResponse, DatasetsBuildDatasetData, DatasetsBuildDatasetResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, MinioInstancesReadMinioInstancesData, MinioInstancesReadMinioInstancesResponse, MinioInstancesCreateMinioInstanceEndpointData, MinioInstancesCreateMinioInstanceEndpointResponse, MinioInstancesReadMinioInstanceData, MinioInstancesReadMinioInstanceResponse, MinioInstancesUpdateMinioInstanceEndpointData, MinioInstancesUpdateMinioInstanceEndpointResponse, MinioInstancesDeleteMinioInstanceData, MinioInstancesDeleteMinioInstanceResponse, MinioInstancesTestMinioConnectionData, MinioInstancesTestMinioConnectionResponse, MinioInstancesListMinioBucketsData, MinioInstancesListMinioBucketsResponse, PrivateCreateUserData, PrivateCreateUserResponse, SamplesReadSamplesData, SamplesReadSamplesResponse, SamplesGetSampleThumbnailsData, SamplesGetSampleThumbnailsResponse, SamplesListImportTasksData, SamplesListImportTasksResponse, SamplesImportSamplesData, SamplesImportSamplesResponse, SamplesGetImportStatusData, SamplesGetImportStatusResponse, SamplesPreviewImportCsvData, SamplesPreviewImportCsvResponse, SamplesReadSampleData, SamplesReadSampleResponse, SamplesDeleteSampleData, SamplesDeleteSampleResponse, SamplesGetSamplePreviewUrlData, SamplesGetSamplePreviewUrlResponse, SamplesGetSamplePreviewData, SamplesGetSamplePreviewResponse, SamplesGetSampleHistoryData, SamplesGetSampleHistoryResponse, SamplesBatchTagSamplesData, SamplesBatchTagSamplesResponse, TaggingRulesReadTaggingRulesData, TaggingRulesReadTaggingRulesResponse, TaggingRulesCreateTaggingRuleData, TaggingRulesCreateTaggingRuleResponse, TaggingRulesReadTaggingRuleData, TaggingRulesReadTaggingRuleResponse, TaggingRulesUpdateTaggingRuleData, TaggingRulesUpdateTaggingRuleResponse, TaggingRulesDeleteTaggingRuleData, TaggingRulesDeleteTaggingRuleResponse, TaggingRulesExecuteTaggingRuleData, TaggingRulesExecuteTaggingRuleResponse, TaggingRulesPreviewTaggingRuleData, TaggingRulesPreviewTaggingRuleResponse, TagsReadTagsData, TagsReadTagsResponse, TagsCreateTagData, TagsCreateTagResponse, TagsGetTagTreeResponse, TagsGetTagsByCategoryResponse, TagsUpdateTagData, TagsUpdateTagResponse, TagsDeleteTagData, TagsDeleteTagResponse, TagsGetBusinessTagTreeResponse, TagsSearchBusinessTagData, TagsSearchBusinessTagResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, WatchedPathsReadWatchedPathsData, WatchedPathsReadWatchedPathsResponse, WatchedPathsCreateWatchedPathData, WatchedPathsCreateWatchedPathResponse, WatchedPathsUpdateWatchedPathData, WatchedPathsUpdateWatchedPathResponse, WatchedPathsDeleteWatchedPathData, WatchedPathsDeleteWatchedPathResponse, WatchedPathsSyncWatchedPathData, WatchedPathsSyncWatchedPathResponse, WebhooksReceiveMinioWebhookData, WebhooksReceiveMinioWebhookResponse } from './types.gen';
 
 export class DashboardService {
     /**
@@ -980,10 +980,176 @@ export class SamplesService {
     }
 }
 
+export class TaggingRulesService {
+    /**
+     * Read Tagging Rules
+     * Retrieve tagging rules.
+     * @param data The data for the request.
+     * @param data.skip
+     * @param data.limit
+     * @returns TaggingRulesPublic Successful Response
+     * @throws ApiError
+     */
+    public static readTaggingRules(data: TaggingRulesReadTaggingRulesData = {}): CancelablePromise<TaggingRulesReadTaggingRulesResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/tagging-rules/',
+            query: {
+                skip: data.skip,
+                limit: data.limit
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Create Tagging Rule
+     * Create a new tagging rule.
+     * @param data The data for the request.
+     * @param data.requestBody
+     * @returns TaggingRulePublic Successful Response
+     * @throws ApiError
+     */
+    public static createTaggingRule(data: TaggingRulesCreateTaggingRuleData): CancelablePromise<TaggingRulesCreateTaggingRuleResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/tagging-rules/',
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Read Tagging Rule
+     * Get a tagging rule by ID.
+     * @param data The data for the request.
+     * @param data.id
+     * @returns TaggingRulePublic Successful Response
+     * @throws ApiError
+     */
+    public static readTaggingRule(data: TaggingRulesReadTaggingRuleData): CancelablePromise<TaggingRulesReadTaggingRuleResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/tagging-rules/{id}',
+            path: {
+                id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Update Tagging Rule
+     * Update a tagging rule.
+     * @param data The data for the request.
+     * @param data.id
+     * @param data.requestBody
+     * @returns TaggingRulePublic Successful Response
+     * @throws ApiError
+     */
+    public static updateTaggingRule(data: TaggingRulesUpdateTaggingRuleData): CancelablePromise<TaggingRulesUpdateTaggingRuleResponse> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/api/v1/tagging-rules/{id}',
+            path: {
+                id: data.id
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Delete Tagging Rule
+     * Delete a tagging rule.
+     * @param data The data for the request.
+     * @param data.id
+     * @returns Message Successful Response
+     * @throws ApiError
+     */
+    public static deleteTaggingRule(data: TaggingRulesDeleteTaggingRuleData): CancelablePromise<TaggingRulesDeleteTaggingRuleResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/v1/tagging-rules/{id}',
+            path: {
+                id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Execute Tagging Rule
+     * Execute a tagging rule on all matching samples.
+     *
+     * Args:
+     * dry_run: If True, only return statistics without applying tags.
+     * @param data The data for the request.
+     * @param data.id
+     * @param data.dryRun
+     * @returns TaggingRuleExecuteResult Successful Response
+     * @throws ApiError
+     */
+    public static executeTaggingRule(data: TaggingRulesExecuteTaggingRuleData): CancelablePromise<TaggingRulesExecuteTaggingRuleResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/tagging-rules/{id}/execute',
+            path: {
+                id: data.id
+            },
+            query: {
+                dry_run: data.dryRun
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Preview Tagging Rule
+     * Preview which samples would match a tagging rule.
+     * @param data The data for the request.
+     * @param data.id
+     * @param data.limit
+     * @returns TaggingRulePreviewResult Successful Response
+     * @throws ApiError
+     */
+    public static previewTaggingRule(data: TaggingRulesPreviewTaggingRuleData): CancelablePromise<TaggingRulesPreviewTaggingRuleResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/tagging-rules/{id}/preview',
+            path: {
+                id: data.id
+            },
+            query: {
+                limit: data.limit
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+}
+
 export class TagsService {
     /**
      * Read Tags
      * Retrieve tags with optional category filtering.
+     *
+     * Includes both user-owned tags and global tags (system/business).
      * @param data The data for the request.
      * @param data.skip
      * @param data.limit
@@ -1008,7 +1174,10 @@ export class TagsService {
     
     /**
      * Create Tag
-     * Create a new tag.
+     * Create a new user tag.
+     *
+     * Users can only create tags with category='user'.
+     * System and business tags are managed by the system.
      * @param data The data for the request.
      * @param data.requestBody
      * @returns TagPublic Successful Response
@@ -1029,6 +1198,8 @@ export class TagsService {
     /**
      * Get Tag Tree
      * Get tags as tree structure.
+     *
+     * Includes both user-owned tags and global tags.
      * @returns TagWithChildren Successful Response
      * @throws ApiError
      */
@@ -1042,6 +1213,8 @@ export class TagsService {
     /**
      * Get Tags By Category
      * Get tags grouped by category.
+     *
+     * Includes both user-owned tags and global tags.
      * @returns TagsByCategoryResponse Successful Response
      * @throws ApiError
      */
@@ -1054,7 +1227,9 @@ export class TagsService {
     
     /**
      * Update Tag
-     * Update a tag.
+     * Update a user tag.
+     *
+     * System and business tags cannot be modified.
      * @param data The data for the request.
      * @param data.id
      * @param data.requestBody
@@ -1078,7 +1253,9 @@ export class TagsService {
     
     /**
      * Delete Tag
-     * Delete a tag.
+     * Delete a user tag.
+     *
+     * System and business tags cannot be deleted.
      * @param data The data for the request.
      * @param data.id
      * @returns Message Successful Response
@@ -1090,6 +1267,42 @@ export class TagsService {
             url: '/api/v1/tags/{id}',
             path: {
                 id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Get Business Tag Tree
+     * Get business tags as a tree structure.
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static getBusinessTagTree(): CancelablePromise<TagsGetBusinessTagTreeResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/tags/business/tree'
+        });
+    }
+    
+    /**
+     * Search Business Tag
+     * Search business tags by name, path, or code.
+     * @param data The data for the request.
+     * @param data.q
+     * @param data.limit
+     * @returns TagPublic Successful Response
+     * @throws ApiError
+     */
+    public static searchBusinessTag(data: TagsSearchBusinessTagData): CancelablePromise<TagsSearchBusinessTagResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/tags/business/search',
+            query: {
+                q: data.q,
+                limit: data.limit
             },
             errors: {
                 422: 'Validation Error'

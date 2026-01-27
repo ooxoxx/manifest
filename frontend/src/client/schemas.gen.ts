@@ -1612,6 +1612,13 @@ export const SamplingModeSchema = {
     description: 'Sampling mode for dataset building.'
 } as const;
 
+export const SystemTagTypeSchema = {
+    type: 'string',
+    enum: ['file_type', 'source', 'annotation_status', 'storage_instance'],
+    title: 'SystemTagType',
+    description: 'System tag type for automatic tagging.'
+} as const;
+
 export const TagCategorySchema = {
     type: 'string',
     enum: ['system', 'business', 'user'],
@@ -1750,13 +1757,56 @@ export const TagPublicSchema = {
             title: 'Parent Id'
         },
         owner_id: {
-            type: 'string',
-            format: 'uuid',
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
             title: 'Owner Id'
         },
         is_system_managed: {
             type: 'boolean',
             title: 'Is System Managed'
+        },
+        business_code: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Business Code'
+        },
+        level: {
+            type: 'integer',
+            title: 'Level'
+        },
+        full_path: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Full Path'
+        },
+        system_tag_type: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/SystemTagType'
+                },
+                {
+                    type: 'null'
+                }
+            ]
         },
         created_at: {
             type: 'string',
@@ -1770,7 +1820,7 @@ export const TagPublicSchema = {
         }
     },
     type: 'object',
-    required: ['name', 'id', 'parent_id', 'owner_id', 'is_system_managed', 'created_at', 'updated_at'],
+    required: ['name', 'id', 'parent_id', 'owner_id', 'is_system_managed', 'business_code', 'level', 'full_path', 'system_tag_type', 'created_at', 'updated_at'],
     title: 'TagPublic',
     description: 'Properties to return via API.'
 } as const;
@@ -1896,13 +1946,56 @@ export const TagWithChildrenSchema = {
             title: 'Parent Id'
         },
         owner_id: {
-            type: 'string',
-            format: 'uuid',
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
             title: 'Owner Id'
         },
         is_system_managed: {
             type: 'boolean',
             title: 'Is System Managed'
+        },
+        business_code: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Business Code'
+        },
+        level: {
+            type: 'integer',
+            title: 'Level'
+        },
+        full_path: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Full Path'
+        },
+        system_tag_type: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/SystemTagType'
+                },
+                {
+                    type: 'null'
+                }
+            ]
         },
         created_at: {
             type: 'string',
@@ -1924,9 +2017,295 @@ export const TagWithChildrenSchema = {
         }
     },
     type: 'object',
-    required: ['name', 'id', 'parent_id', 'owner_id', 'is_system_managed', 'created_at', 'updated_at'],
+    required: ['name', 'id', 'parent_id', 'owner_id', 'is_system_managed', 'business_code', 'level', 'full_path', 'system_tag_type', 'created_at', 'updated_at'],
     title: 'TagWithChildren',
     description: 'Tag with children for tree structure.'
+} as const;
+
+export const TaggingRuleCreateSchema = {
+    properties: {
+        name: {
+            type: 'string',
+            maxLength: 255,
+            minLength: 1,
+            title: 'Name'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 1024
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        rule_type: {
+            '$ref': '#/components/schemas/TaggingRuleType'
+        },
+        pattern: {
+            type: 'string',
+            maxLength: 1024,
+            title: 'Pattern'
+        },
+        is_active: {
+            type: 'boolean',
+            title: 'Is Active',
+            default: true
+        },
+        auto_execute: {
+            type: 'boolean',
+            title: 'Auto Execute',
+            default: false
+        },
+        tag_ids: {
+            items: {
+                type: 'string',
+                format: 'uuid'
+            },
+            type: 'array',
+            title: 'Tag Ids'
+        }
+    },
+    type: 'object',
+    required: ['name', 'rule_type', 'pattern', 'tag_ids'],
+    title: 'TaggingRuleCreate',
+    description: 'Properties to receive on tagging rule creation.'
+} as const;
+
+export const TaggingRuleExecuteResultSchema = {
+    properties: {
+        matched: {
+            type: 'integer',
+            title: 'Matched'
+        },
+        tagged: {
+            type: 'integer',
+            title: 'Tagged'
+        },
+        skipped: {
+            type: 'integer',
+            title: 'Skipped'
+        }
+    },
+    type: 'object',
+    required: ['matched', 'tagged', 'skipped'],
+    title: 'TaggingRuleExecuteResult',
+    description: 'Result of executing a tagging rule.'
+} as const;
+
+export const TaggingRulePreviewResultSchema = {
+    properties: {
+        total_matched: {
+            type: 'integer',
+            title: 'Total Matched'
+        },
+        samples: {
+            items: {
+                '$ref': '#/components/schemas/SamplePublic'
+            },
+            type: 'array',
+            title: 'Samples'
+        }
+    },
+    type: 'object',
+    required: ['total_matched', 'samples'],
+    title: 'TaggingRulePreviewResult',
+    description: 'Result of previewing a tagging rule.'
+} as const;
+
+export const TaggingRulePublicSchema = {
+    properties: {
+        name: {
+            type: 'string',
+            maxLength: 255,
+            minLength: 1,
+            title: 'Name'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 1024
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        rule_type: {
+            '$ref': '#/components/schemas/TaggingRuleType'
+        },
+        pattern: {
+            type: 'string',
+            maxLength: 1024,
+            title: 'Pattern'
+        },
+        is_active: {
+            type: 'boolean',
+            title: 'Is Active',
+            default: true
+        },
+        auto_execute: {
+            type: 'boolean',
+            title: 'Auto Execute',
+            default: false
+        },
+        id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Id'
+        },
+        tag_ids: {
+            items: {
+                type: 'string',
+                format: 'uuid'
+            },
+            type: 'array',
+            title: 'Tag Ids'
+        },
+        owner_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Owner Id'
+        },
+        created_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Created At'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Updated At'
+        }
+    },
+    type: 'object',
+    required: ['name', 'rule_type', 'pattern', 'id', 'tag_ids', 'owner_id', 'created_at', 'updated_at'],
+    title: 'TaggingRulePublic',
+    description: 'Properties to return via API.'
+} as const;
+
+export const TaggingRuleTypeSchema = {
+    type: 'string',
+    enum: ['regex_filename', 'regex_path', 'file_extension', 'bucket', 'content_type'],
+    title: 'TaggingRuleType',
+    description: 'Tagging rule type for batch tagging.'
+} as const;
+
+export const TaggingRuleUpdateSchema = {
+    properties: {
+        name: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 255,
+                    minLength: 1
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Name'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 1024
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        rule_type: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/TaggingRuleType'
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        },
+        pattern: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 1024
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Pattern'
+        },
+        tag_ids: {
+            anyOf: [
+                {
+                    items: {
+                        type: 'string',
+                        format: 'uuid'
+                    },
+                    type: 'array'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Tag Ids'
+        },
+        is_active: {
+            anyOf: [
+                {
+                    type: 'boolean'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Is Active'
+        },
+        auto_execute: {
+            anyOf: [
+                {
+                    type: 'boolean'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Auto Execute'
+        }
+    },
+    type: 'object',
+    title: 'TaggingRuleUpdate',
+    description: 'Properties to receive on tagging rule update.'
+} as const;
+
+export const TaggingRulesPublicSchema = {
+    properties: {
+        data: {
+            items: {
+                '$ref': '#/components/schemas/TaggingRulePublic'
+            },
+            type: 'array',
+            title: 'Data'
+        },
+        count: {
+            type: 'integer',
+            title: 'Count'
+        }
+    },
+    type: 'object',
+    required: ['data', 'count'],
+    title: 'TaggingRulesPublic',
+    description: 'Paginated tagging rules response.'
 } as const;
 
 export const TagsByCategoryResponseSchema = {

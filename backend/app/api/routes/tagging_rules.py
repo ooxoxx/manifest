@@ -77,7 +77,7 @@ def create_tagging_rule(
         description=rule_in.description,
         rule_type=rule_in.rule_type,
         pattern=rule_in.pattern,
-        tag_ids=rule_in.tag_ids,
+        tag_ids=[str(tid) for tid in rule_in.tag_ids],
         is_active=rule_in.is_active,
         auto_execute=rule_in.auto_execute,
         owner_id=current_user.id,
@@ -103,6 +103,9 @@ def update_tagging_rule(
         raise HTTPException(status_code=403, detail="Not enough permissions")
 
     update_data = rule_in.model_dump(exclude_unset=True)
+    # Convert tag_ids UUIDs to strings for JSONB storage
+    if "tag_ids" in update_data and update_data["tag_ids"] is not None:
+        update_data["tag_ids"] = [str(tid) for tid in update_data["tag_ids"]]
     rule.sqlmodel_update(update_data)
     rule.updated_at = datetime.utcnow()
     session.add(rule)

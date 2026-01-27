@@ -1,6 +1,7 @@
 import {
   Activity,
   Database,
+  Filter,
   FolderOpen,
   Hammer,
   Server,
@@ -35,6 +36,7 @@ const browseItems: NavItem[] = [
 
 const configItems: NavItem[] = [
   { icon: Tags, title: "标签管理", path: "/settings/tags" },
+  { icon: Filter, title: "分类规则", path: "/settings/tagging-rules" },
   { icon: Server, title: "MinIO 实例", path: "/settings/minio" },
 ]
 

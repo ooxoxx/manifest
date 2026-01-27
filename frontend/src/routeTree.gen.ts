@@ -28,6 +28,7 @@ import { Route as LayoutSamplesIndexRouteImport } from './routes/_layout/samples
 import { Route as LayoutDatasetsIndexRouteImport } from './routes/_layout/datasets/index'
 import { Route as LayoutSettingsUsersRouteImport } from './routes/_layout/settings/users'
 import { Route as LayoutSettingsTagsRouteImport } from './routes/_layout/settings/tags'
+import { Route as LayoutSettingsTaggingRulesRouteImport } from './routes/_layout/settings/tagging-rules'
 import { Route as LayoutSettingsMinioRouteImport } from './routes/_layout/settings/minio'
 import { Route as LayoutSamplesSampleIdRouteImport } from './routes/_layout/samples/$sampleId'
 import { Route as LayoutDatasetsBuildRouteImport } from './routes/_layout/datasets/build'
@@ -129,6 +130,12 @@ const LayoutSettingsTagsRoute = LayoutSettingsTagsRouteImport.update({
   path: '/tags',
   getParentRoute: () => LayoutSettingsRoute,
 } as any)
+const LayoutSettingsTaggingRulesRoute =
+  LayoutSettingsTaggingRulesRouteImport.update({
+    id: '/tagging-rules',
+    path: '/tagging-rules',
+    getParentRoute: () => LayoutSettingsRoute,
+  } as any)
 const LayoutSettingsMinioRoute = LayoutSettingsMinioRouteImport.update({
   id: '/minio',
   path: '/minio',
@@ -180,6 +187,7 @@ export interface FileRoutesByFullPath {
   '/datasets/build': typeof LayoutDatasetsBuildRoute
   '/samples/$sampleId': typeof LayoutSamplesSampleIdRoute
   '/settings/minio': typeof LayoutSettingsMinioRoute
+  '/settings/tagging-rules': typeof LayoutSettingsTaggingRulesRoute
   '/settings/tags': typeof LayoutSettingsTagsRoute
   '/settings/users': typeof LayoutSettingsUsersRoute
   '/datasets/': typeof LayoutDatasetsIndexRoute
@@ -204,6 +212,7 @@ export interface FileRoutesByTo {
   '/datasets/build': typeof LayoutDatasetsBuildRoute
   '/samples/$sampleId': typeof LayoutSamplesSampleIdRoute
   '/settings/minio': typeof LayoutSettingsMinioRoute
+  '/settings/tagging-rules': typeof LayoutSettingsTaggingRulesRoute
   '/settings/tags': typeof LayoutSettingsTagsRoute
   '/settings/users': typeof LayoutSettingsUsersRoute
   '/datasets': typeof LayoutDatasetsIndexRoute
@@ -232,6 +241,7 @@ export interface FileRoutesById {
   '/_layout/datasets/build': typeof LayoutDatasetsBuildRoute
   '/_layout/samples/$sampleId': typeof LayoutSamplesSampleIdRoute
   '/_layout/settings/minio': typeof LayoutSettingsMinioRoute
+  '/_layout/settings/tagging-rules': typeof LayoutSettingsTaggingRulesRoute
   '/_layout/settings/tags': typeof LayoutSettingsTagsRoute
   '/_layout/settings/users': typeof LayoutSettingsUsersRoute
   '/_layout/datasets/': typeof LayoutDatasetsIndexRoute
@@ -260,6 +270,7 @@ export interface FileRouteTypes {
     | '/datasets/build'
     | '/samples/$sampleId'
     | '/settings/minio'
+    | '/settings/tagging-rules'
     | '/settings/tags'
     | '/settings/users'
     | '/datasets/'
@@ -284,6 +295,7 @@ export interface FileRouteTypes {
     | '/datasets/build'
     | '/samples/$sampleId'
     | '/settings/minio'
+    | '/settings/tagging-rules'
     | '/settings/tags'
     | '/settings/users'
     | '/datasets'
@@ -311,6 +323,7 @@ export interface FileRouteTypes {
     | '/_layout/datasets/build'
     | '/_layout/samples/$sampleId'
     | '/_layout/settings/minio'
+    | '/_layout/settings/tagging-rules'
     | '/_layout/settings/tags'
     | '/_layout/settings/users'
     | '/_layout/datasets/'
@@ -464,6 +477,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutSettingsTagsRouteImport
       parentRoute: typeof LayoutSettingsRoute
     }
+    '/_layout/settings/tagging-rules': {
+      id: '/_layout/settings/tagging-rules'
+      path: '/tagging-rules'
+      fullPath: '/settings/tagging-rules'
+      preLoaderRoute: typeof LayoutSettingsTaggingRulesRouteImport
+      parentRoute: typeof LayoutSettingsRoute
+    }
     '/_layout/settings/minio': {
       id: '/_layout/settings/minio'
       path: '/minio'
@@ -532,6 +552,7 @@ const LayoutDatasetsRouteWithChildren = LayoutDatasetsRoute._addFileChildren(
 
 interface LayoutSettingsRouteChildren {
   LayoutSettingsMinioRoute: typeof LayoutSettingsMinioRoute
+  LayoutSettingsTaggingRulesRoute: typeof LayoutSettingsTaggingRulesRoute
   LayoutSettingsTagsRoute: typeof LayoutSettingsTagsRoute
   LayoutSettingsUsersRoute: typeof LayoutSettingsUsersRoute
   LayoutSettingsIndexRoute: typeof LayoutSettingsIndexRoute
@@ -539,6 +560,7 @@ interface LayoutSettingsRouteChildren {
 
 const LayoutSettingsRouteChildren: LayoutSettingsRouteChildren = {
   LayoutSettingsMinioRoute: LayoutSettingsMinioRoute,
+  LayoutSettingsTaggingRulesRoute: LayoutSettingsTaggingRulesRoute,
   LayoutSettingsTagsRoute: LayoutSettingsTagsRoute,
   LayoutSettingsUsersRoute: LayoutSettingsUsersRoute,
   LayoutSettingsIndexRoute: LayoutSettingsIndexRoute,

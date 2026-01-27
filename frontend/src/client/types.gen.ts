@@ -422,6 +422,11 @@ export type SamplingConfig = {
 export type SamplingMode = 'all' | 'random' | 'class_targets';
 
 /**
+ * System tag type for automatic tagging.
+ */
+export type SystemTagType = 'file_type' | 'source' | 'annotation_status' | 'storage_instance';
+
+/**
  * Tag category for semantic grouping.
  */
 export type TagCategory = 'system' | 'business' | 'user';
@@ -447,6 +452,79 @@ export type TagDistribution = {
 };
 
 /**
+ * Properties to receive on tagging rule creation.
+ */
+export type TaggingRuleCreate = {
+    name: string;
+    description?: (string | null);
+    rule_type: TaggingRuleType;
+    pattern: string;
+    is_active?: boolean;
+    auto_execute?: boolean;
+    tag_ids: Array<(string)>;
+};
+
+/**
+ * Result of executing a tagging rule.
+ */
+export type TaggingRuleExecuteResult = {
+    matched: number;
+    tagged: number;
+    skipped: number;
+};
+
+/**
+ * Result of previewing a tagging rule.
+ */
+export type TaggingRulePreviewResult = {
+    total_matched: number;
+    samples: Array<SamplePublic>;
+};
+
+/**
+ * Properties to return via API.
+ */
+export type TaggingRulePublic = {
+    name: string;
+    description?: (string | null);
+    rule_type: TaggingRuleType;
+    pattern: string;
+    is_active?: boolean;
+    auto_execute?: boolean;
+    id: string;
+    tag_ids: Array<(string)>;
+    owner_id: string;
+    created_at: string;
+    updated_at: string;
+};
+
+/**
+ * Paginated tagging rules response.
+ */
+export type TaggingRulesPublic = {
+    data: Array<TaggingRulePublic>;
+    count: number;
+};
+
+/**
+ * Tagging rule type for batch tagging.
+ */
+export type TaggingRuleType = 'regex_filename' | 'regex_path' | 'file_extension' | 'bucket' | 'content_type';
+
+/**
+ * Properties to receive on tagging rule update.
+ */
+export type TaggingRuleUpdate = {
+    name?: (string | null);
+    description?: (string | null);
+    rule_type?: (TaggingRuleType | null);
+    pattern?: (string | null);
+    tag_ids?: (Array<(string)> | null);
+    is_active?: (boolean | null);
+    auto_execute?: (boolean | null);
+};
+
+/**
  * Properties to return via API.
  */
 export type TagPublic = {
@@ -456,8 +534,12 @@ export type TagPublic = {
     category?: TagCategory;
     id: string;
     parent_id: (string | null);
-    owner_id: string;
+    owner_id: (string | null);
     is_system_managed: boolean;
+    business_code: (string | null);
+    level: number;
+    full_path: (string | null);
+    system_tag_type: (SystemTagType | null);
     created_at: string;
     updated_at: string;
 };
@@ -500,8 +582,12 @@ export type TagWithChildren = {
     category?: TagCategory;
     id: string;
     parent_id: (string | null);
-    owner_id: string;
+    owner_id: (string | null);
     is_system_managed: boolean;
+    business_code: (string | null);
+    level: number;
+    full_path: (string | null);
+    system_tag_type: (SystemTagType | null);
     created_at: string;
     updated_at: string;
     children?: Array<TagWithChildren>;
@@ -898,6 +984,52 @@ export type SamplesBatchTagSamplesResponse = ({
     [key: string]: unknown;
 });
 
+export type TaggingRulesReadTaggingRulesData = {
+    limit?: number;
+    skip?: number;
+};
+
+export type TaggingRulesReadTaggingRulesResponse = (TaggingRulesPublic);
+
+export type TaggingRulesCreateTaggingRuleData = {
+    requestBody: TaggingRuleCreate;
+};
+
+export type TaggingRulesCreateTaggingRuleResponse = (TaggingRulePublic);
+
+export type TaggingRulesReadTaggingRuleData = {
+    id: string;
+};
+
+export type TaggingRulesReadTaggingRuleResponse = (TaggingRulePublic);
+
+export type TaggingRulesUpdateTaggingRuleData = {
+    id: string;
+    requestBody: TaggingRuleUpdate;
+};
+
+export type TaggingRulesUpdateTaggingRuleResponse = (TaggingRulePublic);
+
+export type TaggingRulesDeleteTaggingRuleData = {
+    id: string;
+};
+
+export type TaggingRulesDeleteTaggingRuleResponse = (Message);
+
+export type TaggingRulesExecuteTaggingRuleData = {
+    dryRun?: boolean;
+    id: string;
+};
+
+export type TaggingRulesExecuteTaggingRuleResponse = (TaggingRuleExecuteResult);
+
+export type TaggingRulesPreviewTaggingRuleData = {
+    id: string;
+    limit?: number;
+};
+
+export type TaggingRulesPreviewTaggingRuleResponse = (TaggingRulePreviewResult);
+
 export type TagsReadTagsData = {
     category?: (TagCategory | null);
     limit?: number;
@@ -928,6 +1060,15 @@ export type TagsDeleteTagData = {
 };
 
 export type TagsDeleteTagResponse = (Message);
+
+export type TagsGetBusinessTagTreeResponse = (unknown);
+
+export type TagsSearchBusinessTagData = {
+    limit?: number;
+    q: string;
+};
+
+export type TagsSearchBusinessTagResponse = (Array<TagPublic>);
 
 export type UsersReadUsersData = {
     limit?: number;
