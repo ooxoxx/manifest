@@ -7,6 +7,7 @@ from app.api.routes import (
     minio_instances,
     private,
     samples,
+    tagging_rules,
     tags,
     users,
     utils,
@@ -23,6 +24,7 @@ api_router.include_router(dashboard.router)
 api_router.include_router(minio_instances.router)
 api_router.include_router(samples.router)
 api_router.include_router(tags.router)
+api_router.include_router(tagging_rules.router)
 api_router.include_router(datasets.router)
 api_router.include_router(watched_paths.router)
 api_router.include_router(webhooks.router)

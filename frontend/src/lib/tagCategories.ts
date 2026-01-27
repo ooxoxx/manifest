@@ -9,6 +9,8 @@ export const TAG_CATEGORIES = [
     description: "样本状态、来源系统等系统管理的标签",
     badgeStyle:
       "border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
+    readonly: true,
+    showInCreate: false,
   },
   {
     key: "business" as const,
@@ -17,6 +19,8 @@ export const TAG_CATEGORIES = [
     description: "业务领域、场景类型等分类标签",
     badgeStyle:
       "border-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300",
+    readonly: true,
+    showInCreate: false,
   },
   {
     key: "user" as const,
@@ -25,6 +29,8 @@ export const TAG_CATEGORIES = [
     description: "自定义标签",
     badgeStyle:
       "border-gray-500 bg-gray-50 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
+    readonly: false,
+    showInCreate: true,
   },
 ] as const
 

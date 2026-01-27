@@ -104,6 +104,25 @@ class TagCategory(str, Enum):
     user = "user"  # 用户自定义标签
 
 
+class SystemTagType(str, Enum):
+    """System tag type for automatic tagging."""
+
+    file_type = "file_type"  # 文件类型 (image/jpeg, image/png)
+    source = "source"  # 来源 (webhook, sync, import, manual)
+    annotation_status = "annotation_status"  # 标注状态 (none, linked, conflict)
+    storage_instance = "storage_instance"  # 存储实例名称
+
+
+class TaggingRuleType(str, Enum):
+    """Tagging rule type for batch tagging."""
+
+    regex_filename = "regex_filename"  # 文件名正则匹配
+    regex_path = "regex_path"  # 路径正则匹配
+    file_extension = "file_extension"  # 扩展名匹配
+    bucket = "bucket"  # 桶名匹配
+    content_type = "content_type"  # MIME类型匹配
+
+
 class SampleSource(str, Enum):
     """Sample source enum."""
 
@@ -308,10 +327,15 @@ class Tag(TagBase, table=True):
     parent_id: uuid.UUID | None = Field(
         default=None, foreign_key="tag.id", ondelete="CASCADE"
     )
-    owner_id: uuid.UUID = Field(
-        foreign_key="user.id", nullable=False, ondelete="CASCADE"
+    owner_id: uuid.UUID | None = Field(
+        default=None, foreign_key="user.id", nullable=True, ondelete="CASCADE"
     )
     is_system_managed: bool = Field(default=False)
+    # New fields for tag category system
+    business_code: str | None = Field(default=None, max_length=100, index=True)
+    level: int = Field(default=0)
+    full_path: str | None = Field(default=None, max_length=1024)
+    system_tag_type: SystemTagType | None = Field(default=None)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
@@ -331,8 +355,12 @@ class TagPublic(TagBase):
 
     id: uuid.UUID
     parent_id: uuid.UUID | None
-    owner_id: uuid.UUID
+    owner_id: uuid.UUID | None
     is_system_managed: bool
+    business_code: str | None
+    level: int
+    full_path: str | None
+    system_tag_type: SystemTagType | None
     created_at: datetime
     updated_at: datetime
 
@@ -356,6 +384,86 @@ class TagsByCategoryResponse(SQLModel):
     system: list[TagPublic] = []
     business: list[TagPublic] = []
     user: list[TagPublic] = []
+
+
+# ============================================================================
+# Tagging Rule Models
+# ============================================================================
+
+
+class TaggingRuleBase(SQLModel):
+    """Base tagging rule properties."""
+
+    name: str = Field(min_length=1, max_length=255)
+    description: str | None = Field(default=None, max_length=1024)
+    rule_type: TaggingRuleType
+    pattern: str = Field(max_length=1024)
+    is_active: bool = Field(default=True)
+    auto_execute: bool = Field(default=False)
+
+
+class TaggingRuleCreate(TaggingRuleBase):
+    """Properties to receive on tagging rule creation."""
+
+    tag_ids: list[uuid.UUID]
+
+
+class TaggingRuleUpdate(SQLModel):
+    """Properties to receive on tagging rule update."""
+
+    name: str | None = Field(default=None, min_length=1, max_length=255)
+    description: str | None = Field(default=None, max_length=1024)
+    rule_type: TaggingRuleType | None = None
+    pattern: str | None = Field(default=None, max_length=1024)
+    tag_ids: list[uuid.UUID] | None = None
+    is_active: bool | None = None
+    auto_execute: bool | None = None
+
+
+class TaggingRule(TaggingRuleBase, table=True):
+    """Tagging rule database model."""
+
+    __tablename__ = "tagging_rule"
+
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    tag_ids: list[uuid.UUID] = Field(default_factory=list, sa_column=Column(JSONB))
+    owner_id: uuid.UUID = Field(
+        foreign_key="user.id", nullable=False, ondelete="CASCADE"
+    )
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class TaggingRulePublic(TaggingRuleBase):
+    """Properties to return via API."""
+
+    id: uuid.UUID
+    tag_ids: list[uuid.UUID]
+    owner_id: uuid.UUID
+    created_at: datetime
+    updated_at: datetime
+
+
+class TaggingRulesPublic(SQLModel):
+    """Paginated tagging rules response."""
+
+    data: list[TaggingRulePublic]
+    count: int
+
+
+class TaggingRuleExecuteResult(SQLModel):
+    """Result of executing a tagging rule."""
+
+    matched: int
+    tagged: int
+    skipped: int
+
+
+class TaggingRulePreviewResult(SQLModel):
+    """Result of previewing a tagging rule."""
+
+    total_matched: int
+    samples: list["SamplePublic"]
 
 
 # ============================================================================

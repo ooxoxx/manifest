@@ -4,80 +4,98 @@ import uuid
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlmodel import Session
+from sqlmodel import Session, select
 
 from app.core.config import settings
 from app.models import Tag, TagCategory, User
 
 
-@pytest.fixture
-def test_user(db: Session):
-    """Create test user for tags."""
-    user = User(
-        id=uuid.uuid4(),
-        email=f"tags_test_{uuid.uuid4()}@example.com",
-        hashed_password="fakehash",
-        full_name="Tags Test User",
-        is_superuser=True,
-    )
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    yield user
-    db.delete(user)
-    db.commit()
+@pytest.fixture(scope="module")
+def superuser(db: Session) -> User:
+    """Get the superuser from database."""
+    user = db.exec(
+        select(User).where(User.email == settings.FIRST_SUPERUSER)
+    ).first()
+    assert user is not None, "Superuser not found in database"
+    return user
 
 
-@pytest.fixture
-def test_tags(db: Session, test_user: User):
-    """Create test tags across all categories."""
+@pytest.fixture(scope="module")
+def global_tags(db: Session):
+    """Create global system/business tags (owner_id=None)."""
     tags = [
         Tag(
             id=uuid.uuid4(),
-            owner_id=test_user.id,
-            name="已标注",
+            owner_id=None,
+            name=f"系统标签_{uuid.uuid4().hex[:8]}",
             category=TagCategory.system,
             is_system_managed=True,
         ),
         Tag(
             id=uuid.uuid4(),
-            owner_id=test_user.id,
-            name="待审核",
+            owner_id=None,
+            name=f"系统标签_{uuid.uuid4().hex[:8]}",
             category=TagCategory.system,
             is_system_managed=True,
         ),
         Tag(
             id=uuid.uuid4(),
-            owner_id=test_user.id,
-            name="输电",
+            owner_id=None,
+            name=f"业务标签_{uuid.uuid4().hex[:8]}",
             category=TagCategory.business,
+            is_system_managed=True,
         ),
         Tag(
             id=uuid.uuid4(),
-            owner_id=test_user.id,
-            name="通道监拍",
+            owner_id=None,
+            name=f"业务标签_{uuid.uuid4().hex[:8]}",
             category=TagCategory.business,
+            is_system_managed=True,
         ),
+    ]
+    for tag in tags:
+        db.add(tag)
+    db.commit()
+    for tag in tags:
+        db.refresh(tag)
+    yield tags
+    for tag in tags:
+        db.delete(tag)
+    db.commit()
+
+
+@pytest.fixture(scope="module")
+def user_tags(db: Session, superuser: User):
+    """Create user-owned tags for the superuser."""
+    tags = [
         Tag(
             id=uuid.uuid4(),
-            owner_id=test_user.id,
-            name="自定义标签1",
+            owner_id=superuser.id,
+            name=f"用户标签_{uuid.uuid4().hex[:8]}",
             category=TagCategory.user,
         ),
         Tag(
             id=uuid.uuid4(),
-            owner_id=test_user.id,
-            name="自定义标签2",
+            owner_id=superuser.id,
+            name=f"用户标签_{uuid.uuid4().hex[:8]}",
             category=TagCategory.user,
         ),
     ]
     for tag in tags:
         db.add(tag)
     db.commit()
+    for tag in tags:
+        db.refresh(tag)
     yield tags
     for tag in tags:
         db.delete(tag)
     db.commit()
+
+
+@pytest.fixture(scope="module")
+def test_tags(global_tags: list[Tag], user_tags: list[Tag]):
+    """Combined fixture for all test tags."""
+    return global_tags + user_tags
 
 
 class TestReadTags:
@@ -89,7 +107,7 @@ class TestReadTags:
         superuser_token_headers: dict,
         test_tags: list[Tag],
     ):
-        """Should return all tags."""
+        """Should return all tags including global and user-owned."""
         response = client.get(
             f"{settings.API_V1_STR}/tags/",
             headers=superuser_token_headers,
@@ -184,111 +202,178 @@ class TestGetTagsByCategory:
 class TestCreateTag:
     """Tests for create tag endpoint."""
 
-    def test_create_tag_with_default_category(
+    def test_create_user_tag(
         self,
         client: TestClient,
         superuser_token_headers: dict,
     ):
-        """Should create tag with default user category."""
+        """Should create tag with user category."""
         response = client.post(
             f"{settings.API_V1_STR}/tags/",
             headers=superuser_token_headers,
-            json={"name": "新标签"},
+            json={"name": "新用户标签", "category": "user"},
         )
 
         assert response.status_code == 200
         data = response.json()
-        assert data["name"] == "新标签"
+        assert data["name"] == "新用户标签"
         assert data["category"] == "user"
         assert data["is_system_managed"] is False
 
-    def test_create_tag_with_business_category(
+    def test_cannot_create_business_tag(
         self,
         client: TestClient,
         superuser_token_headers: dict,
     ):
-        """Should create tag with specified category."""
+        """Should reject creating business tags."""
         response = client.post(
             f"{settings.API_V1_STR}/tags/",
             headers=superuser_token_headers,
             json={"name": "新业务标签", "category": "business"},
         )
 
-        assert response.status_code == 200
-        data = response.json()
-        assert data["name"] == "新业务标签"
-        assert data["category"] == "business"
+        assert response.status_code == 403
+
+    def test_cannot_create_system_tag(
+        self,
+        client: TestClient,
+        superuser_token_headers: dict,
+    ):
+        """Should reject creating system tags."""
+        response = client.post(
+            f"{settings.API_V1_STR}/tags/",
+            headers=superuser_token_headers,
+            json={"name": "新系统标签", "category": "system"},
+        )
+
+        assert response.status_code == 403
 
 
 class TestUpdateTag:
     """Tests for update tag endpoint."""
 
-    def test_update_tag_category(
+    def test_update_user_tag_name(
         self,
         client: TestClient,
         superuser_token_headers: dict,
-        test_tags: list[Tag],
+        user_tags: list[Tag],
     ):
-        """Should update tag category for non-system-managed tags."""
-        user_tag = next(t for t in test_tags if t.category == TagCategory.user)
+        """Should update user tag name."""
+        user_tag = user_tags[0]
+        response = client.put(
+            f"{settings.API_V1_STR}/tags/{user_tag.id}",
+            headers=superuser_token_headers,
+            json={"name": "更新后的标签名"},
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["name"] == "更新后的标签名"
+
+    def test_cannot_change_user_tag_to_business(
+        self,
+        client: TestClient,
+        superuser_token_headers: dict,
+        user_tags: list[Tag],
+    ):
+        """Should not allow changing user tag category to business."""
+        user_tag = user_tags[1]
         response = client.put(
             f"{settings.API_V1_STR}/tags/{user_tag.id}",
             headers=superuser_token_headers,
             json={"category": "business"},
         )
 
-        assert response.status_code == 200
-        data = response.json()
-        assert data["category"] == "business"
+        assert response.status_code == 403
 
-    def test_cannot_change_system_managed_tag_category(
+    def test_cannot_modify_global_system_tag(
         self,
         client: TestClient,
         superuser_token_headers: dict,
-        test_tags: list[Tag],
+        global_tags: list[Tag],
     ):
-        """Should not allow changing category of system-managed tags."""
-        system_tag = next(t for t in test_tags if t.is_system_managed)
+        """Should not allow modifying global system tags."""
+        system_tag = next(t for t in global_tags if t.category == TagCategory.system)
         response = client.put(
             f"{settings.API_V1_STR}/tags/{system_tag.id}",
             headers=superuser_token_headers,
-            json={"category": "user"},
+            json={"name": "尝试修改"},
         )
 
         assert response.status_code == 403
-        assert "system-managed" in response.json()["detail"]
+
+    def test_cannot_modify_global_business_tag(
+        self,
+        client: TestClient,
+        superuser_token_headers: dict,
+        global_tags: list[Tag],
+    ):
+        """Should not allow modifying global business tags."""
+        business_tag = next(t for t in global_tags if t.category == TagCategory.business)
+        response = client.put(
+            f"{settings.API_V1_STR}/tags/{business_tag.id}",
+            headers=superuser_token_headers,
+            json={"name": "尝试修改"},
+        )
+
+        assert response.status_code == 403
 
 
 class TestDeleteTag:
     """Tests for delete tag endpoint."""
 
-    def test_delete_user_tag(
+    def test_cannot_delete_global_system_tag(
         self,
         client: TestClient,
         superuser_token_headers: dict,
-        test_tags: list[Tag],
+        global_tags: list[Tag],
     ):
-        """Should delete non-system-managed tags."""
-        user_tag = next(t for t in test_tags if t.category == TagCategory.user)
-        response = client.delete(
-            f"{settings.API_V1_STR}/tags/{user_tag.id}",
-            headers=superuser_token_headers,
-        )
-
-        assert response.status_code == 200
-
-    def test_cannot_delete_system_managed_tag(
-        self,
-        client: TestClient,
-        superuser_token_headers: dict,
-        test_tags: list[Tag],
-    ):
-        """Should not allow deleting system-managed tags."""
-        system_tag = next(t for t in test_tags if t.is_system_managed)
+        """Should not allow deleting global system tags."""
+        system_tag = next(t for t in global_tags if t.category == TagCategory.system)
         response = client.delete(
             f"{settings.API_V1_STR}/tags/{system_tag.id}",
             headers=superuser_token_headers,
         )
 
         assert response.status_code == 403
-        assert "system-managed" in response.json()["detail"]
+
+    def test_cannot_delete_global_business_tag(
+        self,
+        client: TestClient,
+        superuser_token_headers: dict,
+        global_tags: list[Tag],
+    ):
+        """Should not allow deleting global business tags."""
+        business_tag = next(t for t in global_tags if t.category == TagCategory.business)
+        response = client.delete(
+            f"{settings.API_V1_STR}/tags/{business_tag.id}",
+            headers=superuser_token_headers,
+        )
+
+        assert response.status_code == 403
+
+    def test_delete_user_tag(
+        self,
+        client: TestClient,
+        superuser_token_headers: dict,
+        db: Session,
+        superuser: User,
+    ):
+        """Should delete user-owned tags."""
+        # Create a tag specifically for deletion
+        tag = Tag(
+            id=uuid.uuid4(),
+            owner_id=superuser.id,
+            name=f"待删除标签_{uuid.uuid4().hex[:8]}",
+            category=TagCategory.user,
+        )
+        db.add(tag)
+        db.commit()
+        db.refresh(tag)
+
+        response = client.delete(
+            f"{settings.API_V1_STR}/tags/{tag.id}",
+            headers=superuser_token_headers,
+        )
+
+        assert response.status_code == 200

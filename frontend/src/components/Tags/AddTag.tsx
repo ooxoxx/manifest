@@ -15,25 +15,15 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { TAG_CATEGORIES } from "@/lib/tagCategories"
 
 const formSchema = z.object({
   name: z.string().min(1, "请输入名称"),
-  category: z.enum(["system", "business", "user"]),
   color: z.string().optional(),
   description: z.string().optional(),
 })
@@ -54,13 +44,12 @@ export default function AddTag({ open, onOpenChange }: Props) {
       name: "",
       color: "#3b82f6",
       description: "",
-      category: "user",
     },
   })
 
   const mutation = useMutation({
     mutationFn: (data: FormData) =>
-      TagsService.createTag({ requestBody: data }),
+      TagsService.createTag({ requestBody: { ...data, category: "user" } }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tags"] })
       onOpenChange(false)
@@ -72,8 +61,8 @@ export default function AddTag({ open, onOpenChange }: Props) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>添加标签</DialogTitle>
-          <DialogDescription>创建新标签并选择分类</DialogDescription>
+          <DialogTitle>添加用户标签</DialogTitle>
+          <DialogDescription>创建自定义标签用于样本分类</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form
@@ -89,34 +78,6 @@ export default function AddTag({ open, onOpenChange }: Props) {
                   <FormControl>
                     <Input placeholder="标签名称" {...field} />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="category"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>分类</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="选择分类" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {TAG_CATEGORIES.map((category) => (
-                        <SelectItem key={category.key} value={category.key}>
-                          {category.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>选择标签的分类类型</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

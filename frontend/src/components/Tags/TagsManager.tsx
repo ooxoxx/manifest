@@ -1,6 +1,6 @@
 // frontend/src/components/Tags/TagsManager.tsx
 import { useSuspenseQuery } from "@tanstack/react-query"
-import { ChevronRight, Plus, Tags as TagsIcon } from "lucide-react"
+import { ChevronRight, Lock, Plus, Tags as TagsIcon } from "lucide-react"
 import { Suspense, useState } from "react"
 
 import { type TagPublic, TagsService } from "@/client"
@@ -12,6 +12,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { TAG_CATEGORIES, type TagCategoryKey } from "@/lib/tagCategories"
@@ -139,6 +140,9 @@ function TagsContent({ onAddClick }: { onAddClick: () => void }) {
                           ({categoryTags.length})
                         </span>
                       </span>
+                      {category.readonly && (
+                        <Lock className="h-3 w-3 text-muted-foreground" />
+                      )}
                     </div>
                   </AccordionTrigger>
                   <AccordionContent>
@@ -195,23 +199,28 @@ function TagsContent({ onAddClick }: { onAddClick: () => void }) {
               {selectedTag.is_system_managed && (
                 <div>
                   <p className="text-sm text-muted-foreground">系统管理</p>
-                  <p className="font-medium text-blue-600">
-                    系统托管标签（不可删除）
+                  <Badge variant="secondary" className="mt-1">
+                    <Lock className="h-3 w-3 mr-1" />
+                    只读标签
+                  </Badge>
+                </div>
+              )}
+              {selectedTag.category === "user" ? (
+                <div className="flex gap-2 pt-4">
+                  <Button variant="outline" size="sm">
+                    编辑
+                  </Button>
+                  <Button variant="destructive" size="sm">
+                    删除
+                  </Button>
+                </div>
+              ) : (
+                <div className="pt-4">
+                  <p className="text-xs text-muted-foreground">
+                    系统标签和业务标签由系统管理，不可编辑或删除
                   </p>
                 </div>
               )}
-              <div className="flex gap-2 pt-4">
-                <Button variant="outline" size="sm">
-                  编辑
-                </Button>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  disabled={selectedTag.is_system_managed}
-                >
-                  删除
-                </Button>
-              </div>
             </div>
           ) : (
             <p className="text-sm text-muted-foreground text-center py-8">
