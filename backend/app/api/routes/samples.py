@@ -35,6 +35,7 @@ from app.models import (
     SampleThumbnail,
     SampleThumbnailsRequest,
     SampleWithTags,
+    StorageTreeNode,
     Tag,
 )
 from app.services.import_service import (
@@ -43,6 +44,7 @@ from app.services.import_service import (
     preview_csv,
 )
 from app.services.minio_service import MinIOService
+from app.services.storage_tree_service import build_storage_tree
 
 router = APIRouter(prefix="/samples", tags=["samples"])
 
@@ -56,6 +58,7 @@ def read_samples(
     status: SampleStatus | None = None,
     minio_instance_id: uuid.UUID | None = None,
     bucket: str | None = None,
+    prefix: str | None = None,  # Filter by object_key prefix (folder path)
     tag_id: uuid.UUID | None = None,
     search: str | None = None,
     # New filtering parameters for sample browser
@@ -64,6 +67,9 @@ def read_samples(
     date_to: date | None = None,
     annotation_status: AnnotationStatus | None = None,
     sort: str = "-created_at",  # Sorting field with direction prefix
+    # Business tag tree filtering
+    business_tag_id: uuid.UUID | None = None,  # Filter by business tag
+    uncategorized_level: int | None = None,  # Filter uncategorized at level (0-3)
 ) -> Any:
     """Retrieve samples with filtering.
 
@@ -73,6 +79,11 @@ def read_samples(
     - annotation_status: Filter by annotation status (none, linked, conflict, error)
     - search: Fuzzy search on file_name
     - sort: Field to sort by, prefix with - for descending (default: -created_at)
+    - prefix: Filter by object_key prefix (folder path)
+    - business_tag_id: Filter by specific business tag
+    - uncategorized_level: Filter samples without business tags at specified level
+      - Level 0: Samples with no business tags at all
+      - Level N: Samples with level N-1 business tags but no level N tags
     """
     # Build base query
     query = select(Sample).where(Sample.owner_id == current_user.id)
@@ -87,6 +98,8 @@ def read_samples(
         query = query.where(Sample.minio_instance_id == minio_instance_id)
     if bucket:
         query = query.where(Sample.bucket == bucket)
+    if prefix:
+        query = query.where(col(Sample.object_key).startswith(prefix))
     if search:
         query = query.where(col(Sample.file_name).ilike(f"%{search}%"))
 
@@ -127,6 +140,42 @@ def read_samples(
     if annotation_status:
         query = query.where(Sample.annotation_status == annotation_status)
 
+    # Business tag filter
+    if business_tag_id:
+        subquery = select(SampleTag.sample_id).where(SampleTag.tag_id == business_tag_id)
+        query = query.where(col(Sample.id).in_(subquery))
+
+    # Uncategorized filter for business tags
+    if uncategorized_level is not None:
+        from app.models import Tag, TagCategory
+
+        if uncategorized_level == 0:
+            # Samples with no business tags at all
+            business_tags_subquery = (
+                select(SampleTag.sample_id)
+                .join(Tag, Tag.id == SampleTag.tag_id)
+                .where(Tag.category == TagCategory.business)
+            )
+            query = query.where(~col(Sample.id).in_(business_tags_subquery))
+        else:
+            # Samples with level N-1 tags but no level N tags
+            has_parent_level = (
+                select(SampleTag.sample_id)
+                .join(Tag, Tag.id == SampleTag.tag_id)
+                .where(Tag.category == TagCategory.business)
+                .where(Tag.level == uncategorized_level - 1)
+            )
+            has_current_level = (
+                select(SampleTag.sample_id)
+                .join(Tag, Tag.id == SampleTag.tag_id)
+                .where(Tag.category == TagCategory.business)
+                .where(Tag.level == uncategorized_level)
+            )
+            query = query.where(
+                col(Sample.id).in_(has_parent_level)
+                & ~col(Sample.id).in_(has_current_level)
+            )
+
     # Get count
     count_query = select(func.count()).select_from(query.subquery())
     count = session.exec(count_query).one()
@@ -160,6 +209,19 @@ def read_samples(
         total=count,
         has_more=(skip + len(samples)) < count,
     )
+
+
+@router.get("/storage-tree", response_model=list[StorageTreeNode])
+def get_storage_tree(
+    session: SessionDep,
+    current_user: CurrentUser,
+) -> list[StorageTreeNode]:
+    """Get hierarchical storage path tree.
+
+    Returns a tree structure of: MinIO Instance > Bucket > Folder hierarchy
+    with sample counts at each level.
+    """
+    return build_storage_tree(session, current_user.id)
 
 
 @router.post("/thumbnails", response_model=list[SampleThumbnail])
@@ -323,7 +385,6 @@ async def import_samples(
     current_user: CurrentUser,
     file: UploadFile = File(...),
     minio_instance_id: uuid.UUID = Form(...),
-    bucket: str | None = Form(None),
     validate_files: bool = Form(True),
 ) -> Any:
     """Import samples from CSV file.
@@ -332,9 +393,8 @@ async def import_samples(
     For MVP, this is synchronous. Will be upgraded to async with Redis later.
 
     Args:
-        file: CSV file with object_key column (required), tags column (optional)
+        file: CSV file with object_key and bucket columns (required), tags column (optional)
         minio_instance_id: MinIO instance to import from
-        bucket: Default bucket name (optional if bucket column exists in CSV)
         validate_files: Whether to validate file existence via HEAD request
 
     Returns:
@@ -371,7 +431,7 @@ async def import_samples(
     task = ImportTask(
         owner_id=current_user.id,
         minio_instance_id=minio_instance_id,
-        bucket=bucket,
+        bucket=None,
         status=ImportTaskStatus.running,
         total_rows=total_rows,
     )
@@ -386,7 +446,6 @@ async def import_samples(
             file=BytesIO(content),
             minio_instance_id=minio_instance_id,
             owner_id=current_user.id,
-            bucket=bucket,
             validate_files=validate_files,
         )
 

@@ -25,7 +25,6 @@ export type Body_login_login_access_token = {
 export type Body_samples_import_samples = {
     file: (Blob | File);
     minio_instance_id: string;
-    bucket?: (string | null);
     validate_files?: boolean;
 };
 
@@ -252,9 +251,10 @@ export type NewPassword = {
 
 /**
  * Request for previewing a pattern without creating a rule.
+ *
+ * Pattern is a regex matched against full path: {bucket}/{object_key}
  */
 export type PatternPreviewRequest = {
-    rule_type: TaggingRuleType;
     pattern: string;
 };
 
@@ -438,6 +438,18 @@ export type SamplingConfig = {
 export type SamplingMode = 'all' | 'random' | 'class_targets';
 
 /**
+ * Node in the storage path tree.
+ */
+export type StorageTreeNode = {
+    id: string;
+    name: string;
+    type: string;
+    path: string;
+    count: number;
+    children?: Array<StorageTreeNode>;
+};
+
+/**
  * System tag type for automatic tagging.
  */
 export type SystemTagType = 'file_type' | 'source' | 'annotation_status' | 'storage_instance';
@@ -473,7 +485,6 @@ export type TagDistribution = {
 export type TaggingRuleCreate = {
     name: string;
     description?: (string | null);
-    rule_type: TaggingRuleType;
     pattern: string;
     is_active?: boolean;
     auto_execute?: boolean;
@@ -511,7 +522,6 @@ export type TaggingRulePreviewResult = {
 export type TaggingRulePublic = {
     name: string;
     description?: (string | null);
-    rule_type: TaggingRuleType;
     pattern: string;
     is_active?: boolean;
     auto_execute?: boolean;
@@ -531,17 +541,11 @@ export type TaggingRulesPublic = {
 };
 
 /**
- * Tagging rule type for batch tagging.
- */
-export type TaggingRuleType = 'regex_filename' | 'regex_path' | 'file_extension' | 'bucket' | 'content_type';
-
-/**
  * Properties to receive on tagging rule update.
  */
 export type TaggingRuleUpdate = {
     name?: (string | null);
     description?: (string | null);
-    rule_type?: (TaggingRuleType | null);
     pattern?: (string | null);
     tag_ids?: (Array<(string)> | null);
     is_active?: (boolean | null);
@@ -921,19 +925,24 @@ export type PrivateCreateUserResponse = (UserPublic);
 export type SamplesReadSamplesData = {
     annotationStatus?: (AnnotationStatus | null);
     bucket?: (string | null);
+    businessTagId?: (string | null);
     dateFrom?: (string | null);
     dateTo?: (string | null);
     limit?: number;
     minioInstanceId?: (string | null);
+    prefix?: (string | null);
     search?: (string | null);
     skip?: number;
     sort?: string;
     status?: (SampleStatus | null);
     tagFilter?: (string | null);
     tagId?: (string | null);
+    uncategorizedLevel?: (number | null);
 };
 
 export type SamplesReadSamplesResponse = (SampleListResponse);
+
+export type SamplesGetStorageTreeResponse = (Array<StorageTreeNode>);
 
 export type SamplesGetSampleThumbnailsData = {
     requestBody: SampleThumbnailsRequest;
@@ -1095,6 +1104,8 @@ export type TagsDeleteTagData = {
 export type TagsDeleteTagResponse = (Message);
 
 export type TagsGetBusinessTagTreeResponse = (unknown);
+
+export type TagsGetBusinessTagTreeWithCountsResponse = (unknown);
 
 export type TagsSearchBusinessTagData = {
     limit?: number;

@@ -99,17 +99,6 @@ export const Body_samples_import_samplesSchema = {
             format: 'uuid',
             title: 'Minio Instance Id'
         },
-        bucket: {
-            anyOf: [
-                {
-                    type: 'string'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Bucket'
-        },
         validate_files: {
             type: 'boolean',
             title: 'Validate Files',
@@ -964,9 +953,6 @@ export const NewPasswordSchema = {
 
 export const PatternPreviewRequestSchema = {
     properties: {
-        rule_type: {
-            '$ref': '#/components/schemas/TaggingRuleType'
-        },
         pattern: {
             type: 'string',
             maxLength: 1024,
@@ -974,9 +960,11 @@ export const PatternPreviewRequestSchema = {
         }
     },
     type: 'object',
-    required: ['rule_type', 'pattern'],
+    required: ['pattern'],
     title: 'PatternPreviewRequest',
-    description: 'Request for previewing a pattern without creating a rule.'
+    description: `Request for previewing a pattern without creating a rule.
+
+Pattern is a regex matched against full path: {bucket}/{object_key}`
 } as const;
 
 export const PatternPreviewResultSchema = {
@@ -1649,6 +1637,43 @@ export const SamplingModeSchema = {
     description: 'Sampling mode for dataset building.'
 } as const;
 
+export const StorageTreeNodeSchema = {
+    properties: {
+        id: {
+            type: 'string',
+            title: 'Id'
+        },
+        name: {
+            type: 'string',
+            title: 'Name'
+        },
+        type: {
+            type: 'string',
+            title: 'Type'
+        },
+        path: {
+            type: 'string',
+            title: 'Path'
+        },
+        count: {
+            type: 'integer',
+            title: 'Count'
+        },
+        children: {
+            items: {
+                '$ref': '#/components/schemas/StorageTreeNode'
+            },
+            type: 'array',
+            title: 'Children',
+            default: []
+        }
+    },
+    type: 'object',
+    required: ['id', 'name', 'type', 'path', 'count'],
+    title: 'StorageTreeNode',
+    description: 'Node in the storage path tree.'
+} as const;
+
 export const SystemTagTypeSchema = {
     type: 'string',
     enum: ['file_type', 'source', 'annotation_status', 'storage_instance'],
@@ -2079,9 +2104,6 @@ export const TaggingRuleCreateSchema = {
             ],
             title: 'Description'
         },
-        rule_type: {
-            '$ref': '#/components/schemas/TaggingRuleType'
-        },
         pattern: {
             type: 'string',
             maxLength: 1024,
@@ -2107,7 +2129,7 @@ export const TaggingRuleCreateSchema = {
         }
     },
     type: 'object',
-    required: ['name', 'rule_type', 'pattern', 'tag_ids'],
+    required: ['name', 'pattern', 'tag_ids'],
     title: 'TaggingRuleCreate',
     description: 'Properties to receive on tagging rule creation.'
 } as const;
@@ -2195,9 +2217,6 @@ export const TaggingRulePublicSchema = {
             ],
             title: 'Description'
         },
-        rule_type: {
-            '$ref': '#/components/schemas/TaggingRuleType'
-        },
         pattern: {
             type: 'string',
             maxLength: 1024,
@@ -2243,16 +2262,9 @@ export const TaggingRulePublicSchema = {
         }
     },
     type: 'object',
-    required: ['name', 'rule_type', 'pattern', 'id', 'tag_ids', 'owner_id', 'created_at', 'updated_at'],
+    required: ['name', 'pattern', 'id', 'tag_ids', 'owner_id', 'created_at', 'updated_at'],
     title: 'TaggingRulePublic',
     description: 'Properties to return via API.'
-} as const;
-
-export const TaggingRuleTypeSchema = {
-    type: 'string',
-    enum: ['regex_filename', 'regex_path', 'file_extension', 'bucket', 'content_type'],
-    title: 'TaggingRuleType',
-    description: 'Tagging rule type for batch tagging.'
 } as const;
 
 export const TaggingRuleUpdateSchema = {
@@ -2281,16 +2293,6 @@ export const TaggingRuleUpdateSchema = {
                 }
             ],
             title: 'Description'
-        },
-        rule_type: {
-            anyOf: [
-                {
-                    '$ref': '#/components/schemas/TaggingRuleType'
-                },
-                {
-                    type: 'null'
-                }
-            ]
         },
         pattern: {
             anyOf: [

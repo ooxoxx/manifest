@@ -105,7 +105,6 @@ export default function ImportWizard() {
 
   // Step 3: Configuration
   const [minioInstanceId, setMinioInstanceId] = useState<string>("")
-  const [bucket, setBucket] = useState<string>("")
   const [validateFiles, setValidateFiles] = useState<boolean>(false)
 
   // Step 4: Import result
@@ -136,14 +135,13 @@ export default function ImportWizard() {
   // Import mutation
   const importMutation = useMutation({
     mutationFn: async () => {
-      if (!selectedFile || !minioInstanceId || !bucket) {
+      if (!selectedFile || !minioInstanceId) {
         throw new Error("缺少必填字段")
       }
       return SamplesService.importSamples({
         formData: {
           file: selectedFile,
           minio_instance_id: minioInstanceId,
-          bucket,
           validate_files: validateFiles,
         },
       })
@@ -220,7 +218,6 @@ export default function ImportWizard() {
     setFileError(null)
     setPreviewData(null)
     setMinioInstanceId("")
-    setBucket("")
     setValidateFiles(false)
     setImportTask(null)
   }
@@ -232,7 +229,7 @@ export default function ImportWizard() {
       case 2:
         return previewData !== null
       case 3:
-        return minioInstanceId !== "" && bucket !== ""
+        return minioInstanceId !== ""
       default:
         return false
     }
@@ -454,17 +451,9 @@ export default function ImportWizard() {
                       )}
                     </SelectContent>
                   </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="bucket">存储桶名称</Label>
-                  <Input
-                    id="bucket"
-                    data-testid="bucket-input"
-                    value={bucket}
-                    onChange={(e) => setBucket(e.target.value)}
-                    placeholder="my-bucket"
-                  />
+                  <p className="text-sm text-muted-foreground">
+                    存储桶将从 CSV 文件的 bucket 列读取
+                  </p>
                 </div>
 
                 <div className="flex items-center gap-2">

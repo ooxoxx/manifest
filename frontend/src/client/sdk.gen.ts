@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { DashboardGetDashboardOverviewResponse, DashboardGetDailyStatsData, DashboardGetDailyStatsResponse, DashboardGetTagDistributionData, DashboardGetTagDistributionResponse, DatasetsReadDatasetsData, DatasetsReadDatasetsResponse, DatasetsCreateDatasetData, DatasetsCreateDatasetResponse, DatasetsFilterPreviewData, DatasetsFilterPreviewResponse, DatasetsFilterClassStatsData, DatasetsFilterClassStatsResponse, DatasetsBuildNewDatasetData, DatasetsBuildNewDatasetResponse, DatasetsAddFilteredSamplesToDatasetData, DatasetsAddFilteredSamplesToDatasetResponse, DatasetsReadDatasetData, DatasetsReadDatasetResponse, DatasetsUpdateDatasetData, DatasetsUpdateDatasetResponse, DatasetsDeleteDatasetData, DatasetsDeleteDatasetResponse, DatasetsGetDatasetClassStatsData, DatasetsGetDatasetClassStatsResponse, DatasetsGetDatasetSamplesData, DatasetsGetDatasetSamplesResponse, DatasetsAddSamplesToDatasetData, DatasetsAddSamplesToDatasetResponse, DatasetsRemoveSamplesFromDatasetData, DatasetsRemoveSamplesFromDatasetResponse, DatasetsBuildDatasetData, DatasetsBuildDatasetResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, MinioInstancesReadMinioInstancesData, MinioInstancesReadMinioInstancesResponse, MinioInstancesCreateMinioInstanceEndpointData, MinioInstancesCreateMinioInstanceEndpointResponse, MinioInstancesReadMinioInstanceData, MinioInstancesReadMinioInstanceResponse, MinioInstancesUpdateMinioInstanceEndpointData, MinioInstancesUpdateMinioInstanceEndpointResponse, MinioInstancesDeleteMinioInstanceData, MinioInstancesDeleteMinioInstanceResponse, MinioInstancesTestMinioConnectionData, MinioInstancesTestMinioConnectionResponse, MinioInstancesListMinioBucketsData, MinioInstancesListMinioBucketsResponse, PrivateCreateUserData, PrivateCreateUserResponse, SamplesReadSamplesData, SamplesReadSamplesResponse, SamplesGetSampleThumbnailsData, SamplesGetSampleThumbnailsResponse, SamplesListImportTasksData, SamplesListImportTasksResponse, SamplesImportSamplesData, SamplesImportSamplesResponse, SamplesGetImportStatusData, SamplesGetImportStatusResponse, SamplesPreviewImportCsvData, SamplesPreviewImportCsvResponse, SamplesReadSampleData, SamplesReadSampleResponse, SamplesDeleteSampleData, SamplesDeleteSampleResponse, SamplesGetSamplePreviewUrlData, SamplesGetSamplePreviewUrlResponse, SamplesGetSamplePreviewData, SamplesGetSamplePreviewResponse, SamplesGetSampleHistoryData, SamplesGetSampleHistoryResponse, SamplesBatchTagSamplesData, SamplesBatchTagSamplesResponse, TaggingRulesReadTaggingRulesData, TaggingRulesReadTaggingRulesResponse, TaggingRulesCreateTaggingRuleData, TaggingRulesCreateTaggingRuleResponse, TaggingRulesPreviewPatternEndpointData, TaggingRulesPreviewPatternEndpointResponse, TaggingRulesReadTaggingRuleData, TaggingRulesReadTaggingRuleResponse, TaggingRulesUpdateTaggingRuleData, TaggingRulesUpdateTaggingRuleResponse, TaggingRulesDeleteTaggingRuleData, TaggingRulesDeleteTaggingRuleResponse, TaggingRulesExecuteTaggingRuleData, TaggingRulesExecuteTaggingRuleResponse, TaggingRulesPreviewTaggingRuleData, TaggingRulesPreviewTaggingRuleResponse, TagsReadTagsData, TagsReadTagsResponse, TagsCreateTagData, TagsCreateTagResponse, TagsGetTagTreeResponse, TagsGetTagsByCategoryResponse, TagsUpdateTagData, TagsUpdateTagResponse, TagsDeleteTagData, TagsDeleteTagResponse, TagsGetBusinessTagTreeResponse, TagsSearchBusinessTagData, TagsSearchBusinessTagResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, WatchedPathsReadWatchedPathsData, WatchedPathsReadWatchedPathsResponse, WatchedPathsCreateWatchedPathData, WatchedPathsCreateWatchedPathResponse, WatchedPathsUpdateWatchedPathData, WatchedPathsUpdateWatchedPathResponse, WatchedPathsDeleteWatchedPathData, WatchedPathsDeleteWatchedPathResponse, WatchedPathsSyncWatchedPathData, WatchedPathsSyncWatchedPathResponse, WebhooksReceiveMinioWebhookData, WebhooksReceiveMinioWebhookResponse } from './types.gen';
+import type { DashboardGetDashboardOverviewResponse, DashboardGetDailyStatsData, DashboardGetDailyStatsResponse, DashboardGetTagDistributionData, DashboardGetTagDistributionResponse, DatasetsReadDatasetsData, DatasetsReadDatasetsResponse, DatasetsCreateDatasetData, DatasetsCreateDatasetResponse, DatasetsFilterPreviewData, DatasetsFilterPreviewResponse, DatasetsFilterClassStatsData, DatasetsFilterClassStatsResponse, DatasetsBuildNewDatasetData, DatasetsBuildNewDatasetResponse, DatasetsAddFilteredSamplesToDatasetData, DatasetsAddFilteredSamplesToDatasetResponse, DatasetsReadDatasetData, DatasetsReadDatasetResponse, DatasetsUpdateDatasetData, DatasetsUpdateDatasetResponse, DatasetsDeleteDatasetData, DatasetsDeleteDatasetResponse, DatasetsGetDatasetClassStatsData, DatasetsGetDatasetClassStatsResponse, DatasetsGetDatasetSamplesData, DatasetsGetDatasetSamplesResponse, DatasetsAddSamplesToDatasetData, DatasetsAddSamplesToDatasetResponse, DatasetsRemoveSamplesFromDatasetData, DatasetsRemoveSamplesFromDatasetResponse, DatasetsBuildDatasetData, DatasetsBuildDatasetResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, MinioInstancesReadMinioInstancesData, MinioInstancesReadMinioInstancesResponse, MinioInstancesCreateMinioInstanceEndpointData, MinioInstancesCreateMinioInstanceEndpointResponse, MinioInstancesReadMinioInstanceData, MinioInstancesReadMinioInstanceResponse, MinioInstancesUpdateMinioInstanceEndpointData, MinioInstancesUpdateMinioInstanceEndpointResponse, MinioInstancesDeleteMinioInstanceData, MinioInstancesDeleteMinioInstanceResponse, MinioInstancesTestMinioConnectionData, MinioInstancesTestMinioConnectionResponse, MinioInstancesListMinioBucketsData, MinioInstancesListMinioBucketsResponse, PrivateCreateUserData, PrivateCreateUserResponse, SamplesReadSamplesData, SamplesReadSamplesResponse, SamplesGetStorageTreeResponse, SamplesGetSampleThumbnailsData, SamplesGetSampleThumbnailsResponse, SamplesListImportTasksData, SamplesListImportTasksResponse, SamplesImportSamplesData, SamplesImportSamplesResponse, SamplesGetImportStatusData, SamplesGetImportStatusResponse, SamplesPreviewImportCsvData, SamplesPreviewImportCsvResponse, SamplesReadSampleData, SamplesReadSampleResponse, SamplesDeleteSampleData, SamplesDeleteSampleResponse, SamplesGetSamplePreviewUrlData, SamplesGetSamplePreviewUrlResponse, SamplesGetSamplePreviewData, SamplesGetSamplePreviewResponse, SamplesGetSampleHistoryData, SamplesGetSampleHistoryResponse, SamplesBatchTagSamplesData, SamplesBatchTagSamplesResponse, TaggingRulesReadTaggingRulesData, TaggingRulesReadTaggingRulesResponse, TaggingRulesCreateTaggingRuleData, TaggingRulesCreateTaggingRuleResponse, TaggingRulesPreviewPatternEndpointData, TaggingRulesPreviewPatternEndpointResponse, TaggingRulesReadTaggingRuleData, TaggingRulesReadTaggingRuleResponse, TaggingRulesUpdateTaggingRuleData, TaggingRulesUpdateTaggingRuleResponse, TaggingRulesDeleteTaggingRuleData, TaggingRulesDeleteTaggingRuleResponse, TaggingRulesExecuteTaggingRuleData, TaggingRulesExecuteTaggingRuleResponse, TaggingRulesPreviewTaggingRuleData, TaggingRulesPreviewTaggingRuleResponse, TagsReadTagsData, TagsReadTagsResponse, TagsCreateTagData, TagsCreateTagResponse, TagsGetTagTreeResponse, TagsGetTagsByCategoryResponse, TagsUpdateTagData, TagsUpdateTagResponse, TagsDeleteTagData, TagsDeleteTagResponse, TagsGetBusinessTagTreeResponse, TagsGetBusinessTagTreeWithCountsResponse, TagsSearchBusinessTagData, TagsSearchBusinessTagResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, WatchedPathsReadWatchedPathsData, WatchedPathsReadWatchedPathsResponse, WatchedPathsCreateWatchedPathData, WatchedPathsCreateWatchedPathResponse, WatchedPathsUpdateWatchedPathData, WatchedPathsUpdateWatchedPathResponse, WatchedPathsDeleteWatchedPathData, WatchedPathsDeleteWatchedPathResponse, WatchedPathsSyncWatchedPathData, WatchedPathsSyncWatchedPathResponse, WebhooksReceiveMinioWebhookData, WebhooksReceiveMinioWebhookResponse } from './types.gen';
 
 export class DashboardService {
     /**
@@ -671,12 +671,18 @@ export class SamplesService {
      * - annotation_status: Filter by annotation status (none, linked, conflict, error)
      * - search: Fuzzy search on file_name
      * - sort: Field to sort by, prefix with - for descending (default: -created_at)
+     * - prefix: Filter by object_key prefix (folder path)
+     * - business_tag_id: Filter by specific business tag
+     * - uncategorized_level: Filter samples without business tags at specified level
+     * - Level 0: Samples with no business tags at all
+     * - Level N: Samples with level N-1 business tags but no level N tags
      * @param data The data for the request.
      * @param data.skip
      * @param data.limit
      * @param data.status
      * @param data.minioInstanceId
      * @param data.bucket
+     * @param data.prefix
      * @param data.tagId
      * @param data.search
      * @param data.tagFilter
@@ -684,6 +690,8 @@ export class SamplesService {
      * @param data.dateTo
      * @param data.annotationStatus
      * @param data.sort
+     * @param data.businessTagId
+     * @param data.uncategorizedLevel
      * @returns SampleListResponse Successful Response
      * @throws ApiError
      */
@@ -697,17 +705,36 @@ export class SamplesService {
                 status: data.status,
                 minio_instance_id: data.minioInstanceId,
                 bucket: data.bucket,
+                prefix: data.prefix,
                 tag_id: data.tagId,
                 search: data.search,
                 tag_filter: data.tagFilter,
                 date_from: data.dateFrom,
                 date_to: data.dateTo,
                 annotation_status: data.annotationStatus,
-                sort: data.sort
+                sort: data.sort,
+                business_tag_id: data.businessTagId,
+                uncategorized_level: data.uncategorizedLevel
             },
             errors: {
                 422: 'Validation Error'
             }
+        });
+    }
+    
+    /**
+     * Get Storage Tree
+     * Get hierarchical storage path tree.
+     *
+     * Returns a tree structure of: MinIO Instance > Bucket > Folder hierarchy
+     * with sample counts at each level.
+     * @returns StorageTreeNode Successful Response
+     * @throws ApiError
+     */
+    public static getStorageTree(): CancelablePromise<SamplesGetStorageTreeResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/samples/storage-tree'
         });
     }
     
@@ -768,9 +795,8 @@ export class SamplesService {
      * For MVP, this is synchronous. Will be upgraded to async with Redis later.
      *
      * Args:
-     * file: CSV file with object_key column (required), tags column (optional)
+     * file: CSV file with object_key and bucket columns (required), tags column (optional)
      * minio_instance_id: MinIO instance to import from
-     * bucket: Default bucket name (optional if bucket column exists in CSV)
      * validate_files: Whether to validate file existence via HEAD request
      *
      * Returns:
@@ -1008,6 +1034,8 @@ export class TaggingRulesService {
      * Create Tagging Rule
      * Create a new tagging rule.
      *
+     * Pattern is a regex matched against full path: {bucket}/{object_key}
+     *
      * Args:
      * execute_immediately: If True, execute the rule immediately after creation.
      * @param data The data for the request.
@@ -1035,6 +1063,7 @@ export class TaggingRulesService {
      * Preview Pattern Endpoint
      * Preview samples matching a pattern without creating a rule.
      *
+     * Pattern is a regex matched against full path: {bucket}/{object_key}
      * Supports pagination with skip and limit parameters.
      * @param data The data for the request.
      * @param data.requestBody
@@ -1319,6 +1348,23 @@ export class TagsService {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/v1/tags/business/tree'
+        });
+    }
+    
+    /**
+     * Get Business Tag Tree With Counts
+     * Get business tags as a tree structure with sample counts.
+     *
+     * Each node includes:
+     * - count: Direct sample count (samples tagged with this specific tag)
+     * - total_count: Total including all descendants
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static getBusinessTagTreeWithCounts(): CancelablePromise<TagsGetBusinessTagTreeWithCountsResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/tags/business/tree-with-counts'
         });
     }
     

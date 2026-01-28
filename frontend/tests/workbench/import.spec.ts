@@ -115,7 +115,7 @@ test.describe("Import Wizard", () => {
     await page.getByTestId("file-input").setInputFiles({
       name: "test.csv",
       mimeType: "text/csv",
-      buffer: Buffer.from("object_key\ntest.jpg"),
+      buffer: Buffer.from("object_key,bucket\ntest.jpg,test-bucket"),
     })
 
     // Go to step 2
@@ -127,24 +127,10 @@ test.describe("Import Wizard", () => {
     // Go to step 3
     await page.getByRole("button", { name: /下一步/ }).click()
 
-    // Check MinIO selector
+    // Check MinIO selector is visible
     await expect(page.getByTestId("minio-instance-select")).toBeVisible()
-    await expect(page.getByTestId("bucket-input")).toBeVisible()
-  })
-
-  test("step 3 shows bucket input field", async ({ page }) => {
-    await page.getByTestId("file-input").setInputFiles({
-      name: "test.csv",
-      mimeType: "text/csv",
-      buffer: Buffer.from("object_key\ntest.jpg"),
-    })
-
-    await page.getByRole("button", { name: /下一步/ }).click()
-    await expect(page.getByText("总行数")).toBeVisible({ timeout: 15000 })
-
-    await page.getByRole("button", { name: /下一步/ }).click()
-
-    await expect(page.getByTestId("bucket-input")).toBeVisible()
+    // Bucket hint text should be visible
+    await expect(page.getByText("存储桶将从 CSV 文件的 bucket 列读取")).toBeVisible()
   })
 
   test("step 3 shows start import button", async ({ page }) => {

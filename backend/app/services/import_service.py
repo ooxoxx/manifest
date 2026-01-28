@@ -166,7 +166,6 @@ def import_samples_from_csv(
     file: BinaryIO,
     minio_instance_id: uuid.UUID,
     owner_id: uuid.UUID,
-    bucket: str | None = None,
     validate_files: bool = True,
     batch_size: int = 500,
 ) -> ImportResult:
@@ -177,7 +176,6 @@ def import_samples_from_csv(
         file: CSV file
         minio_instance_id: MinIO instance ID
         owner_id: Owner user ID
-        bucket: Default bucket name (optional, overrides CSV column)
         validate_files: Whether to validate file existence via HEAD request
         batch_size: Batch size for processing
 
@@ -190,7 +188,6 @@ def import_samples_from_csv(
         df=df,
         minio_instance_id=minio_instance_id,
         owner_id=owner_id,
-        bucket=bucket,
         validate_files=validate_files,
         batch_size=batch_size,
     )
@@ -202,7 +199,6 @@ def import_samples_from_excel(
     file: BinaryIO,
     minio_instance_id: uuid.UUID,
     owner_id: uuid.UUID,
-    bucket: str | None = None,
     validate_files: bool = True,
     batch_size: int = 500,
 ) -> ImportResult:
@@ -213,7 +209,6 @@ def import_samples_from_excel(
         file: Excel file
         minio_instance_id: MinIO instance ID
         owner_id: Owner user ID
-        bucket: Default bucket name (optional, overrides CSV column)
         validate_files: Whether to validate file existence via HEAD request
         batch_size: Batch size for processing
 
@@ -226,7 +221,6 @@ def import_samples_from_excel(
         df=df,
         minio_instance_id=minio_instance_id,
         owner_id=owner_id,
-        bucket=bucket,
         validate_files=validate_files,
         batch_size=batch_size,
     )
@@ -238,7 +232,6 @@ def _import_samples_from_dataframe(
     df: pd.DataFrame,
     minio_instance_id: uuid.UUID,
     owner_id: uuid.UUID,
-    bucket: str | None = None,
     validate_files: bool = True,
     batch_size: int = 500,
 ) -> ImportResult:
@@ -252,10 +245,9 @@ def _import_samples_from_dataframe(
 
     Args:
         session: Database session
-        df: DataFrame with object_key (required), tags (optional), bucket (optional)
+        df: DataFrame with object_key and bucket (required), tags (optional)
         minio_instance_id: MinIO instance ID
         owner_id: Owner user ID
-        bucket: Default bucket (used if no bucket column)
         validate_files: Whether to validate file existence
         batch_size: Batch size for processing
 
@@ -266,10 +258,8 @@ def _import_samples_from_dataframe(
     if "object_key" not in df.columns:
         raise ValueError("Missing required column: object_key")
 
-    # Determine bucket source
-    has_bucket_column = "bucket" in df.columns
-    if not has_bucket_column and not bucket:
-        raise ValueError("Either 'bucket' column in CSV or bucket parameter is required")
+    if "bucket" not in df.columns:
+        raise ValueError("Missing required column: bucket")
 
     has_tags_column = "tags" in df.columns
 
@@ -301,7 +291,7 @@ def _import_samples_from_dataframe(
         for row in batch:
             try:
                 object_key = str(row["object_key"])
-                row_bucket = str(row["bucket"]) if has_bucket_column and pd.notna(row.get("bucket")) else bucket
+                row_bucket = str(row["bucket"]) if pd.notna(row.get("bucket")) else None
                 if not row_bucket:
                     result.errors += 1
                     result.error_details.append(f"No bucket for: {object_key}")
@@ -425,7 +415,7 @@ def _import_samples_from_dataframe(
         for row in batch:
             try:
                 object_key = str(row["object_key"])
-                row_bucket = str(row["bucket"]) if has_bucket_column and pd.notna(row.get("bucket")) else bucket
+                row_bucket = str(row["bucket"]) if pd.notna(row.get("bucket")) else None
                 if not row_bucket:
                     continue
 
