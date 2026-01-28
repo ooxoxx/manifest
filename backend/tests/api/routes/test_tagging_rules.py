@@ -199,9 +199,9 @@ class TestCreateTaggingRule:
 
         assert response.status_code == 200
         data = response.json()
-        assert data["name"] == "新建文件名规则"
-        assert data["rule_type"] == "regex_filename"
-        assert data["is_active"] is True
+        assert data["rule"]["name"] == "新建文件名规则"
+        assert data["rule"]["rule_type"] == "regex_filename"
+        assert data["rule"]["is_active"] is True
 
     def test_create_file_extension_rule(
         self,
@@ -223,7 +223,7 @@ class TestCreateTaggingRule:
 
         assert response.status_code == 200
         data = response.json()
-        assert data["rule_type"] == "file_extension"
+        assert data["rule"]["rule_type"] == "file_extension"
 
     def test_create_bucket_rule(
         self,
@@ -245,7 +245,7 @@ class TestCreateTaggingRule:
 
         assert response.status_code == 200
         data = response.json()
-        assert data["rule_type"] == "bucket"
+        assert data["rule"]["rule_type"] == "bucket"
 
     def test_create_rule_with_auto_execute(
         self,
@@ -268,7 +268,7 @@ class TestCreateTaggingRule:
 
         assert response.status_code == 200
         data = response.json()
-        assert data["auto_execute"] is True
+        assert data["rule"]["auto_execute"] is True
 
 
 class TestUpdateTaggingRule:

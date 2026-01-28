@@ -250,6 +250,22 @@ export type NewPassword = {
     new_password: string;
 };
 
+/**
+ * Request for previewing a pattern without creating a rule.
+ */
+export type PatternPreviewRequest = {
+    rule_type: TaggingRuleType;
+    pattern: string;
+};
+
+/**
+ * Result of previewing a pattern.
+ */
+export type PatternPreviewResult = {
+    total_matched: number;
+    samples: Array<SamplePublic>;
+};
+
 export type PrivateUserCreate = {
     email: string;
     password: string;
@@ -462,6 +478,14 @@ export type TaggingRuleCreate = {
     is_active?: boolean;
     auto_execute?: boolean;
     tag_ids: Array<(string)>;
+};
+
+/**
+ * Result of creating a tagging rule with optional execution.
+ */
+export type TaggingRuleCreateResult = {
+    rule: TaggingRulePublic;
+    execution_result?: (TaggingRuleExecuteResult | null);
 };
 
 /**
@@ -992,10 +1016,19 @@ export type TaggingRulesReadTaggingRulesData = {
 export type TaggingRulesReadTaggingRulesResponse = (TaggingRulesPublic);
 
 export type TaggingRulesCreateTaggingRuleData = {
+    executeImmediately?: boolean;
     requestBody: TaggingRuleCreate;
 };
 
-export type TaggingRulesCreateTaggingRuleResponse = (TaggingRulePublic);
+export type TaggingRulesCreateTaggingRuleResponse = (TaggingRuleCreateResult);
+
+export type TaggingRulesPreviewPatternEndpointData = {
+    limit?: number;
+    requestBody: PatternPreviewRequest;
+    skip?: number;
+};
+
+export type TaggingRulesPreviewPatternEndpointResponse = (PatternPreviewResult);
 
 export type TaggingRulesReadTaggingRuleData = {
     id: string;

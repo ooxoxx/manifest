@@ -962,6 +962,43 @@ export const NewPasswordSchema = {
     title: 'NewPassword'
 } as const;
 
+export const PatternPreviewRequestSchema = {
+    properties: {
+        rule_type: {
+            '$ref': '#/components/schemas/TaggingRuleType'
+        },
+        pattern: {
+            type: 'string',
+            maxLength: 1024,
+            title: 'Pattern'
+        }
+    },
+    type: 'object',
+    required: ['rule_type', 'pattern'],
+    title: 'PatternPreviewRequest',
+    description: 'Request for previewing a pattern without creating a rule.'
+} as const;
+
+export const PatternPreviewResultSchema = {
+    properties: {
+        total_matched: {
+            type: 'integer',
+            title: 'Total Matched'
+        },
+        samples: {
+            items: {
+                '$ref': '#/components/schemas/SamplePublic'
+            },
+            type: 'array',
+            title: 'Samples'
+        }
+    },
+    type: 'object',
+    required: ['total_matched', 'samples'],
+    title: 'PatternPreviewResult',
+    description: 'Result of previewing a pattern.'
+} as const;
+
 export const PrivateUserCreateSchema = {
     properties: {
         email: {
@@ -2073,6 +2110,28 @@ export const TaggingRuleCreateSchema = {
     required: ['name', 'rule_type', 'pattern', 'tag_ids'],
     title: 'TaggingRuleCreate',
     description: 'Properties to receive on tagging rule creation.'
+} as const;
+
+export const TaggingRuleCreateResultSchema = {
+    properties: {
+        rule: {
+            '$ref': '#/components/schemas/TaggingRulePublic'
+        },
+        execution_result: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/TaggingRuleExecuteResult'
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        }
+    },
+    type: 'object',
+    required: ['rule'],
+    title: 'TaggingRuleCreateResult',
+    description: 'Result of creating a tagging rule with optional execution.'
 } as const;
 
 export const TaggingRuleExecuteResultSchema = {

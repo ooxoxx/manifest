@@ -1,5 +1,6 @@
 """Tagging rules API routes."""
 
+import re
 import uuid
 from datetime import datetime
 from typing import Any
@@ -10,8 +11,11 @@ from sqlmodel import func, select
 from app.api.deps import CurrentUser, SessionDep
 from app.models import (
     Message,
+    PatternPreviewRequest,
+    PatternPreviewResult,
     TaggingRule,
     TaggingRuleCreate,
+    TaggingRuleCreateResult,
     TaggingRulePublic,
     TaggingRulesPublic,
     TaggingRuleUpdate,
@@ -19,7 +23,7 @@ from app.models import (
     TaggingRulePreviewResult,
     SamplePublic,
 )
-from app.services.auto_tagging_service import execute_rule, preview_rule
+from app.services.auto_tagging_service import execute_rule, preview_rule, preview_pattern
 
 router = APIRouter(prefix="/tagging-rules", tags=["tagging-rules"])
 
@@ -50,6 +54,42 @@ def read_tagging_rules(
     return TaggingRulesPublic(data=rules, count=count)
 
 
+@router.post("/preview-pattern", response_model=PatternPreviewResult)
+def preview_pattern_endpoint(
+    session: SessionDep,
+    current_user: CurrentUser,
+    request: PatternPreviewRequest,
+    skip: int = 0,
+    limit: int = 20,
+) -> Any:
+    """Preview samples matching a pattern without creating a rule.
+
+    Supports pagination with skip and limit parameters.
+    """
+    # Validate regex pattern for regex rule types
+    if request.rule_type in ("regex_filename", "regex_path"):
+        try:
+            re.compile(request.pattern)
+        except re.error as e:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid regex pattern: {str(e)}",
+            )
+
+    result = preview_pattern(
+        session,
+        owner_id=current_user.id,
+        rule_type=request.rule_type,
+        pattern=request.pattern,
+        skip=skip,
+        limit=limit,
+    )
+    return PatternPreviewResult(
+        total_matched=result["total_matched"],
+        samples=[SamplePublic.model_validate(s) for s in result["samples"]],
+    )
+
+
 @router.get("/{id}", response_model=TaggingRulePublic)
 def read_tagging_rule(
     session: SessionDep,
@@ -65,13 +105,18 @@ def read_tagging_rule(
     return rule
 
 
-@router.post("/", response_model=TaggingRulePublic)
+@router.post("/", response_model=TaggingRuleCreateResult)
 def create_tagging_rule(
     session: SessionDep,
     current_user: CurrentUser,
     rule_in: TaggingRuleCreate,
+    execute_immediately: bool = False,
 ) -> Any:
-    """Create a new tagging rule."""
+    """Create a new tagging rule.
+
+    Args:
+        execute_immediately: If True, execute the rule immediately after creation.
+    """
     rule = TaggingRule(
         name=rule_in.name,
         description=rule_in.description,
@@ -85,7 +130,20 @@ def create_tagging_rule(
     session.add(rule)
     session.commit()
     session.refresh(rule)
-    return rule
+
+    execution_result = None
+    if execute_immediately:
+        result = execute_rule(session, rule, dry_run=False)
+        execution_result = TaggingRuleExecuteResult(
+            matched=result["matched"],
+            tagged=result["tagged"],
+            skipped=result["skipped"],
+        )
+
+    return TaggingRuleCreateResult(
+        rule=TaggingRulePublic.model_validate(rule),
+        execution_result=execution_result,
+    )
 
 
 @router.put("/{id}", response_model=TaggingRulePublic)

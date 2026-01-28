@@ -23,6 +23,7 @@ import {
 import { PendingComponent } from "@/components/Pending/PendingComponent"
 import AddTaggingRule from "@/components/Tags/AddTaggingRule"
 import RulePreviewDialog from "@/components/Tags/RulePreviewDialog"
+import TaggingRuleWizard from "@/components/Tags/TaggingRuleWizard"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -237,7 +238,7 @@ function RulesContent({ onAddClick }: { onAddClick: () => void }) {
 }
 
 export default function TaggingRulesManager() {
-  const [isAddOpen, setIsAddOpen] = useState(false)
+  const [isWizardOpen, setIsWizardOpen] = useState(false)
 
   return (
     <div className="flex flex-col gap-6">
@@ -259,7 +260,7 @@ export default function TaggingRulesManager() {
               定义规则自动为样本打标签，支持手动执行或新样本入库时自动执行
             </p>
           </div>
-          <Button onClick={() => setIsAddOpen(true)}>
+          <Button onClick={() => setIsWizardOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             新建规则
           </Button>
@@ -267,10 +268,10 @@ export default function TaggingRulesManager() {
       </div>
 
       <Suspense fallback={<PendingComponent />}>
-        <RulesContent onAddClick={() => setIsAddOpen(true)} />
+        <RulesContent onAddClick={() => setIsWizardOpen(true)} />
       </Suspense>
 
-      <AddTaggingRule open={isAddOpen} onOpenChange={setIsAddOpen} />
+      <TaggingRuleWizard open={isWizardOpen} onOpenChange={setIsWizardOpen} />
     </div>
   )
 }

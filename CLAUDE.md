@@ -215,3 +215,8 @@ PLAYWRIGHT_BASE_URL=http://127.0.0.1:5273 npx playwright test --ui
     - Secret Key: `minioadmin`
     - Secure: `false`
 - 前端调用后端API必须使用openapi客户端，而不是fetch某个url。每当你更新了后端api，就应该运行`scripts/generate-client.sh`重新生成前端openapi客户端，以保证协议的一致性。这个脚本需要先使用`backend/.venv/bin/activate`激活python开发环境才能运行，否则会有环境错误。
+- **CRITICAL: E2E 测试通过后重建前端镜像**
+  - 当涉及前端改动且 E2E 测试通过后，必须重建前端 Docker 镜像
+  - 运行 `docker compose build frontend` 或 `docker compose up -d --build frontend`
+  - 这确保 `docker compose watch` 能够正常加载最新的前端改动
+  - 如果不重建，watch 模式可能仍在使用旧的镜像缓存

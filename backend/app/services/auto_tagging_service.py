@@ -276,6 +276,49 @@ def preview_rule(
     }
 
 
+def preview_pattern(
+    session: Session,
+    owner_id: UUID,
+    rule_type: TaggingRuleType,
+    pattern: str,
+    skip: int = 0,
+    limit: int = 20,
+) -> dict:
+    """
+    Preview which samples would match a pattern without creating a rule.
+
+    Args:
+        session: Database session
+        owner_id: Owner ID to filter samples
+        rule_type: Type of rule to apply
+        pattern: Pattern to match
+        skip: Number of samples to skip (pagination)
+        limit: Maximum number of samples to return
+
+    Returns:
+        Dict with total_matched count and paginated sample previews
+    """
+    # Create a temporary rule object for matching
+    temp_rule = TaggingRule(
+        name="temp",
+        rule_type=rule_type,
+        pattern=pattern,
+        tag_ids=[],
+        owner_id=owner_id,
+    )
+
+    samples = session.exec(
+        select(Sample).where(Sample.owner_id == owner_id)
+    ).all()
+
+    matching = [s for s in samples if matches_rule(s, temp_rule)]
+
+    return {
+        "total_matched": len(matching),
+        "samples": matching[skip : skip + limit],
+    }
+
+
 def apply_auto_rules_to_sample(
     session: Session,
     sample: Sample,

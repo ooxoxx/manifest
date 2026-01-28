@@ -466,6 +466,27 @@ class TaggingRulePreviewResult(SQLModel):
     samples: list["SamplePublic"]
 
 
+class PatternPreviewRequest(SQLModel):
+    """Request for previewing a pattern without creating a rule."""
+
+    rule_type: TaggingRuleType
+    pattern: str = Field(max_length=1024)
+
+
+class PatternPreviewResult(SQLModel):
+    """Result of previewing a pattern."""
+
+    total_matched: int
+    samples: list["SamplePublic"]
+
+
+class TaggingRuleCreateResult(SQLModel):
+    """Result of creating a tagging rule with optional execution."""
+
+    rule: TaggingRulePublic
+    execution_result: TaggingRuleExecuteResult | None = None
+
+
 # ============================================================================
 # Annotation Models
 # ============================================================================
