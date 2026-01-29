@@ -3,6 +3,7 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query"
+import { Link } from "@tanstack/react-router"
 import {
   Filter,
   MoreHorizontal,
@@ -23,7 +24,6 @@ import {
 import { PendingComponent } from "@/components/Pending/PendingComponent"
 import AddTaggingRule from "@/components/Tags/AddTaggingRule"
 import RulePreviewDialog from "@/components/Tags/RulePreviewDialog"
-import TaggingRuleWizard from "@/components/Tags/TaggingRuleWizard"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -36,7 +36,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Switch } from "@/components/ui/switch"
 import useCustomToast from "@/hooks/useCustomToast"
-import { getRuleTypeLabel } from "@/lib/ruleTypes"
 
 function RuleCard({
   rule,
@@ -112,11 +111,9 @@ function RuleCard({
               )}
             </div>
             <div className="text-sm text-muted-foreground mb-2">
-              <span className="font-mono bg-muted px-1.5 py-0.5 rounded">
-                {getRuleTypeLabel(rule.rule_type)}
-              </span>
-              <span className="mx-2">:</span>
-              <code className="text-xs">{rule.pattern}</code>
+              <code className="text-xs bg-muted px-1.5 py-0.5 rounded">
+                {rule.pattern}
+              </code>
             </div>
             {rule.description && (
               <p className="text-sm text-muted-foreground mb-2">
@@ -182,7 +179,7 @@ function RuleCard({
   )
 }
 
-function RulesContent({ onAddClick }: { onAddClick: () => void }) {
+function RulesContent() {
   const [editingRule, setEditingRule] = useState<TaggingRulePublic | null>(null)
   const [previewRule, setPreviewRule] = useState<TaggingRulePublic | null>(null)
 
@@ -203,9 +200,11 @@ function RulesContent({ onAddClick }: { onAddClick: () => void }) {
             <p className="text-sm text-muted-foreground mb-4 text-center">
               创建规则来自动为样本打标签
             </p>
-            <Button onClick={onAddClick}>
-              <Plus className="h-4 w-4 mr-2" />
-              新建规则
+            <Button asChild>
+              <Link to="/settings/tagging-rules/new">
+                <Plus className="h-4 w-4 mr-2" />
+                新建规则
+              </Link>
             </Button>
           </CardContent>
         </Card>
@@ -238,8 +237,6 @@ function RulesContent({ onAddClick }: { onAddClick: () => void }) {
 }
 
 export default function TaggingRulesManager() {
-  const [isWizardOpen, setIsWizardOpen] = useState(false)
-
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
@@ -260,18 +257,18 @@ export default function TaggingRulesManager() {
               定义规则自动为样本打标签，支持手动执行或新样本入库时自动执行
             </p>
           </div>
-          <Button onClick={() => setIsWizardOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            新建规则
+          <Button asChild>
+            <Link to="/settings/tagging-rules/new">
+              <Plus className="h-4 w-4 mr-2" />
+              新建规则
+            </Link>
           </Button>
         </div>
       </div>
 
       <Suspense fallback={<PendingComponent />}>
-        <RulesContent onAddClick={() => setIsWizardOpen(true)} />
+        <RulesContent />
       </Suspense>
-
-      <TaggingRuleWizard open={isWizardOpen} onOpenChange={setIsWizardOpen} />
     </div>
   )
 }

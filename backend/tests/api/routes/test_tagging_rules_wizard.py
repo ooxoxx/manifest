@@ -1,4 +1,8 @@
-"""Tests for tagging rules wizard API endpoints."""
+"""Tests for tagging rules wizard API endpoints.
+
+Tagging rules use full-path regex matching against: {bucket}/{object_key}
+Example: test-bucket/train/images/IMG_001.jpg
+"""
 
 import uuid
 
@@ -14,7 +18,6 @@ from app.models import (
     Tag,
     TagCategory,
     TaggingRule,
-    TaggingRuleType,
     User,
 )
 
@@ -152,21 +155,23 @@ def test_tags(db: Session, superuser: User) -> list[Tag]:
 
 
 class TestPreviewPattern:
-    """Tests for preview pattern endpoint (without creating a rule first)."""
+    """Tests for preview pattern endpoint (without creating a rule first).
 
-    def test_preview_regex_filename_pattern(
+    All patterns are full-path regex matching against: {bucket}/{object_key}
+    """
+
+    def test_preview_full_path_pattern(
         self,
         client: TestClient,
         superuser_token_headers: dict,
         test_samples: list[Sample],
     ):
-        """Should preview samples matching a regex filename pattern."""
+        """Should preview samples matching a full-path regex pattern."""
         response = client.post(
             f"{settings.API_V1_STR}/tagging-rules/preview-pattern",
             headers=superuser_token_headers,
             json={
-                "rule_type": "regex_filename",
-                "pattern": r"^IMG_.*\.jpg$",
+                "pattern": r"test-bucket/train/.*",
             },
         )
 
@@ -176,51 +181,30 @@ class TestPreviewPattern:
         assert "samples" in data
         assert data["total_matched"] == 2
         assert len(data["samples"]) == 2
-        # Verify matched samples have IMG_ prefix
-        for sample in data["samples"]:
-            assert sample["file_name"].startswith("IMG_")
-
-    def test_preview_regex_path_pattern(
-        self,
-        client: TestClient,
-        superuser_token_headers: dict,
-        test_samples: list[Sample],
-    ):
-        """Should preview samples matching a regex path pattern."""
-        response = client.post(
-            f"{settings.API_V1_STR}/tagging-rules/preview-pattern",
-            headers=superuser_token_headers,
-            json={
-                "rule_type": "regex_path",
-                "pattern": r"^train/.*",
-            },
-        )
-
-        assert response.status_code == 200
-        data = response.json()
-        assert data["total_matched"] == 2
+        # Verify matched samples are from train directory
         for sample in data["samples"]:
             assert sample["object_key"].startswith("train/")
 
-    def test_preview_file_extension_pattern(
+    def test_preview_filename_pattern(
         self,
         client: TestClient,
         superuser_token_headers: dict,
         test_samples: list[Sample],
     ):
-        """Should preview samples matching a file extension pattern."""
+        """Should preview samples matching filename in full path."""
         response = client.post(
             f"{settings.API_V1_STR}/tagging-rules/preview-pattern",
             headers=superuser_token_headers,
             json={
-                "rule_type": "file_extension",
-                "pattern": "jpg",
+                "pattern": r".*/IMG_.*\.jpg$",
             },
         )
 
         assert response.status_code == 200
         data = response.json()
         assert data["total_matched"] == 2
+        for sample in data["samples"]:
+            assert sample["file_name"].startswith("IMG_")
 
     def test_preview_bucket_pattern(
         self,
@@ -228,13 +212,12 @@ class TestPreviewPattern:
         superuser_token_headers: dict,
         test_samples: list[Sample],
     ):
-        """Should preview samples matching a bucket pattern."""
+        """Should preview samples matching bucket prefix."""
         response = client.post(
             f"{settings.API_V1_STR}/tagging-rules/preview-pattern",
             headers=superuser_token_headers,
             json={
-                "rule_type": "bucket",
-                "pattern": "other-bucket",
+                "pattern": r"^other-bucket/.*",
             },
         )
 
@@ -243,26 +226,25 @@ class TestPreviewPattern:
         assert data["total_matched"] == 1
         assert data["samples"][0]["bucket"] == "other-bucket"
 
-    def test_preview_content_type_pattern(
+    def test_preview_extension_pattern(
         self,
         client: TestClient,
         superuser_token_headers: dict,
         test_samples: list[Sample],
     ):
-        """Should preview samples matching a content type pattern."""
+        """Should preview samples matching file extension."""
         response = client.post(
             f"{settings.API_V1_STR}/tagging-rules/preview-pattern",
             headers=superuser_token_headers,
             json={
-                "rule_type": "content_type",
-                "pattern": "image/png",
+                "pattern": r".*\.png$",
             },
         )
 
         assert response.status_code == 200
         data = response.json()
         assert data["total_matched"] == 1
-        assert data["samples"][0]["content_type"] == "image/png"
+        assert data["samples"][0]["file_name"].endswith(".png")
 
     def test_preview_with_pagination(
         self,
@@ -276,8 +258,7 @@ class TestPreviewPattern:
             f"{settings.API_V1_STR}/tagging-rules/preview-pattern?skip=0&limit=1",
             headers=superuser_token_headers,
             json={
-                "rule_type": "regex_filename",
-                "pattern": r"^IMG_.*\.jpg$",
+                "pattern": r".*/IMG_.*\.jpg$",
             },
         )
 
@@ -291,8 +272,7 @@ class TestPreviewPattern:
             f"{settings.API_V1_STR}/tagging-rules/preview-pattern?skip=1&limit=1",
             headers=superuser_token_headers,
             json={
-                "rule_type": "regex_filename",
-                "pattern": r"^IMG_.*\.jpg$",
+                "pattern": r".*/IMG_.*\.jpg$",
             },
         )
 
@@ -312,7 +292,6 @@ class TestPreviewPattern:
             f"{settings.API_V1_STR}/tagging-rules/preview-pattern",
             headers=superuser_token_headers,
             json={
-                "rule_type": "regex_filename",
                 "pattern": r"^NONEXISTENT_.*$",
             },
         )
@@ -332,7 +311,6 @@ class TestPreviewPattern:
             f"{settings.API_V1_STR}/tagging-rules/preview-pattern",
             headers=superuser_token_headers,
             json={
-                "rule_type": "regex_filename",
                 "pattern": r"[invalid(regex",
             },
         )
@@ -342,7 +320,10 @@ class TestPreviewPattern:
 
 
 class TestCreateWithExecuteImmediately:
-    """Tests for create tagging rule with execute_immediately option."""
+    """Tests for create tagging rule with execute_immediately option.
+
+    All patterns are full-path regex matching against: {bucket}/{object_key}
+    """
 
     def test_create_and_execute_immediately(
         self,
@@ -358,8 +339,7 @@ class TestCreateWithExecuteImmediately:
             headers=superuser_token_headers,
             json={
                 "name": f"wizard_test_rule_{uuid.uuid4().hex[:8]}",
-                "rule_type": "regex_filename",
-                "pattern": r"^IMG_.*\.jpg$",
+                "pattern": r".*/IMG_.*\.jpg$",
                 "tag_ids": [str(test_tags[0].id)],
             },
         )
@@ -396,8 +376,7 @@ class TestCreateWithExecuteImmediately:
             headers=superuser_token_headers,
             json={
                 "name": f"wizard_test_rule_no_exec_{uuid.uuid4().hex[:8]}",
-                "rule_type": "file_extension",
-                "pattern": "jpg",
+                "pattern": r".*\.jpg$",
                 "tag_ids": [str(test_tags[0].id)],
             },
         )
@@ -431,8 +410,7 @@ class TestCreateWithExecuteImmediately:
             headers=superuser_token_headers,
             json={
                 "name": f"wizard_test_rule_default_{uuid.uuid4().hex[:8]}",
-                "rule_type": "bucket",
-                "pattern": "test-bucket",
+                "pattern": r"^test-bucket/.*",
                 "tag_ids": [str(test_tags[0].id)],
             },
         )

@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useNavigate } from "@tanstack/react-router"
 import {
   ArrowLeft,
   ArrowRight,
@@ -8,6 +9,7 @@ import {
   ChevronRight,
   Loader2,
   Search,
+  X,
 } from "lucide-react"
 import { Suspense, useState } from "react"
 import { useForm } from "react-hook-form"
@@ -26,7 +28,6 @@ import { Checkbox } from "@/components/ui/checkbox"
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
@@ -41,28 +42,13 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Textarea } from "@/components/ui/textarea"
 import useCustomToast from "@/hooks/useCustomToast"
-import { getRuleTypeConfig, RULE_TYPES } from "@/lib/ruleTypes"
 import { cn } from "@/lib/utils"
 
 // Form schema for the wizard
 const wizardSchema = z.object({
-  rule_type: z.enum([
-    "regex_filename",
-    "regex_path",
-    "file_extension",
-    "bucket",
-    "content_type",
-  ] as const),
   pattern: z.string().min(1, "请输入匹配模式"),
   tag_ids: z.array(z.string()).min(1, "请至少选择一个标签"),
   name: z.string().min(1, "请输入规则名称"),
@@ -72,11 +58,6 @@ const wizardSchema = z.object({
 })
 
 type WizardFormData = z.infer<typeof wizardSchema>
-
-interface Props {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-}
 
 const STEPS = [
   { id: 1, title: "匹配模式", description: "定义规则和预览样本" },
@@ -123,10 +104,30 @@ function StepIndicator({
   )
 }
 
+// Sample preview card for the grid
+function SamplePreviewCard({
+  sample,
+  onClick,
+}: {
+  sample: SamplePublic
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="aspect-square rounded border overflow-hidden hover:ring-2 hover:ring-primary transition-all bg-muted"
+    >
+      <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground p-1 text-center break-all">
+        {sample.file_name}
+      </div>
+    </button>
+  )
+}
+
 // Step 1: Pattern & Preview
 function Step1PatternPreview({
   form,
-  ruleTypeConfig,
   previewQuery,
   previewPage,
   setPreviewPage,
@@ -135,7 +136,6 @@ function Step1PatternPreview({
   setSelectedSampleId,
 }: {
   form: ReturnType<typeof useForm<WizardFormData>>
-  ruleTypeConfig: ReturnType<typeof getRuleTypeConfig>
   previewQuery: ReturnType<typeof useQuery<PatternPreviewResult>>
   previewPage: number
   setPreviewPage: (page: number) => void
@@ -145,49 +145,29 @@ function Step1PatternPreview({
 }) {
   return (
     <div className="flex-1 overflow-auto space-y-4">
-      {/* Rule type and pattern inputs */}
-      <div className="grid grid-cols-2 gap-4">
-        <FormField
-          control={form.control}
-          name="rule_type"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>规则类型</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="选择规则类型" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {RULE_TYPES.map((type) => (
-                    <SelectItem key={type.key} value={type.key}>
-                      {type.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      {/* Pattern input */}
+      <FormField
+        control={form.control}
+        name="pattern"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>匹配模式</FormLabel>
+            <FormControl>
+              <Input placeholder="test-bucket/train/.*\.jpg$" {...field} />
+            </FormControl>
+            <FormDescription>
+              正则表达式匹配全路径: bucket/path/filename.ext
+            </FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
-        <FormField
-          control={form.control}
-          name="pattern"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>匹配模式</FormLabel>
-              <FormControl>
-                <Input placeholder={ruleTypeConfig.placeholder} {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
-
-      <p className="text-xs text-muted-foreground">{ruleTypeConfig.helpText}</p>
+      <p className="text-xs text-muted-foreground">
+        示例: <code className="bg-muted px-1 rounded">.*\.jpg$</code> 匹配所有
+        JPG 文件, <code className="bg-muted px-1 rounded">^test-bucket/.*</code>{" "}
+        匹配 test-bucket 桶中所有文件
+      </p>
 
       {/* Preview section */}
       <div className="border rounded-lg p-4">
@@ -284,27 +264,6 @@ function Step1PatternPreview({
         </DialogContent>
       </Dialog>
     </div>
-  )
-}
-
-// Sample preview card for the grid
-function SamplePreviewCard({
-  sample,
-  onClick,
-}: {
-  sample: SamplePublic
-  onClick: () => void
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="aspect-square rounded border overflow-hidden hover:ring-2 hover:ring-primary transition-all bg-muted"
-    >
-      <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground p-1 text-center break-all">
-        {sample.file_name}
-      </div>
-    </button>
   )
 }
 
@@ -491,7 +450,8 @@ function Step4ExecutionResult({
   )
 }
 
-export default function TaggingRuleWizard({ open, onOpenChange }: Props) {
+export default function TaggingRuleWizardPage() {
+  const navigate = useNavigate()
   const [currentStep, setCurrentStep] = useState(1)
   const [previewPage, setPreviewPage] = useState(0)
   const [selectedSampleId, setSelectedSampleId] = useState<string | null>(null)
@@ -507,7 +467,6 @@ export default function TaggingRuleWizard({ open, onOpenChange }: Props) {
   const form = useForm<WizardFormData>({
     resolver: zodResolver(wizardSchema),
     defaultValues: {
-      rule_type: "regex_filename",
       pattern: "",
       tag_ids: [],
       name: "",
@@ -517,17 +476,15 @@ export default function TaggingRuleWizard({ open, onOpenChange }: Props) {
     },
   })
 
-  const ruleType = form.watch("rule_type")
   const pattern = form.watch("pattern")
   const tagIds = form.watch("tag_ids")
-  const ruleTypeConfig = getRuleTypeConfig(ruleType)
 
   // Preview query
   const previewQuery = useQuery({
-    queryKey: ["pattern-preview", ruleType, pattern, previewPage],
+    queryKey: ["pattern-preview", pattern, previewPage],
     queryFn: () =>
       TaggingRulesService.previewPatternEndpoint({
-        requestBody: { rule_type: ruleType, pattern },
+        requestBody: { pattern },
         skip: previewPage * 12,
         limit: 12,
       }),
@@ -542,7 +499,6 @@ export default function TaggingRuleWizard({ open, onOpenChange }: Props) {
         requestBody: {
           name: data.name,
           description: data.description || undefined,
-          rule_type: data.rule_type,
           pattern: data.pattern,
           tag_ids: data.tag_ids,
           is_active: true,
@@ -558,7 +514,7 @@ export default function TaggingRuleWizard({ open, onOpenChange }: Props) {
         setCurrentStep(4)
       } else {
         showSuccessToast("规则创建成功")
-        handleClose()
+        navigate({ to: "/settings/tagging-rules" })
       }
     },
     onError: () => {
@@ -566,18 +522,13 @@ export default function TaggingRuleWizard({ open, onOpenChange }: Props) {
     },
   })
 
-  const handleClose = () => {
-    setCurrentStep(1)
-    setPreviewPage(0)
-    setSelectedSampleId(null)
-    setExecutionResult(null)
-    form.reset()
-    onOpenChange(false)
+  const handleCancel = () => {
+    navigate({ to: "/settings/tagging-rules" })
   }
 
   const handleNext = async () => {
     if (currentStep === 1) {
-      const valid = await form.trigger(["rule_type", "pattern"])
+      const valid = await form.trigger(["pattern"])
       if (valid) setCurrentStep(2)
     } else if (currentStep === 2) {
       const valid = await form.trigger(["tag_ids"])
@@ -601,66 +552,74 @@ export default function TaggingRuleWizard({ open, onOpenChange }: Props) {
     : 0
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
-        <DialogHeader>
-          <DialogTitle>新建分类规则</DialogTitle>
-          <DialogDescription>
+    <div className="flex flex-col gap-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">新建分类规则</h1>
+          <p className="text-muted-foreground mt-1">
             {STEPS[currentStep - 1]?.description}
-          </DialogDescription>
-        </DialogHeader>
+          </p>
+        </div>
+        <Button variant="ghost" size="icon" onClick={handleCancel}>
+          <X className="h-5 w-5" />
+        </Button>
+      </div>
 
-        <StepIndicator
-          currentStep={currentStep}
-          totalSteps={currentStep === 4 ? 4 : 3}
-        />
+      <StepIndicator
+        currentStep={currentStep}
+        totalSteps={currentStep === 4 ? 4 : 3}
+      />
 
-        <Form {...form}>
-          <form className="flex-1 overflow-hidden flex flex-col">
-            {/* Step 1: Pattern & Preview */}
-            {currentStep === 1 && (
-              <Step1PatternPreview
-                form={form}
-                ruleTypeConfig={ruleTypeConfig}
-                previewQuery={previewQuery}
-                previewPage={previewPage}
-                setPreviewPage={setPreviewPage}
-                totalPages={totalPages}
-                selectedSampleId={selectedSampleId}
-                setSelectedSampleId={setSelectedSampleId}
-              />
-            )}
+      <Form {...form}>
+        <form className="flex-1 overflow-hidden flex flex-col">
+          {/* Step 1: Pattern & Preview */}
+          {currentStep === 1 && (
+            <Step1PatternPreview
+              form={form}
+              previewQuery={previewQuery}
+              previewPage={previewPage}
+              setPreviewPage={setPreviewPage}
+              totalPages={totalPages}
+              selectedSampleId={selectedSampleId}
+              setSelectedSampleId={setSelectedSampleId}
+            />
+          )}
 
-            {/* Step 2: Tag Selection */}
-            {currentStep === 2 && (
-              <Step2TagSelection
-                form={form}
-                matchedCount={previewQuery.data?.total_matched ?? 0}
-              />
-            )}
+          {/* Step 2: Tag Selection */}
+          {currentStep === 2 && (
+            <Step2TagSelection
+              form={form}
+              matchedCount={previewQuery.data?.total_matched ?? 0}
+            />
+          )}
 
-            {/* Step 3: Confirmation */}
-            {currentStep === 3 && (
-              <Step3Confirmation
-                form={form}
-                matchedCount={previewQuery.data?.total_matched ?? 0}
-                tagCount={tagIds.length}
-              />
-            )}
+          {/* Step 3: Confirmation */}
+          {currentStep === 3 && (
+            <Step3Confirmation
+              form={form}
+              matchedCount={previewQuery.data?.total_matched ?? 0}
+              tagCount={tagIds.length}
+            />
+          )}
 
-            {/* Step 4: Execution Result */}
-            {currentStep === 4 && executionResult && (
-              <Step4ExecutionResult
-                result={executionResult}
-                onClose={handleClose}
-              />
-            )}
-          </form>
-        </Form>
+          {/* Step 4: Execution Result */}
+          {currentStep === 4 && executionResult && (
+            <Step4ExecutionResult
+              result={executionResult}
+              onClose={handleCancel}
+            />
+          )}
+        </form>
+      </Form>
 
-        {/* Navigation buttons */}
-        {currentStep < 4 && (
-          <div className="flex justify-between pt-4 border-t">
+      {/* Navigation buttons */}
+      {currentStep < 4 && (
+        <div className="flex justify-between pt-4 border-t">
+          <div className="flex gap-2">
+            <Button type="button" variant="outline" onClick={handleCancel}>
+              取消
+            </Button>
             <Button
               type="button"
               variant="outline"
@@ -670,28 +629,28 @@ export default function TaggingRuleWizard({ open, onOpenChange }: Props) {
               <ArrowLeft className="h-4 w-4 mr-2" />
               上一步
             </Button>
-            <Button
-              type="button"
-              onClick={handleNext}
-              disabled={createMutation.isPending}
-            >
-              {createMutation.isPending ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  创建中...
-                </>
-              ) : currentStep === 3 ? (
-                "创建规则"
-              ) : (
-                <>
-                  下一步
-                  <ArrowRight className="h-4 w-4 ml-2" />
-                </>
-              )}
-            </Button>
           </div>
-        )}
-      </DialogContent>
-    </Dialog>
+          <Button
+            type="button"
+            onClick={handleNext}
+            disabled={createMutation.isPending}
+          >
+            {createMutation.isPending ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                创建中...
+              </>
+            ) : currentStep === 3 ? (
+              "创建规则"
+            ) : (
+              <>
+                下一步
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </>
+            )}
+          </Button>
+        </div>
+      )}
+    </div>
   )
 }

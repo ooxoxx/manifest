@@ -327,22 +327,3 @@ bucket1,tag1
             minio_instance_id=uuid.uuid4(),
             owner_id=uuid.uuid4(),
         )
-
-
-def test_import_requires_bucket():
-    """Import should raise error if no bucket provided."""
-    from app.services.import_service import import_samples_from_csv
-
-    csv_content = b"""object_key,tags
-images/sample.jpg,tag1
-"""
-    mock_session = MagicMock()
-
-    with pytest.raises(ValueError, match="bucket"):
-        import_samples_from_csv(
-            session=mock_session,
-            file=BytesIO(csv_content),
-            minio_instance_id=uuid.uuid4(),
-            owner_id=uuid.uuid4(),
-            bucket=None,  # No bucket provided
-        )

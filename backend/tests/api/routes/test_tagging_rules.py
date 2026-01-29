@@ -1,4 +1,8 @@
-"""Tests for tagging rules API endpoints."""
+"""Tests for tagging rules API endpoints.
+
+Tagging rules use full-path regex matching against: {bucket}/{object_key}
+Example: test-bucket/train/images/IMG_001.jpg
+"""
 
 import uuid
 
@@ -7,7 +11,7 @@ from fastapi.testclient import TestClient
 from sqlmodel import Session, select
 
 from app.core.config import settings
-from app.models import Tag, TagCategory, TaggingRule, TaggingRuleType, User
+from app.models import Tag, TagCategory, TaggingRule, User
 
 
 @pytest.fixture(scope="module")
@@ -54,13 +58,12 @@ def test_tags(db: Session, superuser: User) -> list[Tag]:
 
 @pytest.fixture(scope="function")
 def test_rules(db: Session, superuser: User, test_tags: list[Tag]) -> list[TaggingRule]:
-    """Create test tagging rules."""
+    """Create test tagging rules with full-path regex patterns."""
     rules = [
         TaggingRule(
             id=uuid.uuid4(),
             owner_id=superuser.id,
-            name=f"测试规则_文件名_{uuid.uuid4().hex[:8]}",
-            rule_type=TaggingRuleType.regex_filename,
+            name=f"测试规则_JPG文件_{uuid.uuid4().hex[:8]}",
             pattern=r".*\.jpg$",
             tag_ids=[str(test_tags[0].id)],
             is_active=True,
@@ -69,8 +72,7 @@ def test_rules(db: Session, superuser: User, test_tags: list[Tag]) -> list[Taggi
         TaggingRule(
             id=uuid.uuid4(),
             owner_id=superuser.id,
-            name=f"测试规则_路径_{uuid.uuid4().hex[:8]}",
-            rule_type=TaggingRuleType.regex_path,
+            name=f"测试规则_训练目录_{uuid.uuid4().hex[:8]}",
             pattern=r".*/train/.*",
             tag_ids=[str(test_tags[0].id), str(test_tags[1].id)],
             is_active=True,
@@ -79,9 +81,8 @@ def test_rules(db: Session, superuser: User, test_tags: list[Tag]) -> list[Taggi
         TaggingRule(
             id=uuid.uuid4(),
             owner_id=superuser.id,
-            name=f"测试规则_扩展名_{uuid.uuid4().hex[:8]}",
-            rule_type=TaggingRuleType.file_extension,
-            pattern="png",
+            name=f"测试规则_PNG扩展名_{uuid.uuid4().hex[:8]}",
+            pattern=r".*\.png$",
             tag_ids=[str(test_tags[1].id)],
             is_active=False,
             auto_execute=False,
@@ -179,19 +180,18 @@ class TestGetTaggingRule:
 class TestCreateTaggingRule:
     """Tests for create tagging rule endpoint."""
 
-    def test_create_regex_filename_rule(
+    def test_create_full_path_regex_rule(
         self,
         client: TestClient,
         superuser_token_headers: dict,
         test_tags: list[Tag],
     ):
-        """Should create a regex filename rule."""
+        """Should create a full-path regex rule."""
         response = client.post(
             f"{settings.API_V1_STR}/tagging-rules/",
             headers=superuser_token_headers,
             json={
-                "name": "新建文件名规则",
-                "rule_type": "regex_filename",
+                "name": "新建全路径规则",
                 "pattern": r".*test.*\.png$",
                 "tag_ids": [str(test_tags[0].id)],
             },
@@ -199,53 +199,29 @@ class TestCreateTaggingRule:
 
         assert response.status_code == 200
         data = response.json()
-        assert data["rule"]["name"] == "新建文件名规则"
-        assert data["rule"]["rule_type"] == "regex_filename"
+        assert data["rule"]["name"] == "新建全路径规则"
         assert data["rule"]["is_active"] is True
 
-    def test_create_file_extension_rule(
+    def test_create_bucket_prefix_rule(
         self,
         client: TestClient,
         superuser_token_headers: dict,
         test_tags: list[Tag],
     ):
-        """Should create a file extension rule."""
+        """Should create a bucket prefix rule."""
         response = client.post(
             f"{settings.API_V1_STR}/tagging-rules/",
             headers=superuser_token_headers,
             json={
-                "name": "扩展名规则",
-                "rule_type": "file_extension",
-                "pattern": "jpeg",
+                "name": "桶前缀规则",
+                "pattern": r"^training-data/.*",
                 "tag_ids": [str(test_tags[0].id)],
             },
         )
 
         assert response.status_code == 200
         data = response.json()
-        assert data["rule"]["rule_type"] == "file_extension"
-
-    def test_create_bucket_rule(
-        self,
-        client: TestClient,
-        superuser_token_headers: dict,
-        test_tags: list[Tag],
-    ):
-        """Should create a bucket rule."""
-        response = client.post(
-            f"{settings.API_V1_STR}/tagging-rules/",
-            headers=superuser_token_headers,
-            json={
-                "name": "桶名规则",
-                "rule_type": "bucket",
-                "pattern": "training-data",
-                "tag_ids": [str(test_tags[0].id)],
-            },
-        )
-
-        assert response.status_code == 200
-        data = response.json()
-        assert data["rule"]["rule_type"] == "bucket"
+        assert data["rule"]["pattern"] == r"^training-data/.*"
 
     def test_create_rule_with_auto_execute(
         self,
@@ -259,8 +235,7 @@ class TestCreateTaggingRule:
             headers=superuser_token_headers,
             json={
                 "name": "自动执行规则",
-                "rule_type": "content_type",
-                "pattern": "image/png",
+                "pattern": r".*\.png$",
                 "tag_ids": [str(test_tags[0].id)],
                 "auto_execute": True,
             },
@@ -361,8 +336,7 @@ class TestDeleteTaggingRule:
             id=uuid.uuid4(),
             owner_id=superuser.id,
             name=f"待删除规则_{uuid.uuid4().hex[:8]}",
-            rule_type=TaggingRuleType.file_extension,
-            pattern="tmp",
+            pattern=r".*\.tmp$",
             tag_ids=[str(test_tags[0].id)],
         )
         db.add(rule)
@@ -499,3 +473,168 @@ class TestPreviewTaggingRule:
         )
 
         assert response.status_code == 404
+
+
+class TestMappingRule:
+    """Tests for mapping tagging rules (Type B)."""
+
+    def test_create_mapping_rule(
+        self,
+        client: TestClient,
+        superuser_token_headers: dict,
+        test_tags: list[Tag],
+    ):
+        """Should create a mapping rule with class_tag_mapping."""
+        response = client.post(
+            f"{settings.API_V1_STR}/tagging-rules/mapping",
+            headers=superuser_token_headers,
+            json={
+                "name": "映射规则测试",
+                "pattern": r".*\.jpg$",
+                "class_tag_mapping": {
+                    "person": str(test_tags[0].id),
+                    "car": str(test_tags[1].id),
+                },
+            },
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["rule"]["name"] == "映射规则测试"
+        assert data["rule"]["rule_type"] == "mapping"
+        assert data["rule"]["class_tag_mapping"] is not None
+        assert "person" in data["rule"]["class_tag_mapping"]
+
+    def test_create_mapping_rule_invalid_pattern(
+        self,
+        client: TestClient,
+        superuser_token_headers: dict,
+        test_tags: list[Tag],
+    ):
+        """Should reject invalid regex pattern."""
+        response = client.post(
+            f"{settings.API_V1_STR}/tagging-rules/mapping",
+            headers=superuser_token_headers,
+            json={
+                "name": "无效模式",
+                "pattern": r"[invalid(regex",
+                "class_tag_mapping": {"person": str(test_tags[0].id)},
+            },
+        )
+
+        assert response.status_code == 400
+        assert "Invalid regex pattern" in response.json()["detail"]
+
+    def test_preview_mapping_returns_classes(
+        self,
+        client: TestClient,
+        superuser_token_headers: dict,
+    ):
+        """Should return unique_classes and class_sample_counts in preview."""
+        response = client.post(
+            f"{settings.API_V1_STR}/tagging-rules/preview-mapping",
+            headers=superuser_token_headers,
+            json={"pattern": ".*"},
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert "total_matched" in data
+        assert "samples" in data
+        assert "unique_classes" in data
+        assert "class_sample_counts" in data
+        assert isinstance(data["unique_classes"], list)
+        assert isinstance(data["class_sample_counts"], dict)
+
+    def test_preview_mapping_invalid_pattern(
+        self,
+        client: TestClient,
+        superuser_token_headers: dict,
+    ):
+        """Should reject invalid regex pattern in preview."""
+        response = client.post(
+            f"{settings.API_V1_STR}/tagging-rules/preview-mapping",
+            headers=superuser_token_headers,
+            json={"pattern": r"[invalid(regex"},
+        )
+
+        assert response.status_code == 400
+
+    def test_execute_mapping_rule_returns_no_annotation(
+        self,
+        client: TestClient,
+        superuser_token_headers: dict,
+        db: Session,
+        superuser: User,
+        test_tags: list[Tag],
+    ):
+        """Should return no_annotation count in execution result."""
+        # Create a mapping rule
+        from app.models import TaggingRule, TaggingRuleType
+
+        rule = TaggingRule(
+            id=uuid.uuid4(),
+            owner_id=superuser.id,
+            name=f"执行测试映射规则_{uuid.uuid4().hex[:8]}",
+            pattern=r".*",
+            tag_ids=[],
+            rule_type=TaggingRuleType.mapping,
+            class_tag_mapping={"person": str(test_tags[0].id)},
+        )
+        db.add(rule)
+        db.commit()
+        db.refresh(rule)
+
+        try:
+            response = client.post(
+                f"{settings.API_V1_STR}/tagging-rules/{rule.id}/execute?dry_run=true",
+                headers=superuser_token_headers,
+            )
+
+            assert response.status_code == 200
+            data = response.json()
+            assert "matched" in data
+            assert "tagged" in data
+            assert "skipped" in data
+            assert "no_annotation" in data
+        finally:
+            db.delete(rule)
+            db.commit()
+
+    def test_mapping_rule_get_includes_rule_type(
+        self,
+        client: TestClient,
+        superuser_token_headers: dict,
+        db: Session,
+        superuser: User,
+        test_tags: list[Tag],
+    ):
+        """Should include rule_type in GET response."""
+        from app.models import TaggingRule, TaggingRuleType
+
+        rule = TaggingRule(
+            id=uuid.uuid4(),
+            owner_id=superuser.id,
+            name=f"获取测试_{uuid.uuid4().hex[:8]}",
+            pattern=r".*\.png$",
+            tag_ids=[],
+            rule_type=TaggingRuleType.mapping,
+            class_tag_mapping={"dog": str(test_tags[0].id)},
+        )
+        db.add(rule)
+        db.commit()
+        db.refresh(rule)
+
+        try:
+            response = client.get(
+                f"{settings.API_V1_STR}/tagging-rules/{rule.id}",
+                headers=superuser_token_headers,
+            )
+
+            assert response.status_code == 200
+            data = response.json()
+            assert data["rule_type"] == "mapping"
+            assert data["class_tag_mapping"] is not None
+        finally:
+            db.delete(rule)
+            db.commit()

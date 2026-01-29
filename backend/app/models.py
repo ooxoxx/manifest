@@ -113,16 +113,6 @@ class SystemTagType(str, Enum):
     storage_instance = "storage_instance"  # 存储实例名称
 
 
-class TaggingRuleType(str, Enum):
-    """Tagging rule type for batch tagging."""
-
-    regex_filename = "regex_filename"  # 文件名正则匹配
-    regex_path = "regex_path"  # 路径正则匹配
-    file_extension = "file_extension"  # 扩展名匹配
-    bucket = "bucket"  # 桶名匹配
-    content_type = "content_type"  # MIME类型匹配
-
-
 class SampleSource(str, Enum):
     """Sample source enum."""
 
@@ -130,6 +120,13 @@ class SampleSource(str, Enum):
     sync = "sync"
     import_csv = "import"
     manual = "manual"
+
+
+class TaggingRuleType(str, Enum):
+    """Tagging rule type enum."""
+
+    fixed = "fixed"  # Type A: 固定标签规则
+    mapping = "mapping"  # Type B: 类名映射标签规则
 
 
 # ============================================================================
@@ -392,14 +389,18 @@ class TagsByCategoryResponse(SQLModel):
 
 
 class TaggingRuleBase(SQLModel):
-    """Base tagging rule properties."""
+    """Base tagging rule properties.
+
+    Pattern is a regex matched against full path: {bucket}/{object_key}
+    Example: test-bucket/train/images/IMG_001.jpg
+    """
 
     name: str = Field(min_length=1, max_length=255)
     description: str | None = Field(default=None, max_length=1024)
-    rule_type: TaggingRuleType
     pattern: str = Field(max_length=1024)
     is_active: bool = Field(default=True)
     auto_execute: bool = Field(default=False)
+    rule_type: "TaggingRuleType" = Field(default=TaggingRuleType.fixed)
 
 
 class TaggingRuleCreate(TaggingRuleBase):
@@ -413,9 +414,9 @@ class TaggingRuleUpdate(SQLModel):
 
     name: str | None = Field(default=None, min_length=1, max_length=255)
     description: str | None = Field(default=None, max_length=1024)
-    rule_type: TaggingRuleType | None = None
     pattern: str | None = Field(default=None, max_length=1024)
     tag_ids: list[uuid.UUID] | None = None
+    class_tag_mapping: dict | None = None
     is_active: bool | None = None
     auto_execute: bool | None = None
 
@@ -427,6 +428,7 @@ class TaggingRule(TaggingRuleBase, table=True):
 
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     tag_ids: list[uuid.UUID] = Field(default_factory=list, sa_column=Column(JSONB))
+    class_tag_mapping: dict | None = Field(default=None, sa_column=Column(JSONB))
     owner_id: uuid.UUID = Field(
         foreign_key="user.id", nullable=False, ondelete="CASCADE"
     )
@@ -439,6 +441,7 @@ class TaggingRulePublic(TaggingRuleBase):
 
     id: uuid.UUID
     tag_ids: list[uuid.UUID]
+    class_tag_mapping: dict | None
     owner_id: uuid.UUID
     created_at: datetime
     updated_at: datetime
@@ -457,6 +460,7 @@ class TaggingRuleExecuteResult(SQLModel):
     matched: int
     tagged: int
     skipped: int
+    no_annotation: int = 0  # Only used for mapping rules
 
 
 class TaggingRulePreviewResult(SQLModel):
@@ -467,9 +471,11 @@ class TaggingRulePreviewResult(SQLModel):
 
 
 class PatternPreviewRequest(SQLModel):
-    """Request for previewing a pattern without creating a rule."""
+    """Request for previewing a pattern without creating a rule.
 
-    rule_type: TaggingRuleType
+    Pattern is a regex matched against full path: {bucket}/{object_key}
+    """
+
     pattern: str = Field(max_length=1024)
 
 
@@ -478,6 +484,36 @@ class PatternPreviewResult(SQLModel):
 
     total_matched: int
     samples: list["SamplePublic"]
+
+
+class MappingPreviewRequest(SQLModel):
+    """Request for previewing a mapping rule pattern.
+
+    Pattern is a regex matched against full path: {bucket}/{object_key}
+    Only samples with annotations are included.
+    """
+
+    pattern: str = Field(max_length=1024)
+
+
+class MappingPreviewResult(SQLModel):
+    """Result of previewing a mapping rule pattern."""
+
+    total_matched: int
+    samples: list["SamplePublic"]
+    unique_classes: list[str]  # Discovered class names
+    class_sample_counts: dict[str, int]  # Sample count per class
+
+
+class TaggingRuleCreateMapping(SQLModel):
+    """Request for creating a mapping tagging rule (Type B)."""
+
+    name: str = Field(min_length=1, max_length=255)
+    description: str | None = Field(default=None, max_length=1024)
+    pattern: str = Field(max_length=1024)
+    class_tag_mapping: dict[str, str]  # {class_name: tag_uuid}
+    is_active: bool = True
+    auto_execute: bool = False
 
 
 class TaggingRuleCreateResult(SQLModel):
@@ -673,6 +709,29 @@ class SamplesPublic(SQLModel):
 
     data: list[SamplePublic]
     count: int
+
+
+class StorageTreeNode(SQLModel):
+    """Node in the storage path tree."""
+
+    id: str  # Unique identifier for the node
+    name: str  # Display name
+    type: str  # "instance" | "bucket" | "folder"
+    path: str  # Full path for filtering
+    count: int  # Sample count at this level
+    children: list["StorageTreeNode"] = []
+
+
+class BusinessTagTreeNode(SQLModel):
+    """Business tag tree node with sample counts."""
+
+    id: uuid.UUID
+    name: str
+    level: int
+    full_path: str | None
+    count: int  # Direct sample count
+    total_count: int  # Including descendants
+    children: list["BusinessTagTreeNode"] = []
 
 
 # ============================================================================

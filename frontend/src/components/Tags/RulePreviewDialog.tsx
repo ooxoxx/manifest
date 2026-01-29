@@ -19,7 +19,6 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import useCustomToast from "@/hooks/useCustomToast"
-import { getRuleTypeLabel } from "@/lib/ruleTypes"
 
 interface Props {
   rule: TaggingRulePublic | null
@@ -61,8 +60,7 @@ export default function RulePreviewDialog({ rule, open, onOpenChange }: Props) {
         <DialogHeader>
           <DialogTitle>预览匹配结果</DialogTitle>
           <DialogDescription>
-            规则: {rule.name} ({getRuleTypeLabel(rule.rule_type)}:{" "}
-            {rule.pattern})
+            规则: {rule.name} (模式: {rule.pattern})
           </DialogDescription>
         </DialogHeader>
 

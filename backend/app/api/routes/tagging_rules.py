@@ -11,19 +11,28 @@ from sqlmodel import func, select
 from app.api.deps import CurrentUser, SessionDep
 from app.models import (
     Message,
+    MappingPreviewRequest,
+    MappingPreviewResult,
     PatternPreviewRequest,
     PatternPreviewResult,
     TaggingRule,
     TaggingRuleCreate,
+    TaggingRuleCreateMapping,
     TaggingRuleCreateResult,
     TaggingRulePublic,
     TaggingRulesPublic,
+    TaggingRuleType,
     TaggingRuleUpdate,
     TaggingRuleExecuteResult,
     TaggingRulePreviewResult,
     SamplePublic,
 )
-from app.services.auto_tagging_service import execute_rule, preview_rule, preview_pattern
+from app.services.auto_tagging_service import (
+    execute_rule,
+    preview_rule,
+    preview_pattern,
+    preview_mapping_pattern,
+)
 
 router = APIRouter(prefix="/tagging-rules", tags=["tagging-rules"])
 
@@ -64,22 +73,21 @@ def preview_pattern_endpoint(
 ) -> Any:
     """Preview samples matching a pattern without creating a rule.
 
+    Pattern is a regex matched against full path: {bucket}/{object_key}
     Supports pagination with skip and limit parameters.
     """
-    # Validate regex pattern for regex rule types
-    if request.rule_type in ("regex_filename", "regex_path"):
-        try:
-            re.compile(request.pattern)
-        except re.error as e:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Invalid regex pattern: {str(e)}",
-            )
+    # Always validate regex pattern
+    try:
+        re.compile(request.pattern)
+    except re.error as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid regex pattern: {str(e)}",
+        )
 
     result = preview_pattern(
         session,
         owner_id=current_user.id,
-        rule_type=request.rule_type,
         pattern=request.pattern,
         skip=skip,
         limit=limit,
@@ -87,6 +95,44 @@ def preview_pattern_endpoint(
     return PatternPreviewResult(
         total_matched=result["total_matched"],
         samples=[SamplePublic.model_validate(s) for s in result["samples"]],
+    )
+
+
+@router.post("/preview-mapping", response_model=MappingPreviewResult)
+def preview_mapping_endpoint(
+    session: SessionDep,
+    current_user: CurrentUser,
+    request: MappingPreviewRequest,
+    skip: int = 0,
+    limit: int = 20,
+) -> Any:
+    """Preview samples matching a mapping rule pattern.
+
+    Pattern is a regex matched against full path: {bucket}/{object_key}
+    Only samples with annotations are included.
+    Returns unique class names found in matching samples.
+    """
+    # Validate regex pattern
+    try:
+        re.compile(request.pattern)
+    except re.error as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid regex pattern: {str(e)}",
+        )
+
+    result = preview_mapping_pattern(
+        session,
+        owner_id=current_user.id,
+        pattern=request.pattern,
+        skip=skip,
+        limit=limit,
+    )
+    return MappingPreviewResult(
+        total_matched=result["total_matched"],
+        samples=[SamplePublic.model_validate(s) for s in result["samples"]],
+        unique_classes=result["unique_classes"],
+        class_sample_counts=result["class_sample_counts"],
     )
 
 
@@ -114,13 +160,23 @@ def create_tagging_rule(
 ) -> Any:
     """Create a new tagging rule.
 
+    Pattern is a regex matched against full path: {bucket}/{object_key}
+
     Args:
         execute_immediately: If True, execute the rule immediately after creation.
     """
+    # Validate regex pattern
+    try:
+        re.compile(rule_in.pattern)
+    except re.error as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid regex pattern: {str(e)}",
+        )
+
     rule = TaggingRule(
         name=rule_in.name,
         description=rule_in.description,
-        rule_type=rule_in.rule_type,
         pattern=rule_in.pattern,
         tag_ids=[str(tid) for tid in rule_in.tag_ids],
         is_active=rule_in.is_active,
@@ -138,6 +194,62 @@ def create_tagging_rule(
             matched=result["matched"],
             tagged=result["tagged"],
             skipped=result["skipped"],
+            no_annotation=result.get("no_annotation", 0),
+        )
+
+    return TaggingRuleCreateResult(
+        rule=TaggingRulePublic.model_validate(rule),
+        execution_result=execution_result,
+    )
+
+
+@router.post("/mapping", response_model=TaggingRuleCreateResult)
+def create_mapping_rule(
+    session: SessionDep,
+    current_user: CurrentUser,
+    rule_in: TaggingRuleCreateMapping,
+    execute_immediately: bool = False,
+) -> Any:
+    """Create a new mapping tagging rule (Type B).
+
+    Maps annotation class names to tags based on class_tag_mapping.
+    Pattern is a regex matched against full path: {bucket}/{object_key}
+
+    Args:
+        execute_immediately: If True, execute the rule immediately after creation.
+    """
+    # Validate regex pattern
+    try:
+        re.compile(rule_in.pattern)
+    except re.error as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid regex pattern: {str(e)}",
+        )
+
+    rule = TaggingRule(
+        name=rule_in.name,
+        description=rule_in.description,
+        pattern=rule_in.pattern,
+        tag_ids=[],  # Mapping rules don't use tag_ids
+        class_tag_mapping=rule_in.class_tag_mapping,
+        rule_type=TaggingRuleType.mapping,
+        is_active=rule_in.is_active,
+        auto_execute=rule_in.auto_execute,
+        owner_id=current_user.id,
+    )
+    session.add(rule)
+    session.commit()
+    session.refresh(rule)
+
+    execution_result = None
+    if execute_immediately:
+        result = execute_rule(session, rule, dry_run=False)
+        execution_result = TaggingRuleExecuteResult(
+            matched=result["matched"],
+            tagged=result["tagged"],
+            skipped=result["skipped"],
+            no_annotation=result.get("no_annotation", 0),
         )
 
     return TaggingRuleCreateResult(
@@ -213,6 +325,7 @@ def execute_tagging_rule(
         matched=result["matched"],
         tagged=result["tagged"],
         skipped=result["skipped"],
+        no_annotation=result.get("no_annotation", 0),
     )
 
 

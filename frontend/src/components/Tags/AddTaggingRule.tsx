@@ -4,11 +4,7 @@ import { Suspense } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
-import {
-  type TaggingRulePublic,
-  TaggingRulesService,
-  type TaggingRuleType,
-} from "@/client"
+import { type TaggingRulePublic, TaggingRulesService } from "@/client"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -28,28 +24,13 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import useCustomToast from "@/hooks/useCustomToast"
-import { getRuleTypeConfig, RULE_TYPES } from "@/lib/ruleTypes"
 import TagSelector from "./TagSelector"
 
 const formSchema = z.object({
   name: z.string().min(1, "请输入规则名称"),
   description: z.string().optional(),
-  rule_type: z.enum([
-    "regex_filename",
-    "regex_path",
-    "file_extension",
-    "bucket",
-    "content_type",
-  ] as const),
   pattern: z.string().min(1, "请输入匹配模式"),
   tag_ids: z.array(z.string()).min(1, "请至少选择一个标签"),
   is_active: z.boolean(),
@@ -77,7 +58,6 @@ function AddTaggingRuleForm({
       ? {
           name: editingRule.name,
           description: editingRule.description ?? "",
-          rule_type: editingRule.rule_type,
           pattern: editingRule.pattern,
           tag_ids: editingRule.tag_ids,
           is_active: editingRule.is_active,
@@ -86,7 +66,6 @@ function AddTaggingRuleForm({
       : {
           name: "",
           description: "",
-          rule_type: "regex_filename" as TaggingRuleType,
           pattern: "",
           tag_ids: [],
           is_active: true,
@@ -94,16 +73,12 @@ function AddTaggingRuleForm({
         },
   })
 
-  const selectedRuleType = form.watch("rule_type")
-  const ruleTypeConfig = getRuleTypeConfig(selectedRuleType)
-
   const createMutation = useMutation({
     mutationFn: (data: FormData) =>
       TaggingRulesService.createTaggingRule({
         requestBody: {
           name: data.name,
           description: data.description || undefined,
-          rule_type: data.rule_type,
           pattern: data.pattern,
           tag_ids: data.tag_ids,
           is_active: data.is_active,
@@ -128,7 +103,6 @@ function AddTaggingRuleForm({
         requestBody: {
           name: data.name,
           description: data.description || undefined,
-          rule_type: data.rule_type,
           pattern: data.pattern,
           tag_ids: data.tag_ids,
           is_active: data.is_active,
@@ -190,53 +164,22 @@ function AddTaggingRuleForm({
           )}
         />
 
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="rule_type"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>规则类型</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="选择规则类型" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {RULE_TYPES.map((type) => (
-                      <SelectItem key={type.key} value={type.key}>
-                        {type.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="pattern"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>匹配模式</FormLabel>
-                <FormControl>
-                  <Input placeholder={ruleTypeConfig.placeholder} {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <p className="text-xs text-muted-foreground">
-          {ruleTypeConfig.helpText}
-        </p>
+        <FormField
+          control={form.control}
+          name="pattern"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>匹配模式</FormLabel>
+              <FormControl>
+                <Input placeholder="test-bucket/train/.*\.jpg$" {...field} />
+              </FormControl>
+              <FormDescription>
+                正则表达式匹配全路径: bucket/path/filename.ext
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <FormField
           control={form.control}

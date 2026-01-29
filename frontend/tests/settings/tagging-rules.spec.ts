@@ -32,120 +32,17 @@ test.describe("Tagging Rules Manager", () => {
     expect(hasEmptyState || hasRulesGrid).toBeTruthy()
   })
 
-  test("add rule button is visible and enabled", async ({ page }) => {
-    const addButton = page.getByRole("button", { name: /新建规则/ }).first()
-    await expect(addButton).toBeVisible()
-    await expect(addButton).toBeEnabled()
+  test("new rule link is visible", async ({ page }) => {
+    // The "新建规则" is now a link that navigates to wizard page
+    const newRuleLink = page.getByRole("link", { name: /新建规则/ }).first()
+    await expect(newRuleLink).toBeVisible()
   })
 
-  test("clicking add rule button opens dialog", async ({ page }) => {
-    await page
-      .getByRole("button", { name: /新建规则/ })
-      .first()
-      .click()
-    await expect(page.getByRole("dialog")).toBeVisible()
-  })
-
-  test("add rule dialog has correct title", async ({ page }) => {
-    await page
-      .getByRole("button", { name: /新建规则/ })
-      .first()
-      .click()
-    await expect(page.getByRole("dialog")).toBeVisible()
-    await expect(page.getByText("新建分类规则")).toBeVisible()
-  })
-
-  test("add rule dialog has name field", async ({ page }) => {
-    await page
-      .getByRole("button", { name: /新建规则/ })
-      .first()
-      .click()
-    await expect(page.getByRole("dialog")).toBeVisible()
-    await expect(page.getByLabel(/规则名称/)).toBeVisible()
-  })
-
-  test("add rule dialog has rule type selector", async ({ page }) => {
-    await page
-      .getByRole("button", { name: /新建规则/ })
-      .first()
-      .click()
-    await expect(page.getByRole("dialog")).toBeVisible()
-    await expect(page.getByText("规则类型")).toBeVisible()
-  })
-
-  test("add rule dialog has pattern field", async ({ page }) => {
-    await page
-      .getByRole("button", { name: /新建规则/ })
-      .first()
-      .click()
-    await expect(page.getByRole("dialog")).toBeVisible()
-    await expect(page.getByLabel(/匹配模式/)).toBeVisible()
-  })
-
-  test("add rule dialog has tag selector", async ({ page }) => {
-    await page
-      .getByRole("button", { name: /新建规则/ })
-      .first()
-      .click()
-    await expect(page.getByRole("dialog")).toBeVisible()
-    await expect(page.getByText("应用标签")).toBeVisible()
-  })
-
-  test("add rule dialog has auto execute checkbox", async ({ page }) => {
-    await page
-      .getByRole("button", { name: /新建规则/ })
-      .first()
-      .click()
-    await expect(page.getByRole("dialog")).toBeVisible()
-    await expect(page.getByText("自动执行")).toBeVisible()
-  })
-
-  test("add rule dialog has submit button", async ({ page }) => {
-    await page
-      .getByRole("button", { name: /新建规则/ })
-      .first()
-      .click()
-    await expect(page.getByRole("dialog")).toBeVisible()
-    await expect(page.getByRole("button", { name: /创建规则/ })).toBeVisible()
-  })
-
-  test("can close add rule dialog with escape", async ({ page }) => {
-    await page
-      .getByRole("button", { name: /新建规则/ })
-      .first()
-      .click()
-    await expect(page.getByRole("dialog")).toBeVisible()
-    await page.keyboard.press("Escape")
-    await expect(page.getByRole("dialog")).not.toBeVisible({ timeout: 5000 })
-  })
-
-  test("rule type selector has all options", async ({ page }) => {
-    await page
-      .getByRole("button", { name: /新建规则/ })
-      .first()
-      .click()
-    await expect(page.getByRole("dialog")).toBeVisible()
-
-    // Click rule type selector to open dropdown
-    const ruleTypeTrigger = page
-      .getByRole("dialog")
-      .getByRole("combobox")
-      .first()
-    await ruleTypeTrigger.click()
-
-    // Should show all rule type options in the dropdown
-    const dropdown = page.getByRole("listbox")
-    await expect(
-      dropdown.getByRole("option", { name: "文件名正则" }),
-    ).toBeVisible()
-    await expect(
-      dropdown.getByRole("option", { name: "路径正则" }),
-    ).toBeVisible()
-    await expect(dropdown.getByRole("option", { name: "扩展名" })).toBeVisible()
-    await expect(dropdown.getByRole("option", { name: "桶名" })).toBeVisible()
-    await expect(
-      dropdown.getByRole("option", { name: "MIME类型" }),
-    ).toBeVisible()
+  test("clicking new rule link navigates to wizard", async ({ page }) => {
+    const newRuleLink = page.getByRole("link", { name: /新建规则/ }).first()
+    await newRuleLink.click()
+    await expect(page).toHaveURL(/\/settings\/tagging-rules\/new/)
+    await expect(page.getByRole("heading", { name: "新建分类规则" })).toBeVisible()
   })
 })
 

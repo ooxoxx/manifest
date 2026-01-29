@@ -696,6 +696,57 @@ export const ImportTaskStatusSchema = {
     description: 'Import task status enum.'
 } as const;
 
+export const MappingPreviewRequestSchema = {
+    properties: {
+        pattern: {
+            type: 'string',
+            maxLength: 1024,
+            title: 'Pattern'
+        }
+    },
+    type: 'object',
+    required: ['pattern'],
+    title: 'MappingPreviewRequest',
+    description: `Request for previewing a mapping rule pattern.
+
+Pattern is a regex matched against full path: {bucket}/{object_key}
+Only samples with annotations are included.`
+} as const;
+
+export const MappingPreviewResultSchema = {
+    properties: {
+        total_matched: {
+            type: 'integer',
+            title: 'Total Matched'
+        },
+        samples: {
+            items: {
+                '$ref': '#/components/schemas/SamplePublic'
+            },
+            type: 'array',
+            title: 'Samples'
+        },
+        unique_classes: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Unique Classes'
+        },
+        class_sample_counts: {
+            additionalProperties: {
+                type: 'integer'
+            },
+            type: 'object',
+            title: 'Class Sample Counts'
+        }
+    },
+    type: 'object',
+    required: ['total_matched', 'samples', 'unique_classes', 'class_sample_counts'],
+    title: 'MappingPreviewResult',
+    description: 'Result of previewing a mapping rule pattern.'
+} as const;
+
 export const MessageSchema = {
     properties: {
         message: {
@@ -2119,6 +2170,10 @@ export const TaggingRuleCreateSchema = {
             title: 'Auto Execute',
             default: false
         },
+        rule_type: {
+            '$ref': '#/components/schemas/TaggingRuleType',
+            default: 'fixed'
+        },
         tag_ids: {
             items: {
                 type: 'string',
@@ -2132,6 +2187,55 @@ export const TaggingRuleCreateSchema = {
     required: ['name', 'pattern', 'tag_ids'],
     title: 'TaggingRuleCreate',
     description: 'Properties to receive on tagging rule creation.'
+} as const;
+
+export const TaggingRuleCreateMappingSchema = {
+    properties: {
+        name: {
+            type: 'string',
+            maxLength: 255,
+            minLength: 1,
+            title: 'Name'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 1024
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        pattern: {
+            type: 'string',
+            maxLength: 1024,
+            title: 'Pattern'
+        },
+        class_tag_mapping: {
+            additionalProperties: {
+                type: 'string'
+            },
+            type: 'object',
+            title: 'Class Tag Mapping'
+        },
+        is_active: {
+            type: 'boolean',
+            title: 'Is Active',
+            default: true
+        },
+        auto_execute: {
+            type: 'boolean',
+            title: 'Auto Execute',
+            default: false
+        }
+    },
+    type: 'object',
+    required: ['name', 'pattern', 'class_tag_mapping'],
+    title: 'TaggingRuleCreateMapping',
+    description: 'Request for creating a mapping tagging rule (Type B).'
 } as const;
 
 export const TaggingRuleCreateResultSchema = {
@@ -2169,6 +2273,11 @@ export const TaggingRuleExecuteResultSchema = {
         skipped: {
             type: 'integer',
             title: 'Skipped'
+        },
+        no_annotation: {
+            type: 'integer',
+            title: 'No Annotation',
+            default: 0
         }
     },
     type: 'object',
@@ -2232,6 +2341,10 @@ export const TaggingRulePublicSchema = {
             title: 'Auto Execute',
             default: false
         },
+        rule_type: {
+            '$ref': '#/components/schemas/TaggingRuleType',
+            default: 'fixed'
+        },
         id: {
             type: 'string',
             format: 'uuid',
@@ -2244,6 +2357,18 @@ export const TaggingRulePublicSchema = {
             },
             type: 'array',
             title: 'Tag Ids'
+        },
+        class_tag_mapping: {
+            anyOf: [
+                {
+                    additionalProperties: true,
+                    type: 'object'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Class Tag Mapping'
         },
         owner_id: {
             type: 'string',
@@ -2262,9 +2387,16 @@ export const TaggingRulePublicSchema = {
         }
     },
     type: 'object',
-    required: ['name', 'pattern', 'id', 'tag_ids', 'owner_id', 'created_at', 'updated_at'],
+    required: ['name', 'pattern', 'id', 'tag_ids', 'class_tag_mapping', 'owner_id', 'created_at', 'updated_at'],
     title: 'TaggingRulePublic',
     description: 'Properties to return via API.'
+} as const;
+
+export const TaggingRuleTypeSchema = {
+    type: 'string',
+    enum: ['fixed', 'mapping'],
+    title: 'TaggingRuleType',
+    description: 'Tagging rule type enum.'
 } as const;
 
 export const TaggingRuleUpdateSchema = {
@@ -2320,6 +2452,18 @@ export const TaggingRuleUpdateSchema = {
                 }
             ],
             title: 'Tag Ids'
+        },
+        class_tag_mapping: {
+            anyOf: [
+                {
+                    additionalProperties: true,
+                    type: 'object'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Class Tag Mapping'
         },
         is_active: {
             anyOf: [

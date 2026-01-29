@@ -7,6 +7,8 @@ from uuid import UUID
 from sqlmodel import Session, select
 
 from app.models import (
+    Annotation,
+    AnnotationStatus,
     Sample,
     SampleTag,
     Tag,
@@ -185,7 +187,10 @@ def apply_system_tags_to_sample(
 
 def matches_rule(sample: Sample, rule: TaggingRule) -> bool:
     """
-    Check if a sample matches a tagging rule.
+    Check if a sample matches a tagging rule using full-path regex.
+
+    The pattern is matched against: {bucket}/{object_key}
+    Example: test-bucket/train/images/IMG_001.jpg
 
     Args:
         sample: Sample to check
@@ -194,18 +199,8 @@ def matches_rule(sample: Sample, rule: TaggingRule) -> bool:
     Returns:
         True if sample matches the rule
     """
-    if rule.rule_type == TaggingRuleType.regex_filename:
-        return bool(re.search(rule.pattern, sample.file_name or ""))
-    elif rule.rule_type == TaggingRuleType.regex_path:
-        return bool(re.search(rule.pattern, sample.object_key or ""))
-    elif rule.rule_type == TaggingRuleType.file_extension:
-        file_name = sample.file_name or ""
-        return file_name.lower().endswith(f".{rule.pattern.lower()}")
-    elif rule.rule_type == TaggingRuleType.bucket:
-        return sample.bucket == rule.pattern
-    elif rule.rule_type == TaggingRuleType.content_type:
-        return sample.content_type == rule.pattern
-    return False
+    full_path = f"{sample.bucket}/{sample.object_key}"
+    return bool(re.search(rule.pattern, full_path))
 
 
 def execute_rule(
@@ -224,6 +219,18 @@ def execute_rule(
     Returns:
         Statistics dict with matched/tagged/skipped counts
     """
+    if rule.rule_type == TaggingRuleType.mapping:
+        return _execute_mapping_rule(session, rule, dry_run)
+    else:
+        return _execute_fixed_rule(session, rule, dry_run)
+
+
+def _execute_fixed_rule(
+    session: Session,
+    rule: TaggingRule,
+    dry_run: bool = False,
+) -> dict:
+    """Execute a fixed tagging rule (Type A) on all matching samples."""
     samples = session.exec(
         select(Sample).where(Sample.owner_id == rule.owner_id)
     ).all()
@@ -245,7 +252,72 @@ def execute_rule(
     if not dry_run:
         session.commit()
 
-    return {"matched": matched, "tagged": tagged, "skipped": skipped}
+    return {"matched": matched, "tagged": tagged, "skipped": skipped, "no_annotation": 0}
+
+
+def _execute_mapping_rule(
+    session: Session,
+    rule: TaggingRule,
+    dry_run: bool = False,
+) -> dict:
+    """
+    Execute a mapping tagging rule (Type B) on all matching samples.
+
+    Maps annotation class names to tags based on class_tag_mapping.
+    Only samples with annotations are processed.
+    """
+    if not rule.class_tag_mapping:
+        return {"matched": 0, "tagged": 0, "skipped": 0, "no_annotation": 0}
+
+    # Get all samples with annotations
+    samples = session.exec(
+        select(Sample)
+        .where(Sample.owner_id == rule.owner_id)
+        .where(Sample.annotation_status == AnnotationStatus.linked)
+    ).all()
+
+    matched = 0
+    tagged = 0
+    skipped = 0
+    no_annotation = 0
+
+    for sample in samples:
+        if not matches_rule(sample, rule):
+            continue
+
+        matched += 1
+
+        # Get annotation data
+        annotation = session.exec(
+            select(Annotation).where(Annotation.sample_id == sample.id)
+        ).first()
+
+        if not annotation or not annotation.class_counts:
+            no_annotation += 1
+            continue
+
+        # Apply tags based on class name mapping
+        for class_name in annotation.class_counts.keys():
+            tag_id_str = rule.class_tag_mapping.get(class_name)
+            if tag_id_str and not dry_run:
+                try:
+                    tag_id = UUID(tag_id_str)
+                    # Verify tag exists
+                    tag = session.get(Tag, tag_id)
+                    if tag:
+                        if _apply_tag_to_sample(session, sample.id, tag_id):
+                            tagged += 1
+                        else:
+                            skipped += 1
+                    else:
+                        logger.warning(f"Tag {tag_id_str} not found, skipping")
+                except ValueError:
+                    logger.warning(f"Invalid tag UUID: {tag_id_str}")
+
+    if not dry_run:
+        session.commit()
+
+    return {"matched": matched, "tagged": tagged, "skipped": skipped, "no_annotation": no_annotation}
 
 
 def preview_rule(
@@ -279,7 +351,6 @@ def preview_rule(
 def preview_pattern(
     session: Session,
     owner_id: UUID,
-    rule_type: TaggingRuleType,
     pattern: str,
     skip: int = 0,
     limit: int = 20,
@@ -287,11 +358,12 @@ def preview_pattern(
     """
     Preview which samples would match a pattern without creating a rule.
 
+    The pattern is matched against full path: {bucket}/{object_key}
+
     Args:
         session: Database session
         owner_id: Owner ID to filter samples
-        rule_type: Type of rule to apply
-        pattern: Pattern to match
+        pattern: Regex pattern to match against full path
         skip: Number of samples to skip (pagination)
         limit: Maximum number of samples to return
 
@@ -301,7 +373,6 @@ def preview_pattern(
     # Create a temporary rule object for matching
     temp_rule = TaggingRule(
         name="temp",
-        rule_type=rule_type,
         pattern=pattern,
         tag_ids=[],
         owner_id=owner_id,
@@ -316,6 +387,65 @@ def preview_pattern(
     return {
         "total_matched": len(matching),
         "samples": matching[skip : skip + limit],
+    }
+
+
+def preview_mapping_pattern(
+    session: Session,
+    owner_id: UUID,
+    pattern: str,
+    skip: int = 0,
+    limit: int = 20,
+) -> dict:
+    """
+    Preview which samples would match a mapping rule pattern.
+
+    Only includes samples with annotations and extracts unique class names.
+
+    Args:
+        session: Database session
+        owner_id: Owner ID to filter samples
+        pattern: Regex pattern to match against full path
+        skip: Number of samples to skip (pagination)
+        limit: Maximum number of samples to return
+
+    Returns:
+        Dict with total_matched, samples, unique_classes, and class_sample_counts
+    """
+    # Create a temporary rule object for matching
+    temp_rule = TaggingRule(
+        name="temp",
+        pattern=pattern,
+        tag_ids=[],
+        owner_id=owner_id,
+    )
+
+    # Only get samples with annotations
+    samples = session.exec(
+        select(Sample)
+        .where(Sample.owner_id == owner_id)
+        .where(Sample.annotation_status == AnnotationStatus.linked)
+    ).all()
+
+    matching = [s for s in samples if matches_rule(s, temp_rule)]
+
+    # Collect class names and counts
+    class_sample_counts: dict[str, int] = {}
+    for sample in matching:
+        annotation = session.exec(
+            select(Annotation).where(Annotation.sample_id == sample.id)
+        ).first()
+        if annotation and annotation.class_counts:
+            for class_name in annotation.class_counts.keys():
+                class_sample_counts[class_name] = class_sample_counts.get(class_name, 0) + 1
+
+    unique_classes = sorted(class_sample_counts.keys())
+
+    return {
+        "total_matched": len(matching),
+        "samples": matching[skip : skip + limit],
+        "unique_classes": unique_classes,
+        "class_sample_counts": class_sample_counts,
     }
 
 

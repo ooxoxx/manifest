@@ -191,6 +191,28 @@ export type ImportTaskPublic = {
  */
 export type ImportTaskStatus = 'pending' | 'running' | 'completed' | 'failed';
 
+/**
+ * Request for previewing a mapping rule pattern.
+ *
+ * Pattern is a regex matched against full path: {bucket}/{object_key}
+ * Only samples with annotations are included.
+ */
+export type MappingPreviewRequest = {
+    pattern: string;
+};
+
+/**
+ * Result of previewing a mapping rule pattern.
+ */
+export type MappingPreviewResult = {
+    total_matched: number;
+    samples: Array<SamplePublic>;
+    unique_classes: Array<(string)>;
+    class_sample_counts: {
+        [key: string]: (number);
+    };
+};
+
 export type Message = {
     message: string;
 };
@@ -488,7 +510,22 @@ export type TaggingRuleCreate = {
     pattern: string;
     is_active?: boolean;
     auto_execute?: boolean;
+    rule_type?: TaggingRuleType;
     tag_ids: Array<(string)>;
+};
+
+/**
+ * Request for creating a mapping tagging rule (Type B).
+ */
+export type TaggingRuleCreateMapping = {
+    name: string;
+    description?: (string | null);
+    pattern: string;
+    class_tag_mapping: {
+        [key: string]: (string);
+    };
+    is_active?: boolean;
+    auto_execute?: boolean;
 };
 
 /**
@@ -506,6 +543,7 @@ export type TaggingRuleExecuteResult = {
     matched: number;
     tagged: number;
     skipped: number;
+    no_annotation?: number;
 };
 
 /**
@@ -525,8 +563,12 @@ export type TaggingRulePublic = {
     pattern: string;
     is_active?: boolean;
     auto_execute?: boolean;
+    rule_type?: TaggingRuleType;
     id: string;
     tag_ids: Array<(string)>;
+    class_tag_mapping: ({
+    [key: string]: unknown;
+} | null);
     owner_id: string;
     created_at: string;
     updated_at: string;
@@ -541,6 +583,11 @@ export type TaggingRulesPublic = {
 };
 
 /**
+ * Tagging rule type enum.
+ */
+export type TaggingRuleType = 'fixed' | 'mapping';
+
+/**
  * Properties to receive on tagging rule update.
  */
 export type TaggingRuleUpdate = {
@@ -548,6 +595,9 @@ export type TaggingRuleUpdate = {
     description?: (string | null);
     pattern?: (string | null);
     tag_ids?: (Array<(string)> | null);
+    class_tag_mapping?: ({
+    [key: string]: unknown;
+} | null);
     is_active?: (boolean | null);
     auto_execute?: (boolean | null);
 };
@@ -1039,6 +1089,14 @@ export type TaggingRulesPreviewPatternEndpointData = {
 
 export type TaggingRulesPreviewPatternEndpointResponse = (PatternPreviewResult);
 
+export type TaggingRulesPreviewMappingEndpointData = {
+    limit?: number;
+    requestBody: MappingPreviewRequest;
+    skip?: number;
+};
+
+export type TaggingRulesPreviewMappingEndpointResponse = (MappingPreviewResult);
+
 export type TaggingRulesReadTaggingRuleData = {
     id: string;
 };
@@ -1057,6 +1115,13 @@ export type TaggingRulesDeleteTaggingRuleData = {
 };
 
 export type TaggingRulesDeleteTaggingRuleResponse = (Message);
+
+export type TaggingRulesCreateMappingRuleData = {
+    executeImmediately?: boolean;
+    requestBody: TaggingRuleCreateMapping;
+};
+
+export type TaggingRulesCreateMappingRuleResponse = (TaggingRuleCreateResult);
 
 export type TaggingRulesExecuteTaggingRuleData = {
     dryRun?: boolean;
