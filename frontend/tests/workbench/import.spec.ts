@@ -130,7 +130,9 @@ test.describe("Import Wizard", () => {
     // Check MinIO selector is visible
     await expect(page.getByTestId("minio-instance-select")).toBeVisible()
     // Bucket hint text should be visible
-    await expect(page.getByText("存储桶将从 CSV 文件的 bucket 列读取")).toBeVisible()
+    await expect(
+      page.getByText("存储桶将从 CSV 文件的 bucket 列读取"),
+    ).toBeVisible()
   })
 
   test("step 3 shows start import button", async ({ page }) => {

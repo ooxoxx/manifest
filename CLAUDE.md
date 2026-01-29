@@ -198,6 +198,7 @@ PLAYWRIGHT_BASE_URL=http://127.0.0.1:5273 npx playwright test --ui
   - This ensures you're using the project's configured Python environment with correct dependencies
   - DO NOT use bare `python`, `pytest`, or `pip` commands directly
 - Always use `127.0.0.1` instead of `localhost` in terminal commands
+- **CRITICAL: 不要使用 `git -C <path>` 命令，而是先 cd 到正确的目录再执行 git 命令**
 - Node 24 is required (use `fnm use` or `nvm use` with `.nvmrc`)
 - Run `alembic upgrade head` after pulling changes with migrations
 - Regenerate frontend client after backend API changes
