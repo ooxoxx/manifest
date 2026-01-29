@@ -286,6 +286,30 @@ class WatchedPathsPublic(SQLModel):
 
 
 # ============================================================================
+# Bucket Browser Models
+# ============================================================================
+
+
+class BucketObjectInfo(SQLModel):
+    """Information about an object or folder in a bucket."""
+
+    name: str  # Display name (last segment)
+    key: str  # Full path
+    is_folder: bool
+    size: int | None = None
+    last_modified: datetime | None = None
+
+
+class BucketObjectsResponse(SQLModel):
+    """Response for bucket object listing."""
+
+    bucket: str
+    prefix: str
+    folders: list[str]
+    objects: list[BucketObjectInfo]
+
+
+# ============================================================================
 # Tag Models
 # ============================================================================
 

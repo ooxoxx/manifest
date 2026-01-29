@@ -8,6 +8,8 @@ from sqlmodel import func, select
 
 from app.api.deps import CurrentUser, SessionDep
 from app.models import (
+    BucketObjectInfo,
+    BucketObjectsResponse,
     Message,
     MinIOInstance,
     MinIOInstanceCreate,
@@ -153,5 +155,52 @@ def list_minio_buckets(
     try:
         buckets = MinIOService.list_buckets(instance)
         return {"buckets": buckets}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/{id}/buckets/{bucket}/objects", response_model=BucketObjectsResponse)
+def list_bucket_objects(
+    session: SessionDep,
+    current_user: CurrentUser,
+    id: uuid.UUID,
+    bucket: str,
+    prefix: str = "",
+) -> BucketObjectsResponse:
+    """List objects and folders in a bucket for directory browsing.
+
+    Returns folders (common prefixes) and objects at the specified prefix level.
+    Use this endpoint to build a directory browser UI.
+    """
+    instance = session.get(MinIOInstance, id)
+    if not instance:
+        raise HTTPException(status_code=404, detail="MinIO instance not found")
+    if instance.owner_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+
+    try:
+        objects_data, folders = MinIOService.list_objects_with_prefixes(
+            instance=instance,
+            bucket=bucket,
+            prefix=prefix,
+        )
+
+        objects = [
+            BucketObjectInfo(
+                name=obj["name"],
+                key=obj["object_key"],
+                is_folder=False,
+                size=obj.get("size"),
+                last_modified=obj.get("last_modified"),
+            )
+            for obj in objects_data
+        ]
+
+        return BucketObjectsResponse(
+            bucket=bucket,
+            prefix=prefix,
+            folders=folders,
+            objects=objects,
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

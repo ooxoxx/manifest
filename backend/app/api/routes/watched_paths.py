@@ -1,5 +1,6 @@
 """Watched paths API routes."""
 
+import logging
 import uuid
 from datetime import datetime
 from typing import Any
@@ -21,6 +22,9 @@ from app.models import (
     WatchedPathUpdate,
 )
 from app.services.minio_service import MinIOService
+from app.services.notification_service import NotificationService
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/watched-paths", tags=["watched-paths"])
 
@@ -60,7 +64,7 @@ def create_watched_path(
     current_user: CurrentUser,
     path_in: WatchedPathCreate,
 ) -> Any:
-    """Create a new watched path."""
+    """Create a new watched path and configure bucket notification."""
     instance = session.get(MinIOInstance, path_in.minio_instance_id)
     if not instance:
         raise HTTPException(status_code=404, detail="MinIO instance not found")
@@ -77,6 +81,21 @@ def create_watched_path(
     session.add(path)
     session.commit()
     session.refresh(path)
+
+    # Configure bucket notification for real-time tracking
+    if path.is_active:
+        success = NotificationService.configure_bucket_notification(
+            instance=instance,
+            bucket=path.bucket,
+            prefix=path.prefix,
+            watched_path_id=path.id,
+        )
+        if not success:
+            logger.warning(
+                f"Failed to configure bucket notification for watched path {path.id}. "
+                "Manual sync will still work."
+            )
+
     return path
 
 
@@ -111,7 +130,7 @@ def delete_watched_path(
     current_user: CurrentUser,
     id: uuid.UUID,
 ) -> Message:
-    """Delete a watched path."""
+    """Delete a watched path and remove bucket notification."""
     path = session.get(WatchedPath, id)
     if not path:
         raise HTTPException(status_code=404, detail="Watched path not found")
@@ -119,6 +138,17 @@ def delete_watched_path(
     instance = session.get(MinIOInstance, path.minio_instance_id)
     if not instance or instance.owner_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not enough permissions")
+
+    # Remove bucket notification configuration
+    success = NotificationService.remove_bucket_notification(
+        instance=instance,
+        bucket=path.bucket,
+        watched_path_id=path.id,
+    )
+    if not success:
+        logger.warning(
+            f"Failed to remove bucket notification for watched path {path.id}"
+        )
 
     session.delete(path)
     session.commit()

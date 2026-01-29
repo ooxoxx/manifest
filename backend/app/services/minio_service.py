@@ -75,6 +75,38 @@ class MinIOService:
         return objects
 
     @staticmethod
+    def list_objects_with_prefixes(
+        instance: MinIOInstance,
+        bucket: str,
+        prefix: str = "",
+    ) -> tuple[list[dict], list[str]]:
+        """List objects and common prefixes (folders) for directory-like navigation.
+
+        Returns:
+            tuple: (objects, folders) where objects is a list of file info dicts
+                   and folders is a list of folder prefix strings
+        """
+        client = MinIOService.get_client(instance)
+        objects = []
+        folders = set()
+
+        # Use recursive=False to get only immediate children
+        for obj in client.list_objects(bucket, prefix=prefix, recursive=False):
+            if obj.is_dir:
+                folders.add(obj.object_name)
+            else:
+                objects.append({
+                    "object_key": obj.object_name,
+                    "name": obj.object_name.split("/")[-1],
+                    "size": obj.size,
+                    "etag": obj.etag.strip('"') if obj.etag else None,
+                    "content_type": obj.content_type,
+                    "last_modified": obj.last_modified,
+                })
+
+        return objects, sorted(folders)
+
+    @staticmethod
     def get_presigned_url(
         instance: MinIOInstance,
         bucket: str,
