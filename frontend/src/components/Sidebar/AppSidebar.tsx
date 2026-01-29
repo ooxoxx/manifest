@@ -1,6 +1,7 @@
 import {
   Activity,
   Database,
+  Eye,
   Filter,
   FolderOpen,
   Hammer,
@@ -38,6 +39,7 @@ const configItems: NavItem[] = [
   { icon: Tags, title: "标签管理", path: "/settings/tags" },
   { icon: Filter, title: "分类规则", path: "/settings/tagging-rules" },
   { icon: Server, title: "MinIO 实例", path: "/settings/minio" },
+  { icon: Eye, title: "监控路径", path: "/settings/watched-paths" },
 ]
 
 export function AppSidebar() {
