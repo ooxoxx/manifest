@@ -100,47 +100,20 @@ test.describe("Tags Manager", () => {
     await expect(systemSection).toBeVisible()
   })
 
-  test("add tag dialog has category selector", async ({ page }) => {
+  test("add tag dialog creates user tags", async ({ page }) => {
+    // The add tag dialog now only creates user tags (no category selector)
     await page.getByRole("button", { name: /添加标签/ }).click()
     await expect(page.getByRole("dialog")).toBeVisible()
 
-    // Should show category field/label
-    await expect(page.getByText(/分类/)).toBeVisible()
+    // Dialog title should indicate it's for user tags
+    await expect(page.getByText("添加用户标签")).toBeVisible()
   })
 
-  test("category selector has three options", async ({ page }) => {
+  test("add tag dialog has description field", async ({ page }) => {
     await page.getByRole("button", { name: /添加标签/ }).click()
     await expect(page.getByRole("dialog")).toBeVisible()
 
-    // Click category selector to open dropdown
-    const categoryLabel = page.getByText(/^分类$/)
-    const categoryTrigger = categoryLabel.locator("..").getByRole("combobox")
-    await categoryTrigger.click()
-
-    // Should show three category options
-    await expect(page.getByText("系统标签")).toBeVisible()
-    await expect(page.getByText("业务标签")).toBeVisible()
-    await expect(page.getByText("用户标签")).toBeVisible()
-  })
-
-  test("selected tag details show category", async ({ page }) => {
-    // Note: This test assumes at least one tag exists in the database
-    // It will be skipped if no tags are present
-
-    // Try to find any tag in any category accordion
-    const firstTagButton = page
-      .locator('button[type="button"]')
-      .filter({
-        hasText: /^(?!系统标签|业务标签|用户标签|添加标签)/, // exclude category headers and add button
-      })
-      .first()
-
-    // Only run if a tag exists
-    if (await firstTagButton.isVisible({ timeout: 2000 }).catch(() => false)) {
-      await firstTagButton.click()
-
-      // Tag details should show category information
-      await expect(page.getByText(/^分类$/).first()).toBeVisible()
-    }
+    // Should show description field
+    await expect(page.getByText(/描述/)).toBeVisible()
   })
 })

@@ -28,11 +28,12 @@ import { Route as LayoutSamplesIndexRouteImport } from './routes/_layout/samples
 import { Route as LayoutDatasetsIndexRouteImport } from './routes/_layout/datasets/index'
 import { Route as LayoutSettingsUsersRouteImport } from './routes/_layout/settings/users'
 import { Route as LayoutSettingsTagsRouteImport } from './routes/_layout/settings/tags'
-import { Route as LayoutSettingsTaggingRulesRouteImport } from './routes/_layout/settings/tagging-rules'
 import { Route as LayoutSettingsMinioRouteImport } from './routes/_layout/settings/minio'
 import { Route as LayoutSamplesSampleIdRouteImport } from './routes/_layout/samples/$sampleId'
 import { Route as LayoutDatasetsBuildRouteImport } from './routes/_layout/datasets/build'
+import { Route as LayoutSettingsTaggingRulesIndexRouteImport } from './routes/_layout/settings/tagging-rules/index'
 import { Route as LayoutDatasetsDatasetIdIndexRouteImport } from './routes/_layout/datasets/$datasetId/index'
+import { Route as LayoutSettingsTaggingRulesNewRouteImport } from './routes/_layout/settings/tagging-rules/new'
 import { Route as LayoutDatasetsDatasetIdReviewRouteImport } from './routes/_layout/datasets/$datasetId/review'
 import { Route as LayoutDatasetsDatasetIdAddSamplesRouteImport } from './routes/_layout/datasets/$datasetId.add-samples'
 
@@ -130,12 +131,6 @@ const LayoutSettingsTagsRoute = LayoutSettingsTagsRouteImport.update({
   path: '/tags',
   getParentRoute: () => LayoutSettingsRoute,
 } as any)
-const LayoutSettingsTaggingRulesRoute =
-  LayoutSettingsTaggingRulesRouteImport.update({
-    id: '/tagging-rules',
-    path: '/tagging-rules',
-    getParentRoute: () => LayoutSettingsRoute,
-  } as any)
 const LayoutSettingsMinioRoute = LayoutSettingsMinioRouteImport.update({
   id: '/minio',
   path: '/minio',
@@ -151,11 +146,23 @@ const LayoutDatasetsBuildRoute = LayoutDatasetsBuildRouteImport.update({
   path: '/build',
   getParentRoute: () => LayoutDatasetsRoute,
 } as any)
+const LayoutSettingsTaggingRulesIndexRoute =
+  LayoutSettingsTaggingRulesIndexRouteImport.update({
+    id: '/tagging-rules/',
+    path: '/tagging-rules/',
+    getParentRoute: () => LayoutSettingsRoute,
+  } as any)
 const LayoutDatasetsDatasetIdIndexRoute =
   LayoutDatasetsDatasetIdIndexRouteImport.update({
     id: '/$datasetId/',
     path: '/$datasetId/',
     getParentRoute: () => LayoutDatasetsRoute,
+  } as any)
+const LayoutSettingsTaggingRulesNewRoute =
+  LayoutSettingsTaggingRulesNewRouteImport.update({
+    id: '/tagging-rules/new',
+    path: '/tagging-rules/new',
+    getParentRoute: () => LayoutSettingsRoute,
   } as any)
 const LayoutDatasetsDatasetIdReviewRoute =
   LayoutDatasetsDatasetIdReviewRouteImport.update({
@@ -187,7 +194,6 @@ export interface FileRoutesByFullPath {
   '/datasets/build': typeof LayoutDatasetsBuildRoute
   '/samples/$sampleId': typeof LayoutSamplesSampleIdRoute
   '/settings/minio': typeof LayoutSettingsMinioRoute
-  '/settings/tagging-rules': typeof LayoutSettingsTaggingRulesRoute
   '/settings/tags': typeof LayoutSettingsTagsRoute
   '/settings/users': typeof LayoutSettingsUsersRoute
   '/datasets/': typeof LayoutDatasetsIndexRoute
@@ -195,7 +201,9 @@ export interface FileRoutesByFullPath {
   '/settings/': typeof LayoutSettingsIndexRoute
   '/datasets/$datasetId/add-samples': typeof LayoutDatasetsDatasetIdAddSamplesRoute
   '/datasets/$datasetId/review': typeof LayoutDatasetsDatasetIdReviewRoute
+  '/settings/tagging-rules/new': typeof LayoutSettingsTaggingRulesNewRoute
   '/datasets/$datasetId': typeof LayoutDatasetsDatasetIdIndexRoute
+  '/settings/tagging-rules': typeof LayoutSettingsTaggingRulesIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
@@ -212,7 +220,6 @@ export interface FileRoutesByTo {
   '/datasets/build': typeof LayoutDatasetsBuildRoute
   '/samples/$sampleId': typeof LayoutSamplesSampleIdRoute
   '/settings/minio': typeof LayoutSettingsMinioRoute
-  '/settings/tagging-rules': typeof LayoutSettingsTaggingRulesRoute
   '/settings/tags': typeof LayoutSettingsTagsRoute
   '/settings/users': typeof LayoutSettingsUsersRoute
   '/datasets': typeof LayoutDatasetsIndexRoute
@@ -220,7 +227,9 @@ export interface FileRoutesByTo {
   '/settings': typeof LayoutSettingsIndexRoute
   '/datasets/$datasetId/add-samples': typeof LayoutDatasetsDatasetIdAddSamplesRoute
   '/datasets/$datasetId/review': typeof LayoutDatasetsDatasetIdReviewRoute
+  '/settings/tagging-rules/new': typeof LayoutSettingsTaggingRulesNewRoute
   '/datasets/$datasetId': typeof LayoutDatasetsDatasetIdIndexRoute
+  '/settings/tagging-rules': typeof LayoutSettingsTaggingRulesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -241,7 +250,6 @@ export interface FileRoutesById {
   '/_layout/datasets/build': typeof LayoutDatasetsBuildRoute
   '/_layout/samples/$sampleId': typeof LayoutSamplesSampleIdRoute
   '/_layout/settings/minio': typeof LayoutSettingsMinioRoute
-  '/_layout/settings/tagging-rules': typeof LayoutSettingsTaggingRulesRoute
   '/_layout/settings/tags': typeof LayoutSettingsTagsRoute
   '/_layout/settings/users': typeof LayoutSettingsUsersRoute
   '/_layout/datasets/': typeof LayoutDatasetsIndexRoute
@@ -249,7 +257,9 @@ export interface FileRoutesById {
   '/_layout/settings/': typeof LayoutSettingsIndexRoute
   '/_layout/datasets/$datasetId/add-samples': typeof LayoutDatasetsDatasetIdAddSamplesRoute
   '/_layout/datasets/$datasetId/review': typeof LayoutDatasetsDatasetIdReviewRoute
+  '/_layout/settings/tagging-rules/new': typeof LayoutSettingsTaggingRulesNewRoute
   '/_layout/datasets/$datasetId/': typeof LayoutDatasetsDatasetIdIndexRoute
+  '/_layout/settings/tagging-rules/': typeof LayoutSettingsTaggingRulesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -270,7 +280,6 @@ export interface FileRouteTypes {
     | '/datasets/build'
     | '/samples/$sampleId'
     | '/settings/minio'
-    | '/settings/tagging-rules'
     | '/settings/tags'
     | '/settings/users'
     | '/datasets/'
@@ -278,7 +287,9 @@ export interface FileRouteTypes {
     | '/settings/'
     | '/datasets/$datasetId/add-samples'
     | '/datasets/$datasetId/review'
+    | '/settings/tagging-rules/new'
     | '/datasets/$datasetId'
+    | '/settings/tagging-rules'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -295,7 +306,6 @@ export interface FileRouteTypes {
     | '/datasets/build'
     | '/samples/$sampleId'
     | '/settings/minio'
-    | '/settings/tagging-rules'
     | '/settings/tags'
     | '/settings/users'
     | '/datasets'
@@ -303,7 +313,9 @@ export interface FileRouteTypes {
     | '/settings'
     | '/datasets/$datasetId/add-samples'
     | '/datasets/$datasetId/review'
+    | '/settings/tagging-rules/new'
     | '/datasets/$datasetId'
+    | '/settings/tagging-rules'
   id:
     | '__root__'
     | '/_layout'
@@ -323,7 +335,6 @@ export interface FileRouteTypes {
     | '/_layout/datasets/build'
     | '/_layout/samples/$sampleId'
     | '/_layout/settings/minio'
-    | '/_layout/settings/tagging-rules'
     | '/_layout/settings/tags'
     | '/_layout/settings/users'
     | '/_layout/datasets/'
@@ -331,7 +342,9 @@ export interface FileRouteTypes {
     | '/_layout/settings/'
     | '/_layout/datasets/$datasetId/add-samples'
     | '/_layout/datasets/$datasetId/review'
+    | '/_layout/settings/tagging-rules/new'
     | '/_layout/datasets/$datasetId/'
+    | '/_layout/settings/tagging-rules/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -477,13 +490,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutSettingsTagsRouteImport
       parentRoute: typeof LayoutSettingsRoute
     }
-    '/_layout/settings/tagging-rules': {
-      id: '/_layout/settings/tagging-rules'
-      path: '/tagging-rules'
-      fullPath: '/settings/tagging-rules'
-      preLoaderRoute: typeof LayoutSettingsTaggingRulesRouteImport
-      parentRoute: typeof LayoutSettingsRoute
-    }
     '/_layout/settings/minio': {
       id: '/_layout/settings/minio'
       path: '/minio'
@@ -505,12 +511,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutDatasetsBuildRouteImport
       parentRoute: typeof LayoutDatasetsRoute
     }
+    '/_layout/settings/tagging-rules/': {
+      id: '/_layout/settings/tagging-rules/'
+      path: '/tagging-rules'
+      fullPath: '/settings/tagging-rules'
+      preLoaderRoute: typeof LayoutSettingsTaggingRulesIndexRouteImport
+      parentRoute: typeof LayoutSettingsRoute
+    }
     '/_layout/datasets/$datasetId/': {
       id: '/_layout/datasets/$datasetId/'
       path: '/$datasetId'
       fullPath: '/datasets/$datasetId'
       preLoaderRoute: typeof LayoutDatasetsDatasetIdIndexRouteImport
       parentRoute: typeof LayoutDatasetsRoute
+    }
+    '/_layout/settings/tagging-rules/new': {
+      id: '/_layout/settings/tagging-rules/new'
+      path: '/tagging-rules/new'
+      fullPath: '/settings/tagging-rules/new'
+      preLoaderRoute: typeof LayoutSettingsTaggingRulesNewRouteImport
+      parentRoute: typeof LayoutSettingsRoute
     }
     '/_layout/datasets/$datasetId/review': {
       id: '/_layout/datasets/$datasetId/review'
@@ -552,18 +572,20 @@ const LayoutDatasetsRouteWithChildren = LayoutDatasetsRoute._addFileChildren(
 
 interface LayoutSettingsRouteChildren {
   LayoutSettingsMinioRoute: typeof LayoutSettingsMinioRoute
-  LayoutSettingsTaggingRulesRoute: typeof LayoutSettingsTaggingRulesRoute
   LayoutSettingsTagsRoute: typeof LayoutSettingsTagsRoute
   LayoutSettingsUsersRoute: typeof LayoutSettingsUsersRoute
   LayoutSettingsIndexRoute: typeof LayoutSettingsIndexRoute
+  LayoutSettingsTaggingRulesNewRoute: typeof LayoutSettingsTaggingRulesNewRoute
+  LayoutSettingsTaggingRulesIndexRoute: typeof LayoutSettingsTaggingRulesIndexRoute
 }
 
 const LayoutSettingsRouteChildren: LayoutSettingsRouteChildren = {
   LayoutSettingsMinioRoute: LayoutSettingsMinioRoute,
-  LayoutSettingsTaggingRulesRoute: LayoutSettingsTaggingRulesRoute,
   LayoutSettingsTagsRoute: LayoutSettingsTagsRoute,
   LayoutSettingsUsersRoute: LayoutSettingsUsersRoute,
   LayoutSettingsIndexRoute: LayoutSettingsIndexRoute,
+  LayoutSettingsTaggingRulesNewRoute: LayoutSettingsTaggingRulesNewRoute,
+  LayoutSettingsTaggingRulesIndexRoute: LayoutSettingsTaggingRulesIndexRoute,
 }
 
 const LayoutSettingsRouteWithChildren = LayoutSettingsRoute._addFileChildren(

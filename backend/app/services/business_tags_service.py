@@ -325,3 +325,92 @@ def get_business_tag_by_code(
         .where(Tag.category == TagCategory.business)
         .where(Tag.business_code == business_code)
     ).first()
+
+
+def get_business_tags_tree_with_counts(
+    session: Session,
+    owner_id,
+) -> list[dict]:
+    """
+    Get business tags as a tree structure with sample counts.
+
+    Each node includes:
+    - count: Direct sample count (samples tagged with this specific tag)
+    - total_count: Total including all descendants
+
+    Args:
+        session: Database session
+        owner_id: Owner user ID for counting samples
+
+    Returns:
+        List of root-level tags with nested children and counts
+    """
+    import uuid
+    from collections import defaultdict
+
+    from sqlalchemy import func as sa_func
+
+    from app.models import Sample, SampleStatus, SampleTag
+
+    # Get all business tags
+    tags = session.exec(
+        select(Tag)
+        .where(Tag.category == TagCategory.business)
+        .order_by(Tag.level, Tag.name)
+    ).all()
+
+    if not tags:
+        return []
+
+    # Get sample counts per tag for this user
+    tag_ids = [tag.id for tag in tags]
+    count_query = (
+        select(SampleTag.tag_id, sa_func.count(SampleTag.sample_id))
+        .join(Sample, Sample.id == SampleTag.sample_id)
+        .where(Sample.owner_id == owner_id)
+        .where(Sample.status == SampleStatus.active)
+        .where(SampleTag.tag_id.in_(tag_ids))
+        .group_by(SampleTag.tag_id)
+    )
+    count_results = session.exec(count_query).all()
+    count_map = {str(tag_id): count for tag_id, count in count_results}
+
+    # Build tree structure with counts
+    root_tags = []
+    children_map: dict[str, list] = defaultdict(list)
+    node_map: dict[str, dict] = {}
+
+    for tag in tags:
+        tag_data = {
+            "id": str(tag.id),
+            "name": tag.name,
+            "level": tag.level,
+            "full_path": tag.full_path,
+            "count": count_map.get(str(tag.id), 0),
+            "total_count": 0,  # Will be calculated after tree is built
+            "children": [],
+        }
+        node_map[str(tag.id)] = tag_data
+
+        if tag.parent_id is None:
+            root_tags.append(tag_data)
+        else:
+            children_map[str(tag.parent_id)].append(tag_data)
+
+    # Attach children
+    for node_id, node in node_map.items():
+        node["children"] = children_map.get(node_id, [])
+
+    # Calculate total_count (including descendants) bottom-up
+    def calculate_total_count(node: dict) -> int:
+        total = node["count"]
+        for child in node["children"]:
+            total += calculate_total_count(child)
+        node["total_count"] = total
+        return total
+
+    for root in root_tags:
+        calculate_total_count(root)
+
+    return root_tags
+

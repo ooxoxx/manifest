@@ -21,6 +21,7 @@ from app.models import (
 )
 from app.services.business_tags_service import (
     get_business_tags_tree,
+    get_business_tags_tree_with_counts,
     search_business_tags,
 )
 
@@ -267,6 +268,20 @@ def get_business_tag_tree(
 ) -> Any:
     """Get business tags as a tree structure."""
     return get_business_tags_tree(session)
+
+
+@router.get("/business/tree-with-counts")
+def get_business_tag_tree_with_counts(
+    session: SessionDep,
+    current_user: CurrentUser,
+) -> Any:
+    """Get business tags as a tree structure with sample counts.
+
+    Each node includes:
+    - count: Direct sample count (samples tagged with this specific tag)
+    - total_count: Total including all descendants
+    """
+    return get_business_tags_tree_with_counts(session, current_user.id)
 
 
 @router.get("/business/search", response_model=list[TagPublic])

@@ -11,11 +11,17 @@ import type { FilterParams } from "./SampleFilters"
 
 interface SampleGridProps {
   filters: FilterParams
+  storagePath?: string
+  businessTagId?: string
 }
 
 const PAGE_SIZE = 50
 
-export function SampleGrid({ filters }: SampleGridProps) {
+export function SampleGrid({
+  filters,
+  storagePath,
+  businessTagId,
+}: SampleGridProps) {
   const navigate = useNavigate()
   const loadMoreRef = useRef<HTMLDivElement>(null)
 
@@ -27,6 +33,26 @@ export function SampleGrid({ filters }: SampleGridProps) {
     if (nonEmptyGroups.length === 0) return undefined
     return JSON.stringify(nonEmptyGroups)
   }, [filters.tagFilter])
+
+  // Parse storage path to extract minio_instance_id, bucket, and prefix
+  const storageParams = useMemo(() => {
+    if (!storagePath) return {}
+    const parts = storagePath.split(":")
+    if (parts.length === 1) {
+      return { minioInstanceId: parts[0] }
+    }
+    if (parts.length === 2) {
+      return { minioInstanceId: parts[0], bucket: parts[1] }
+    }
+    if (parts.length >= 3) {
+      return {
+        minioInstanceId: parts[0],
+        bucket: parts[1],
+        prefix: parts.slice(2).join(":"),
+      }
+    }
+    return {}
+  }, [storagePath])
 
   // Infinite query for samples
   const {
@@ -45,6 +71,8 @@ export function SampleGrid({ filters }: SampleGridProps) {
       filters.dateTo,
       filters.annotationStatus,
       filters.search,
+      storagePath,
+      businessTagId,
     ],
     queryFn: async ({ pageParam = 0 }) => {
       return SamplesService.readSamples({
@@ -56,6 +84,10 @@ export function SampleGrid({ filters }: SampleGridProps) {
         annotationStatus: filters.annotationStatus ?? undefined,
         search: filters.search || undefined,
         sort: "-created_at",
+        minioInstanceId: storageParams.minioInstanceId,
+        bucket: storageParams.bucket,
+        prefix: storageParams.prefix,
+        businessTagId: businessTagId,
       })
     },
     initialPageParam: 0,
