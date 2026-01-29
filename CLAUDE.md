@@ -221,3 +221,8 @@ PLAYWRIGHT_BASE_URL=http://127.0.0.1:5273 npx playwright test --ui
   - 运行 `docker compose build frontend` 或 `docker compose up -d --build frontend`
   - 这确保 `docker compose watch` 能够正常加载最新的前端改动
   - 如果不重建，watch 模式可能仍在使用旧的镜像缓存
+- **CRITICAL: 原子性提交（Atomic Commits）**
+  - 每完成一个小的、独立的改动就立即提交
+  - 提交信息必须清晰描述本次改动的具体内容
+  - 避免将多个不相关的改动合并到一个提交中
+  - 这样便于代码审查、问题追踪和必要时的回滚
