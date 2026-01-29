@@ -1,26 +1,40 @@
 // frontend/src/components/MinIO/MinioManager.tsx
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { Plus, Server } from "lucide-react"
-import { Suspense, useState } from "react"
+import { Suspense, useMemo, useState } from "react"
 
-import { MinioInstancesService } from "@/client"
+import { type MinIOInstancePublic, MinioInstancesService } from "@/client"
 import { DataTable } from "@/components/Common/DataTable"
 import AddMinIOInstance from "@/components/MinIO/AddInstance"
-import { columns } from "@/components/MinIO/columns"
+import { createColumns } from "@/components/MinIO/columns"
+import EditMinIOInstance from "@/components/MinIO/EditInstance"
 import { PendingComponent } from "@/components/Pending/PendingComponent"
 import { Button } from "@/components/ui/button"
 
-function MinioTable() {
+function MinioTable({
+  onEdit,
+}: {
+  onEdit: (instance: MinIOInstancePublic) => void
+}) {
   const { data } = useSuspenseQuery({
     queryKey: ["minio-instances"],
     queryFn: () => MinioInstancesService.readMinioInstances(),
   })
+
+  const columns = useMemo(() => createColumns({ onEdit }), [onEdit])
 
   return <DataTable columns={columns} data={data?.data ?? []} />
 }
 
 export default function MinioManager() {
   const [isAddOpen, setIsAddOpen] = useState(false)
+  const [editInstance, setEditInstance] = useState<MinIOInstancePublic | null>(
+    null,
+  )
+
+  const handleEdit = (instance: MinIOInstancePublic) => {
+    setEditInstance(instance)
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -49,11 +63,18 @@ export default function MinioManager() {
 
       <Suspense fallback={<PendingComponent />}>
         <div className="terminal-border bg-card/30 backdrop-blur-sm rounded-lg overflow-hidden">
-          <MinioTable />
+          <MinioTable onEdit={handleEdit} />
         </div>
       </Suspense>
 
       <AddMinIOInstance open={isAddOpen} onOpenChange={setIsAddOpen} />
+      <EditMinIOInstance
+        instance={editInstance}
+        open={editInstance !== null}
+        onOpenChange={(open) => {
+          if (!open) setEditInstance(null)
+        }}
+      />
     </div>
   )
 }

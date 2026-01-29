@@ -1,13 +1,15 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
-import { MinioInstancesService } from "@/client"
+import { type MinIOInstancePublic, MinioInstancesService } from "@/client"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
@@ -26,19 +28,24 @@ import { Switch } from "@/components/ui/switch"
 const formSchema = z.object({
   name: z.string().min(1, "请输入名称"),
   endpoint: z.string().min(1, "请输入端点"),
-  access_key: z.string().min(1, "请输入 Access Key"),
-  secret_key: z.string().min(1, "请输入 Secret Key"),
+  access_key: z.string().optional(),
+  secret_key: z.string().optional(),
   secure: z.boolean(),
 })
 
 type FormData = z.infer<typeof formSchema>
 
 interface Props {
+  instance: MinIOInstancePublic | null
   open: boolean
   onOpenChange: (open: boolean) => void
 }
 
-export default function AddMinIOInstance({ open, onOpenChange }: Props) {
+export default function EditMinIOInstance({
+  instance,
+  open,
+  onOpenChange,
+}: Props) {
   const queryClient = useQueryClient()
 
   const form = useForm<FormData>({
@@ -54,21 +61,48 @@ export default function AddMinIOInstance({ open, onOpenChange }: Props) {
     },
   })
 
+  useEffect(() => {
+    if (instance && open) {
+      form.reset({
+        name: instance.name,
+        endpoint: instance.endpoint,
+        access_key: "",
+        secret_key: "",
+        secure: instance.secure,
+      })
+    }
+  }, [instance, open, form])
+
   const mutation = useMutation({
-    mutationFn: (data: FormData) =>
-      MinioInstancesService.createMinioInstanceEndpoint({ requestBody: data }),
+    mutationFn: (data: FormData) => {
+      if (!instance) throw new Error("No instance to update")
+      return MinioInstancesService.updateMinioInstanceEndpoint({
+        id: instance.id,
+        requestBody: {
+          name: data.name,
+          endpoint: data.endpoint,
+          secure: data.secure,
+          access_key: data.access_key || null,
+          secret_key: data.secret_key || null,
+        },
+      })
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["minio-instances"] })
       onOpenChange(false)
-      form.reset()
     },
   })
+
+  if (!instance) return null
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>添加 MinIO 实例</DialogTitle>
+          <DialogTitle>编辑 MinIO 实例</DialogTitle>
+          <DialogDescription>
+            修改实例配置。凭据留空表示保持原有值不变。
+          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form
@@ -109,9 +143,9 @@ export default function AddMinIOInstance({ open, onOpenChange }: Props) {
               name="access_key"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Access Key</FormLabel>
+                  <FormLabel>Access Key (留空保持不变)</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input placeholder="留空保持原有值" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -122,9 +156,13 @@ export default function AddMinIOInstance({ open, onOpenChange }: Props) {
               name="secret_key"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Secret Key</FormLabel>
+                  <FormLabel>Secret Key (留空保持不变)</FormLabel>
                   <FormControl>
-                    <Input type="password" {...field} />
+                    <Input
+                      type="password"
+                      placeholder="留空保持原有值"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -150,7 +188,7 @@ export default function AddMinIOInstance({ open, onOpenChange }: Props) {
               disabled={mutation.isPending}
               className="w-full"
             >
-              {mutation.isPending ? "创建中..." : "创建实例"}
+              {mutation.isPending ? "保存中..." : "保存修改"}
             </Button>
           </form>
         </Form>
