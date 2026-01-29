@@ -101,7 +101,10 @@ test.describe("MinIO CRUD Operations", () => {
     const rowCount = await rows.count()
 
     // Check if we have actual data rows (not just "未找到数据" empty state)
-    const hasEmptyState = await page.getByText("未找到数据").isVisible().catch(() => false)
+    const hasEmptyState = await page
+      .getByText("未找到数据")
+      .isVisible()
+      .catch(() => false)
 
     if (rowCount > 0 && !hasEmptyState) {
       // Click the actions menu button on the first row
@@ -123,7 +126,10 @@ test.describe("MinIO CRUD Operations", () => {
     const rowCount = await rows.count()
 
     // Check if we have actual data rows (not just "未找到数据" empty state)
-    const hasEmptyState = await page.getByText("未找到数据").isVisible().catch(() => false)
+    const hasEmptyState = await page
+      .getByText("未找到数据")
+      .isVisible()
+      .catch(() => false)
 
     if (rowCount > 0 && !hasEmptyState) {
       // Get the name from the first row for verification

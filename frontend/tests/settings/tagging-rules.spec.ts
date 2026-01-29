@@ -42,7 +42,9 @@ test.describe("Tagging Rules Manager", () => {
     const newRuleLink = page.getByRole("link", { name: /新建规则/ }).first()
     await newRuleLink.click()
     await expect(page).toHaveURL(/\/settings\/tagging-rules\/new/)
-    await expect(page.getByRole("heading", { name: "新建分类规则" })).toBeVisible()
+    await expect(
+      page.getByRole("heading", { name: "新建分类规则" }),
+    ).toBeVisible()
   })
 })
 
