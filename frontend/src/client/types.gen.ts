@@ -33,6 +33,27 @@ export type Body_samples_preview_import_csv = {
 };
 
 /**
+ * Information about an object or folder in a bucket.
+ */
+export type BucketObjectInfo = {
+    name: string;
+    key: string;
+    is_folder: boolean;
+    size?: (number | null);
+    last_modified?: (string | null);
+};
+
+/**
+ * Response for bucket object listing.
+ */
+export type BucketObjectsResponse = {
+    bucket: string;
+    prefix: string;
+    folders: Array<(string)>;
+    objects: Array<BucketObjectInfo>;
+};
+
+/**
  * Statistics for a single class.
  */
 export type ClassStat = {
@@ -965,6 +986,14 @@ export type MinioInstancesListMinioBucketsData = {
 export type MinioInstancesListMinioBucketsResponse = ({
     [key: string]: unknown;
 });
+
+export type MinioInstancesListBucketObjectsData = {
+    bucket: string;
+    id: string;
+    prefix?: string;
+};
+
+export type MinioInstancesListBucketObjectsResponse = (BucketObjectsResponse);
 
 export type PrivateCreateUserData = {
     requestBody: PrivateUserCreate;

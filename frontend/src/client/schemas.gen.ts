@@ -123,6 +123,81 @@ export const Body_samples_preview_import_csvSchema = {
     title: 'Body_samples-preview_import_csv'
 } as const;
 
+export const BucketObjectInfoSchema = {
+    properties: {
+        name: {
+            type: 'string',
+            title: 'Name'
+        },
+        key: {
+            type: 'string',
+            title: 'Key'
+        },
+        is_folder: {
+            type: 'boolean',
+            title: 'Is Folder'
+        },
+        size: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Size'
+        },
+        last_modified: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date-time'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Last Modified'
+        }
+    },
+    type: 'object',
+    required: ['name', 'key', 'is_folder'],
+    title: 'BucketObjectInfo',
+    description: 'Information about an object or folder in a bucket.'
+} as const;
+
+export const BucketObjectsResponseSchema = {
+    properties: {
+        bucket: {
+            type: 'string',
+            title: 'Bucket'
+        },
+        prefix: {
+            type: 'string',
+            title: 'Prefix'
+        },
+        folders: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Folders'
+        },
+        objects: {
+            items: {
+                '$ref': '#/components/schemas/BucketObjectInfo'
+            },
+            type: 'array',
+            title: 'Objects'
+        }
+    },
+    type: 'object',
+    required: ['bucket', 'prefix', 'folders', 'objects'],
+    title: 'BucketObjectsResponse',
+    description: 'Response for bucket object listing.'
+} as const;
+
 export const CSVPreviewResponseSchema = {
     properties: {
         total_rows: {

@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { DashboardGetDashboardOverviewResponse, DashboardGetDailyStatsData, DashboardGetDailyStatsResponse, DashboardGetTagDistributionData, DashboardGetTagDistributionResponse, DatasetsReadDatasetsData, DatasetsReadDatasetsResponse, DatasetsCreateDatasetData, DatasetsCreateDatasetResponse, DatasetsFilterPreviewData, DatasetsFilterPreviewResponse, DatasetsFilterClassStatsData, DatasetsFilterClassStatsResponse, DatasetsBuildNewDatasetData, DatasetsBuildNewDatasetResponse, DatasetsAddFilteredSamplesToDatasetData, DatasetsAddFilteredSamplesToDatasetResponse, DatasetsReadDatasetData, DatasetsReadDatasetResponse, DatasetsUpdateDatasetData, DatasetsUpdateDatasetResponse, DatasetsDeleteDatasetData, DatasetsDeleteDatasetResponse, DatasetsGetDatasetClassStatsData, DatasetsGetDatasetClassStatsResponse, DatasetsGetDatasetSamplesData, DatasetsGetDatasetSamplesResponse, DatasetsAddSamplesToDatasetData, DatasetsAddSamplesToDatasetResponse, DatasetsRemoveSamplesFromDatasetData, DatasetsRemoveSamplesFromDatasetResponse, DatasetsBuildDatasetData, DatasetsBuildDatasetResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, MinioInstancesReadMinioInstancesData, MinioInstancesReadMinioInstancesResponse, MinioInstancesCreateMinioInstanceEndpointData, MinioInstancesCreateMinioInstanceEndpointResponse, MinioInstancesReadMinioInstanceData, MinioInstancesReadMinioInstanceResponse, MinioInstancesUpdateMinioInstanceEndpointData, MinioInstancesUpdateMinioInstanceEndpointResponse, MinioInstancesDeleteMinioInstanceData, MinioInstancesDeleteMinioInstanceResponse, MinioInstancesTestMinioConnectionData, MinioInstancesTestMinioConnectionResponse, MinioInstancesListMinioBucketsData, MinioInstancesListMinioBucketsResponse, PrivateCreateUserData, PrivateCreateUserResponse, SamplesReadSamplesData, SamplesReadSamplesResponse, SamplesGetStorageTreeResponse, SamplesGetSampleThumbnailsData, SamplesGetSampleThumbnailsResponse, SamplesListImportTasksData, SamplesListImportTasksResponse, SamplesImportSamplesData, SamplesImportSamplesResponse, SamplesGetImportStatusData, SamplesGetImportStatusResponse, SamplesPreviewImportCsvData, SamplesPreviewImportCsvResponse, SamplesReadSampleData, SamplesReadSampleResponse, SamplesDeleteSampleData, SamplesDeleteSampleResponse, SamplesGetSamplePreviewUrlData, SamplesGetSamplePreviewUrlResponse, SamplesGetSamplePreviewData, SamplesGetSamplePreviewResponse, SamplesGetSampleHistoryData, SamplesGetSampleHistoryResponse, SamplesBatchTagSamplesData, SamplesBatchTagSamplesResponse, TaggingRulesReadTaggingRulesData, TaggingRulesReadTaggingRulesResponse, TaggingRulesCreateTaggingRuleData, TaggingRulesCreateTaggingRuleResponse, TaggingRulesPreviewPatternEndpointData, TaggingRulesPreviewPatternEndpointResponse, TaggingRulesPreviewMappingEndpointData, TaggingRulesPreviewMappingEndpointResponse, TaggingRulesReadTaggingRuleData, TaggingRulesReadTaggingRuleResponse, TaggingRulesUpdateTaggingRuleData, TaggingRulesUpdateTaggingRuleResponse, TaggingRulesDeleteTaggingRuleData, TaggingRulesDeleteTaggingRuleResponse, TaggingRulesCreateMappingRuleData, TaggingRulesCreateMappingRuleResponse, TaggingRulesExecuteTaggingRuleData, TaggingRulesExecuteTaggingRuleResponse, TaggingRulesPreviewTaggingRuleData, TaggingRulesPreviewTaggingRuleResponse, TagsReadTagsData, TagsReadTagsResponse, TagsCreateTagData, TagsCreateTagResponse, TagsGetTagTreeResponse, TagsGetTagsByCategoryResponse, TagsUpdateTagData, TagsUpdateTagResponse, TagsDeleteTagData, TagsDeleteTagResponse, TagsGetBusinessTagTreeResponse, TagsGetBusinessTagTreeWithCountsResponse, TagsSearchBusinessTagData, TagsSearchBusinessTagResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, WatchedPathsReadWatchedPathsData, WatchedPathsReadWatchedPathsResponse, WatchedPathsCreateWatchedPathData, WatchedPathsCreateWatchedPathResponse, WatchedPathsUpdateWatchedPathData, WatchedPathsUpdateWatchedPathResponse, WatchedPathsDeleteWatchedPathData, WatchedPathsDeleteWatchedPathResponse, WatchedPathsSyncWatchedPathData, WatchedPathsSyncWatchedPathResponse, WebhooksReceiveMinioWebhookData, WebhooksReceiveMinioWebhookResponse } from './types.gen';
+import type { DashboardGetDashboardOverviewResponse, DashboardGetDailyStatsData, DashboardGetDailyStatsResponse, DashboardGetTagDistributionData, DashboardGetTagDistributionResponse, DatasetsReadDatasetsData, DatasetsReadDatasetsResponse, DatasetsCreateDatasetData, DatasetsCreateDatasetResponse, DatasetsFilterPreviewData, DatasetsFilterPreviewResponse, DatasetsFilterClassStatsData, DatasetsFilterClassStatsResponse, DatasetsBuildNewDatasetData, DatasetsBuildNewDatasetResponse, DatasetsAddFilteredSamplesToDatasetData, DatasetsAddFilteredSamplesToDatasetResponse, DatasetsReadDatasetData, DatasetsReadDatasetResponse, DatasetsUpdateDatasetData, DatasetsUpdateDatasetResponse, DatasetsDeleteDatasetData, DatasetsDeleteDatasetResponse, DatasetsGetDatasetClassStatsData, DatasetsGetDatasetClassStatsResponse, DatasetsGetDatasetSamplesData, DatasetsGetDatasetSamplesResponse, DatasetsAddSamplesToDatasetData, DatasetsAddSamplesToDatasetResponse, DatasetsRemoveSamplesFromDatasetData, DatasetsRemoveSamplesFromDatasetResponse, DatasetsBuildDatasetData, DatasetsBuildDatasetResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, MinioInstancesReadMinioInstancesData, MinioInstancesReadMinioInstancesResponse, MinioInstancesCreateMinioInstanceEndpointData, MinioInstancesCreateMinioInstanceEndpointResponse, MinioInstancesReadMinioInstanceData, MinioInstancesReadMinioInstanceResponse, MinioInstancesUpdateMinioInstanceEndpointData, MinioInstancesUpdateMinioInstanceEndpointResponse, MinioInstancesDeleteMinioInstanceData, MinioInstancesDeleteMinioInstanceResponse, MinioInstancesTestMinioConnectionData, MinioInstancesTestMinioConnectionResponse, MinioInstancesListMinioBucketsData, MinioInstancesListMinioBucketsResponse, MinioInstancesListBucketObjectsData, MinioInstancesListBucketObjectsResponse, PrivateCreateUserData, PrivateCreateUserResponse, SamplesReadSamplesData, SamplesReadSamplesResponse, SamplesGetStorageTreeResponse, SamplesGetSampleThumbnailsData, SamplesGetSampleThumbnailsResponse, SamplesListImportTasksData, SamplesListImportTasksResponse, SamplesImportSamplesData, SamplesImportSamplesResponse, SamplesGetImportStatusData, SamplesGetImportStatusResponse, SamplesPreviewImportCsvData, SamplesPreviewImportCsvResponse, SamplesReadSampleData, SamplesReadSampleResponse, SamplesDeleteSampleData, SamplesDeleteSampleResponse, SamplesGetSamplePreviewUrlData, SamplesGetSamplePreviewUrlResponse, SamplesGetSamplePreviewData, SamplesGetSamplePreviewResponse, SamplesGetSampleHistoryData, SamplesGetSampleHistoryResponse, SamplesBatchTagSamplesData, SamplesBatchTagSamplesResponse, TaggingRulesReadTaggingRulesData, TaggingRulesReadTaggingRulesResponse, TaggingRulesCreateTaggingRuleData, TaggingRulesCreateTaggingRuleResponse, TaggingRulesPreviewPatternEndpointData, TaggingRulesPreviewPatternEndpointResponse, TaggingRulesPreviewMappingEndpointData, TaggingRulesPreviewMappingEndpointResponse, TaggingRulesReadTaggingRuleData, TaggingRulesReadTaggingRuleResponse, TaggingRulesUpdateTaggingRuleData, TaggingRulesUpdateTaggingRuleResponse, TaggingRulesDeleteTaggingRuleData, TaggingRulesDeleteTaggingRuleResponse, TaggingRulesCreateMappingRuleData, TaggingRulesCreateMappingRuleResponse, TaggingRulesExecuteTaggingRuleData, TaggingRulesExecuteTaggingRuleResponse, TaggingRulesPreviewTaggingRuleData, TaggingRulesPreviewTaggingRuleResponse, TagsReadTagsData, TagsReadTagsResponse, TagsCreateTagData, TagsCreateTagResponse, TagsGetTagTreeResponse, TagsGetTagsByCategoryResponse, TagsUpdateTagData, TagsUpdateTagResponse, TagsDeleteTagData, TagsDeleteTagResponse, TagsGetBusinessTagTreeResponse, TagsGetBusinessTagTreeWithCountsResponse, TagsSearchBusinessTagData, TagsSearchBusinessTagResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, WatchedPathsReadWatchedPathsData, WatchedPathsReadWatchedPathsResponse, WatchedPathsCreateWatchedPathData, WatchedPathsCreateWatchedPathResponse, WatchedPathsUpdateWatchedPathData, WatchedPathsUpdateWatchedPathResponse, WatchedPathsDeleteWatchedPathData, WatchedPathsDeleteWatchedPathResponse, WatchedPathsSyncWatchedPathData, WatchedPathsSyncWatchedPathResponse, WebhooksReceiveMinioWebhookData, WebhooksReceiveMinioWebhookResponse } from './types.gen';
 
 export class DashboardService {
     /**
@@ -630,6 +630,36 @@ export class MinioInstancesService {
             url: '/api/v1/minio-instances/{id}/buckets',
             path: {
                 id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * List Bucket Objects
+     * List objects and folders in a bucket for directory browsing.
+     *
+     * Returns folders (common prefixes) and objects at the specified prefix level.
+     * Use this endpoint to build a directory browser UI.
+     * @param data The data for the request.
+     * @param data.id
+     * @param data.bucket
+     * @param data.prefix
+     * @returns BucketObjectsResponse Successful Response
+     * @throws ApiError
+     */
+    public static listBucketObjects(data: MinioInstancesListBucketObjectsData): CancelablePromise<MinioInstancesListBucketObjectsResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/minio-instances/{id}/buckets/{bucket}/objects',
+            path: {
+                id: data.id,
+                bucket: data.bucket
+            },
+            query: {
+                prefix: data.prefix
             },
             errors: {
                 422: 'Validation Error'
@@ -1712,7 +1742,7 @@ export class WatchedPathsService {
     
     /**
      * Create Watched Path
-     * Create a new watched path.
+     * Create a new watched path and configure bucket notification.
      * @param data The data for the request.
      * @param data.requestBody
      * @returns WatchedPathPublic Successful Response
@@ -1756,7 +1786,7 @@ export class WatchedPathsService {
     
     /**
      * Delete Watched Path
-     * Delete a watched path.
+     * Delete a watched path and remove bucket notification.
      * @param data The data for the request.
      * @param data.id
      * @returns Message Successful Response
