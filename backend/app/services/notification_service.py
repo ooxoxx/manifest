@@ -3,7 +3,6 @@
 import logging
 import uuid
 
-from minio.commonconfig import Filter
 from minio.notificationconfig import (
     NotificationConfig,
     PrefixFilterRule,
@@ -65,19 +64,12 @@ class NotificationService:
             # Remove any existing config with the same ID
             existing_queues = [q for q in existing_queues if q.config_id != config_id]
 
-            # Build filter rules for prefix
-            filter_config = None
-            if prefix:
-                filter_config = Filter(
-                    prefix_filter_rule=PrefixFilterRule(prefix),
-                )
-
             # Create new queue config
             queue_config = QueueConfig(
-                WEBHOOK_ARN,
-                events,
+                events=events,
                 config_id=config_id,
                 prefix_filter_rule=PrefixFilterRule(prefix) if prefix else None,
+                queue=WEBHOOK_ARN,
             )
 
             # Add to existing configs
