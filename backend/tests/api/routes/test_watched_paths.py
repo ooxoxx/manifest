@@ -5,8 +5,9 @@ from unittest.mock import patch
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlmodel import Session
+from sqlmodel import Session, select
 
+from app.core.config import settings
 from app.models import (
     MinIOInstance,
     Sample,
@@ -18,32 +19,21 @@ from app.models import (
 
 
 @pytest.fixture
-def test_user(db: Session):
-    """Create a test user for watched paths."""
-    user_id = uuid.uuid4()
-    user = User(
-        id=user_id,
-        email=f"watched_path_test_{user_id}@example.com",
-        hashed_password="fakehash",
-        full_name="Watched Path Test User",
-        is_superuser=True,
-    )
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    yield user
-    # Cleanup
-    db.delete(user)
-    db.commit()
+def superuser(db: Session) -> User:
+    """Get the superuser from database."""
+    user = db.exec(
+        select(User).where(User.email == settings.FIRST_SUPERUSER)
+    ).first()
+    return user
 
 
 @pytest.fixture
-def test_minio_instance(db: Session, test_user: User):
-    """Create a test MinIO instance."""
+def test_minio_instance(db: Session, superuser: User):
+    """Create a test MinIO instance owned by superuser."""
     instance = MinIOInstance(
         id=uuid.uuid4(),
-        owner_id=test_user.id,
-        name="Test MinIO WatchedPath",
+        owner_id=superuser.id,
+        name=f"Test MinIO WatchedPath {uuid.uuid4().hex[:8]}",
         endpoint="127.0.0.1:9000",
         access_key_encrypted="encrypted_minioadmin",
         secret_key_encrypted="encrypted_minioadmin",
@@ -92,7 +82,7 @@ class TestWatchedPathCRUD:
         mock_configure: patch,
         client: TestClient,
         db: Session,
-        test_user: User,
+        superuser: User,
         test_minio_instance: MinIOInstance,
         superuser_token_headers: dict[str, str],
     ):
@@ -151,7 +141,7 @@ class TestWatchedPathCRUD:
         self,
         client: TestClient,
         db: Session,
-        test_user: User,
+        superuser: User,
         test_watched_path: WatchedPath,
         superuser_token_headers: dict[str, str],
     ):
@@ -170,7 +160,7 @@ class TestWatchedPathCRUD:
         self,
         client: TestClient,
         db: Session,
-        test_user: User,
+        superuser: User,
         test_minio_instance: MinIOInstance,
         test_watched_path: WatchedPath,
         superuser_token_headers: dict[str, str],
@@ -191,7 +181,7 @@ class TestWatchedPathCRUD:
         mock_remove: patch,
         client: TestClient,
         db: Session,
-        test_user: User,
+        superuser: User,
         test_minio_instance: MinIOInstance,
         superuser_token_headers: dict[str, str],
     ):
@@ -248,7 +238,7 @@ class TestWatchedPathSync:
         mock_list_objects: patch,
         client: TestClient,
         db: Session,
-        test_user: User,
+        superuser: User,
         test_minio_instance: MinIOInstance,
         test_watched_path: WatchedPath,
         superuser_token_headers: dict[str, str],
@@ -280,7 +270,6 @@ class TestWatchedPathSync:
         assert data["skipped"] == 0
 
         # Cleanup created samples
-        from sqlmodel import select
         samples = db.exec(
             select(Sample).where(
                 Sample.minio_instance_id == test_minio_instance.id,
@@ -297,7 +286,7 @@ class TestWatchedPathSync:
         mock_list_objects: patch,
         client: TestClient,
         db: Session,
-        test_user: User,
+        superuser: User,
         test_minio_instance: MinIOInstance,
         test_watched_path: WatchedPath,
         superuser_token_headers: dict[str, str],
@@ -307,7 +296,7 @@ class TestWatchedPathSync:
         existing_sample = Sample(
             id=uuid.uuid4(),
             minio_instance_id=test_minio_instance.id,
-            owner_id=test_user.id,
+            owner_id=superuser.id,
             bucket="test-bucket",
             object_key="images/existing.jpg",
             file_name="existing.jpg",
@@ -344,7 +333,6 @@ class TestWatchedPathSync:
         assert data["skipped"] == 1
 
         # Cleanup
-        from sqlmodel import select
         samples = db.exec(
             select(Sample).where(
                 Sample.minio_instance_id == test_minio_instance.id,
