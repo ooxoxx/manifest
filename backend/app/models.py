@@ -290,6 +290,12 @@ class WatchedPathsPublic(SQLModel):
 # ============================================================================
 
 
+class BucketListResponse(SQLModel):
+    """Response for bucket listing."""
+
+    buckets: list[str]
+
+
 class BucketObjectInfo(SQLModel):
     """Information about an object or folder in a bucket."""
 

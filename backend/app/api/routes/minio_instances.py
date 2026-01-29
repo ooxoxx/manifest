@@ -8,6 +8,7 @@ from sqlmodel import func, select
 
 from app.api.deps import CurrentUser, SessionDep
 from app.models import (
+    BucketListResponse,
     BucketObjectInfo,
     BucketObjectsResponse,
     Message,
@@ -139,12 +140,12 @@ def test_minio_connection(
     return {"success": success, "message": message}
 
 
-@router.get("/{id}/buckets")
+@router.get("/{id}/buckets", response_model=BucketListResponse)
 def list_minio_buckets(
     session: SessionDep,
     current_user: CurrentUser,
     id: uuid.UUID,
-) -> dict:
+) -> BucketListResponse:
     """List buckets in MinIO instance."""
     instance = session.get(MinIOInstance, id)
     if not instance:
@@ -154,7 +155,7 @@ def list_minio_buckets(
 
     try:
         buckets = MinIOService.list_buckets(instance)
-        return {"buckets": buckets}
+        return BucketListResponse(buckets=buckets)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
