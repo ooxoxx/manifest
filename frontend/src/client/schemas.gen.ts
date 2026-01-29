@@ -123,6 +123,22 @@ export const Body_samples_preview_import_csvSchema = {
     title: 'Body_samples-preview_import_csv'
 } as const;
 
+export const BucketListResponseSchema = {
+    properties: {
+        buckets: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Buckets'
+        }
+    },
+    type: 'object',
+    required: ['buckets'],
+    title: 'BucketListResponse',
+    description: 'Response for bucket listing.'
+} as const;
+
 export const BucketObjectInfoSchema = {
     properties: {
         name: {

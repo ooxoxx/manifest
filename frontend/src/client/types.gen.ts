@@ -33,6 +33,13 @@ export type Body_samples_preview_import_csv = {
 };
 
 /**
+ * Response for bucket listing.
+ */
+export type BucketListResponse = {
+    buckets: Array<(string)>;
+};
+
+/**
  * Information about an object or folder in a bucket.
  */
 export type BucketObjectInfo = {
@@ -983,9 +990,7 @@ export type MinioInstancesListMinioBucketsData = {
     id: string;
 };
 
-export type MinioInstancesListMinioBucketsResponse = ({
-    [key: string]: unknown;
-});
+export type MinioInstancesListMinioBucketsResponse = (BucketListResponse);
 
 export type MinioInstancesListBucketObjectsData = {
     bucket: string;

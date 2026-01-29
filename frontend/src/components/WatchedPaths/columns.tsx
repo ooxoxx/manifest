@@ -22,7 +22,9 @@ function ActionsCell({ path }: { path: WatchedPathPublic }) {
   const syncMutation = useMutation({
     mutationFn: () => WatchedPathsService.syncWatchedPath({ id: path.id }),
     onSuccess: (data) => {
-      toast.success(`同步完成: 新增 ${data.created} 个样本，跳过 ${data.skipped} 个`)
+      toast.success(
+        `同步完成: 新增 ${data.created} 个样本，跳过 ${data.skipped} 个`,
+      )
       queryClient.invalidateQueries({ queryKey: ["watched-paths"] })
     },
     onError: (error: Error) => {
@@ -90,9 +92,7 @@ export const columns: ColumnDef<WatchedPathPublic>[] = [
     accessorKey: "description",
     header: "描述",
     cell: ({ row }) => (
-      <span className="text-sm">
-        {row.original.description || "-"}
-      </span>
+      <span className="text-sm">{row.original.description || "-"}</span>
     ),
   },
   {

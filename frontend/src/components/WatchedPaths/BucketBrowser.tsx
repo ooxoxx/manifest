@@ -100,7 +100,9 @@ function FolderNode({
       {expanded && data && (
         <div>
           {data.folders.map((folderPath) => {
-            const folderName = folderPath.slice(prefix.length).replace(/\/$/, "")
+            const folderName = folderPath
+              .slice(prefix.length)
+              .replace(/\/$/, "")
             return (
               <FolderNode
                 key={folderPath}
@@ -306,11 +308,7 @@ export function BucketBrowser({
             ? `${currentBucket}/${currentPrefix}`
             : "请选择 bucket"}
         </span>
-        <Button
-          size="sm"
-          onClick={handleConfirm}
-          disabled={!currentBucket}
-        >
+        <Button size="sm" onClick={handleConfirm} disabled={!currentBucket}>
           确认选择
         </Button>
       </div>

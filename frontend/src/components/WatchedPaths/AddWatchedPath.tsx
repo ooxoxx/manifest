@@ -5,11 +5,10 @@ import { useState } from "react"
 import { toast } from "sonner"
 
 import {
+  type MinIOInstancePublic,
   MinioInstancesService,
   WatchedPathsService,
-  type MinIOInstancePublic,
 } from "@/client"
-import { BucketBrowser } from "@/components/WatchedPaths/BucketBrowser"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -27,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { BucketBrowser } from "@/components/WatchedPaths/BucketBrowser"
 import { cn } from "@/lib/utils"
 
 interface AddWatchedPathProps {
@@ -131,11 +131,7 @@ export function AddWatchedPath({ open, onOpenChange }: AddWatchedPathProps) {
                     : "bg-muted text-muted-foreground",
                 )}
               >
-                {step > s.number ? (
-                  <Check className="h-4 w-4" />
-                ) : (
-                  s.number
-                )}
+                {step > s.number ? <Check className="h-4 w-4" /> : s.number}
               </div>
               <span
                 className={cn(
@@ -277,10 +273,7 @@ export function AddWatchedPath({ open, onOpenChange }: AddWatchedPathProps) {
               <ChevronRight className="ml-2 h-4 w-4" />
             </Button>
           ) : (
-            <Button
-              onClick={handleCreate}
-              disabled={createMutation.isPending}
-            >
+            <Button onClick={handleCreate} disabled={createMutation.isPending}>
               {createMutation.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -26,6 +26,7 @@ import { Route as LayoutAdminRouteImport } from './routes/_layout/admin'
 import { Route as LayoutSettingsIndexRouteImport } from './routes/_layout/settings/index'
 import { Route as LayoutSamplesIndexRouteImport } from './routes/_layout/samples/index'
 import { Route as LayoutDatasetsIndexRouteImport } from './routes/_layout/datasets/index'
+import { Route as LayoutSettingsWatchedPathsRouteImport } from './routes/_layout/settings/watched-paths'
 import { Route as LayoutSettingsUsersRouteImport } from './routes/_layout/settings/users'
 import { Route as LayoutSettingsTagsRouteImport } from './routes/_layout/settings/tags'
 import { Route as LayoutSettingsMinioRouteImport } from './routes/_layout/settings/minio'
@@ -121,6 +122,12 @@ const LayoutDatasetsIndexRoute = LayoutDatasetsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => LayoutDatasetsRoute,
 } as any)
+const LayoutSettingsWatchedPathsRoute =
+  LayoutSettingsWatchedPathsRouteImport.update({
+    id: '/watched-paths',
+    path: '/watched-paths',
+    getParentRoute: () => LayoutSettingsRoute,
+  } as any)
 const LayoutSettingsUsersRoute = LayoutSettingsUsersRouteImport.update({
   id: '/users',
   path: '/users',
@@ -196,6 +203,7 @@ export interface FileRoutesByFullPath {
   '/settings/minio': typeof LayoutSettingsMinioRoute
   '/settings/tags': typeof LayoutSettingsTagsRoute
   '/settings/users': typeof LayoutSettingsUsersRoute
+  '/settings/watched-paths': typeof LayoutSettingsWatchedPathsRoute
   '/datasets/': typeof LayoutDatasetsIndexRoute
   '/samples': typeof LayoutSamplesIndexRoute
   '/settings/': typeof LayoutSettingsIndexRoute
@@ -222,6 +230,7 @@ export interface FileRoutesByTo {
   '/settings/minio': typeof LayoutSettingsMinioRoute
   '/settings/tags': typeof LayoutSettingsTagsRoute
   '/settings/users': typeof LayoutSettingsUsersRoute
+  '/settings/watched-paths': typeof LayoutSettingsWatchedPathsRoute
   '/datasets': typeof LayoutDatasetsIndexRoute
   '/samples': typeof LayoutSamplesIndexRoute
   '/settings': typeof LayoutSettingsIndexRoute
@@ -252,6 +261,7 @@ export interface FileRoutesById {
   '/_layout/settings/minio': typeof LayoutSettingsMinioRoute
   '/_layout/settings/tags': typeof LayoutSettingsTagsRoute
   '/_layout/settings/users': typeof LayoutSettingsUsersRoute
+  '/_layout/settings/watched-paths': typeof LayoutSettingsWatchedPathsRoute
   '/_layout/datasets/': typeof LayoutDatasetsIndexRoute
   '/_layout/samples/': typeof LayoutSamplesIndexRoute
   '/_layout/settings/': typeof LayoutSettingsIndexRoute
@@ -282,6 +292,7 @@ export interface FileRouteTypes {
     | '/settings/minio'
     | '/settings/tags'
     | '/settings/users'
+    | '/settings/watched-paths'
     | '/datasets/'
     | '/samples'
     | '/settings/'
@@ -308,6 +319,7 @@ export interface FileRouteTypes {
     | '/settings/minio'
     | '/settings/tags'
     | '/settings/users'
+    | '/settings/watched-paths'
     | '/datasets'
     | '/samples'
     | '/settings'
@@ -337,6 +349,7 @@ export interface FileRouteTypes {
     | '/_layout/settings/minio'
     | '/_layout/settings/tags'
     | '/_layout/settings/users'
+    | '/_layout/settings/watched-paths'
     | '/_layout/datasets/'
     | '/_layout/samples/'
     | '/_layout/settings/'
@@ -476,6 +489,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutDatasetsIndexRouteImport
       parentRoute: typeof LayoutDatasetsRoute
     }
+    '/_layout/settings/watched-paths': {
+      id: '/_layout/settings/watched-paths'
+      path: '/watched-paths'
+      fullPath: '/settings/watched-paths'
+      preLoaderRoute: typeof LayoutSettingsWatchedPathsRouteImport
+      parentRoute: typeof LayoutSettingsRoute
+    }
     '/_layout/settings/users': {
       id: '/_layout/settings/users'
       path: '/users'
@@ -574,6 +594,7 @@ interface LayoutSettingsRouteChildren {
   LayoutSettingsMinioRoute: typeof LayoutSettingsMinioRoute
   LayoutSettingsTagsRoute: typeof LayoutSettingsTagsRoute
   LayoutSettingsUsersRoute: typeof LayoutSettingsUsersRoute
+  LayoutSettingsWatchedPathsRoute: typeof LayoutSettingsWatchedPathsRoute
   LayoutSettingsIndexRoute: typeof LayoutSettingsIndexRoute
   LayoutSettingsTaggingRulesNewRoute: typeof LayoutSettingsTaggingRulesNewRoute
   LayoutSettingsTaggingRulesIndexRoute: typeof LayoutSettingsTaggingRulesIndexRoute
@@ -583,6 +604,7 @@ const LayoutSettingsRouteChildren: LayoutSettingsRouteChildren = {
   LayoutSettingsMinioRoute: LayoutSettingsMinioRoute,
   LayoutSettingsTagsRoute: LayoutSettingsTagsRoute,
   LayoutSettingsUsersRoute: LayoutSettingsUsersRoute,
+  LayoutSettingsWatchedPathsRoute: LayoutSettingsWatchedPathsRoute,
   LayoutSettingsIndexRoute: LayoutSettingsIndexRoute,
   LayoutSettingsTaggingRulesNewRoute: LayoutSettingsTaggingRulesNewRoute,
   LayoutSettingsTaggingRulesIndexRoute: LayoutSettingsTaggingRulesIndexRoute,

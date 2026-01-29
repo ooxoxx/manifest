@@ -621,7 +621,7 @@ export class MinioInstancesService {
      * List buckets in MinIO instance.
      * @param data The data for the request.
      * @param data.id
-     * @returns unknown Successful Response
+     * @returns BucketListResponse Successful Response
      * @throws ApiError
      */
     public static listMinioBuckets(data: MinioInstancesListMinioBucketsData): CancelablePromise<MinioInstancesListMinioBucketsResponse> {

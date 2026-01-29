@@ -6,9 +6,9 @@ import { Suspense, useState } from "react"
 import { WatchedPathsService } from "@/client"
 import { DataTable } from "@/components/Common/DataTable"
 import { PendingComponent } from "@/components/Pending/PendingComponent"
+import { Button } from "@/components/ui/button"
 import { AddWatchedPath } from "@/components/WatchedPaths/AddWatchedPath"
 import { columns } from "@/components/WatchedPaths/columns"
-import { Button } from "@/components/ui/button"
 
 function WatchedPathsTable() {
   const { data } = useSuspenseQuery({
